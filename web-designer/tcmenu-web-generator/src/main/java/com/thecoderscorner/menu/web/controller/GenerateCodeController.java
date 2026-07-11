@@ -89,8 +89,8 @@ public class GenerateCodeController {
     private int maxFileSize = 1048576;
     @Value("${tcmenu.web.generator.maxTotalSize:5242880}")
     private int maxTotalSize = 5242880;
-    @Value("${tcmenu.web.generator.rateLimitMinutes:1}")
-    private int rateLimitMinutes = 1;
+    @Value("${tcmenu.web.generator.rateLimitSeconds:15}")
+    private int rateLimitSeconds = 15;
 
     private Semaphore buildSemaphore;
 
@@ -138,9 +138,9 @@ public class GenerateCodeController {
         long millisStart = System.currentTimeMillis();
         String userIp = servletRequest.getRemoteAddr();
         var lastBuildTime = userRateLimitCache.getIfPresent(userIp);
-        if(lastBuildTime != null && Duration.between(lastBuildTime, LocalDateTime.now()).toMinutes() < rateLimitMinutes) {
+        if(lastBuildTime != null && Duration.between(lastBuildTime, LocalDateTime.now()).toSeconds() < rateLimitSeconds) {
             log.warn("Request rejected: Rate limit exceeded for IP {}", userIp);
-            return GenerationResponse.badResponse(List.of(new LogEntry("Rate limit exceeded, please wait " + rateLimitMinutes + " minute(s) between builds", Level.ERROR)));
+            return GenerationResponse.badResponse(List.of(new LogEntry("Rate limit exceeded, please wait " + rateLimitSeconds + " seconds between builds", Level.ERROR)));
         }
 
         GenerateCodeRequest request;
@@ -212,6 +212,7 @@ public class GenerateCodeController {
         log.info("Generating code for project {} with build UUID of {}", uuid, buildUuid);
 
         var logger = new ControllerFeedbackLogger();
+        logger.banner();
         EmbeddedPlatform platform = menuWithOptions.getOptions().getEmbeddedPlatform();
         var generator = codeGeneratorSupplier.getCodeGeneratorFor(platform, menuWithOptions.getOptions(), logger);
         log.info("Code generator for {} is an instance of {}", platform, generator.getClass().getSimpleName());
@@ -417,6 +418,18 @@ public class GenerateCodeController {
     static class ControllerFeedbackLogger implements UserFeedbackLogger {
         private final List<LogEntry> logEntries = new java.util.ArrayList<>(200);
         private final List<GeneratedFile> filesInOutput = new ArrayList<>();
+
+        @Override
+        public void banner() {
+            info("    _____       __  __                  ");
+            info("   / / / |_ ___|  \\/  | ___ _ __  _   _ ");
+            info("  / / /| __/ __| |\\/| |/ _ \\ '_ \\| | | |");
+            info(" / / / | || (__| |  | |  __/ | | | |_| |");
+            info("/_/_/   \\__\\___|_|  |_|\\___|_| |_|\\__,_|");
+            info("Code generator");
+            info("");
+        }
+
         @Override
         public void debug(String data) {
             logEntries.add(new LogEntry(data, Level.DEBUG));

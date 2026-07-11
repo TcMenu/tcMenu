@@ -340,7 +340,7 @@ function App() {
                     </div>
                     <nav>
                         <ul>
-                            <li><NavLink to="/start-project">Start Project</NavLink></li>
+                            {!project && <li><NavLink to="/start-project">Start Project</NavLink></li>}
                             <li><NavLink to="/menu-edit">Menu Edit</NavLink></li>
                             {project && <li><NavLink to="/generate-code">Generate Code</NavLink></li>}
                             {project && <li><NavLink to="/io-expanders">Io Expanders</NavLink></li>}

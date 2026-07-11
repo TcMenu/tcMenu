@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.generator.logger;
 
 public interface UserFeedbackLogger {
+    void banner();
     void debug(String data);
     void info(String data);
     void warn(String data);

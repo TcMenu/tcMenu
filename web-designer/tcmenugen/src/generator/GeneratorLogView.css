@@ -1,8 +1,9 @@
 .generator-log-container {
     margin-top: 20px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    background-color: #f9f9f9;
+    border: 1px solid #444;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
 }
 
 .generator-log-header {
@@ -46,39 +47,51 @@
     background-color: #218838;
 }
 
-.log-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: monospace;
+.generator-log-terminal {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 14px;
+    padding: 15px;
+    border-radius: 4px;
+    max-height: 500px;
+    overflow-y: auto;
+    line-height: 1.5;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
-.log-table th, .log-table td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+.log-line {
+    display: flex;
+    margin-bottom: 2px;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
-.log-table th {
-    background-color: #e0e0e0;
+.log-level {
+    flex-shrink: 0;
+    width: 60px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.log-message {
+    flex-grow: 1;
 }
 
 .log-level-error {
-    color: #d32f2f;
-    font-weight: bold;
+    color: #f44336;
 }
 
 .log-level-warn {
-    color: #ef6c00;
-    font-weight: bold;
+    color: #ff9800;
 }
 
 .log-level-info {
-    color: #388e3c;
+    color: #4caf50;
 }
 
 .log-level-debug {
-    color: #757575;
+    color: #9e9e9e;
 }
 
 .status-success {

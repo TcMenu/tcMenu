@@ -10,6 +10,12 @@ public class DelegatingUserFeedbackLogger implements UserFeedbackLogger {
     private final UserFeedbackLogger delegate;
 
     @Override
+    public void banner() {
+        log.debug("Presenting banner");
+        delegate.banner();
+    }
+
+    @Override
     public void debug(String data) {
         log.debug(data);
         delegate.debug(data);

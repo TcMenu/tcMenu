@@ -89,7 +89,7 @@ export function ProjectWelcome() {
         <div className="editor-actions">
 
             {isFileSystemAccessSupported() ?
-                <button className="open-dir-button" onClick={handleOpenDirectory}>Open Local Project Directory (legacy mode)</button> :
+                <button className="open-dir-button" onClick={handleOpenDirectory}>Open Local Project Directory (round trip)</button> :
                 <p>Round trip mode needs (Google Chrome or Microsoft Edge).</p>
             }
 
@@ -103,7 +103,7 @@ export function ProjectWelcome() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
             >
-                <p>Drag and drop your <strong>.emf</strong> project file here.</p>
+                <p>Drag and drop your <strong>.emf</strong> project file here (outputs project as zip).</p>
             </div>
         </div>
         

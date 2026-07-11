@@ -11,6 +11,8 @@ export interface CodeGeneratedProperties {
 }
 
 export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, onDismiss, menuProject})  => {
+    const [logLines, setLogLines] = React.useState<LogEntry[]>(response.logLines);
+    const [genStatus, setGenStatus] = React.useState<string>(response.successful ? "SUCCESS" : "FAILED");
     const getLevelClass = (level: string) => {
         switch (level.toUpperCase()) {
             case 'ERROR': return 'log-level-error';
@@ -22,10 +24,16 @@ export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, o
         }
     };
 
+    const onLineLogged = (line: LogEntry) => {
+        setLogLines(prevLines => [...prevLines, line]);
+    };
+
     async function onPatchFiles() {
         try {
-            await filePatcher(response.generatedFiles, menuProject);
-            alert("All files patched successfully!");
+            setGenStatus("PATCHING IN PROGRESS");
+            await filePatcher(response.generatedFiles, menuProject, onLineLogged);
+            onLineLogged({ level: "INFO", log: "All files patched successfully!"});
+            setGenStatus("PATCHED FILES");
         } catch (error) {
             alert("Failed to patch files: " + error);
         }
@@ -33,16 +41,12 @@ export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, o
 
     return (
         <div className="generator-log-container">
-            <h3>We need your feedback on where to take things next!</h3>
-            <p><a href="https://github.com/TcMenu/tcMenu/discussions/572">
-                Share your thoughts on our GitHub web designer discussion
-            </a></p>
             <div className="generator-log-header">
                 <h3>Code Generation Results</h3>
                 <div className="log-header-controls">
                     <p>Build ID: {response.buildId}</p>
                     <p>Status: <span className={response.successful ? "status-success" : "status-fail"}>
-                        {response.successful ? "SUCCESS" : "FAILED"}
+                        {genStatus}
                     </span></p>
                 </div>
                 <div className="log-header-buttons">
@@ -58,22 +62,18 @@ export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, o
                     <button type="button" className="dismiss-button" onClick={onDismiss}>Dismiss</button>
                 </div>
             </div>
-            <table className="log-table">
-                <thead>
-                    <tr>
-                        <th style={{width: "100px"}}>Level</th>
-                        <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {response.logLines && response.logLines.map((entry: LogEntry, index: number) => (
-                        <tr key={index}>
-                            <td className={getLevelClass(entry.level)}>{entry.level}</td>
-                            <td>{entry.log}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="generator-log-terminal">
+                {logLines && logLines.map((entry: LogEntry, index: number) => (
+                    <div key={index} className="log-line">
+                        <span className={`log-level ${getLevelClass(entry.level)}`}>
+                            {entry.level.toUpperCase().padEnd(5)}
+                        </span>
+                        <span className="log-message">{entry.log}</span>
+                    </div>
+                ))}
+            </div>
+            <h4><a href="https://github.com/TcMenu/tcMenu/discussions/572">
+                Please help us improve the web designer by sharing your feedback on GitHub!</a></h4>
         </div>
     );
 }
