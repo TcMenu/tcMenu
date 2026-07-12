@@ -48,6 +48,11 @@ export async function getInternationalization(): Promise<I18nHandler> {
     }
 }
 
+export function closedI18n() {
+    globalI18nHandler = NOT_INITIALIZED_I18N;
+    i18nRehydrationPromise = null;
+}
+
 export function resetI18n() {
     console.log("Remove I18N support for a new project");
     let currentlyOpenProject = getCurrentlyOpenProject();

@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CreatorProperty.PropType.VARIABLE;
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType;
@@ -26,9 +27,9 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         requiredProperties = createRequiredProperties(); 
         var codePlugin = new CodePluginItem();
         codePlugin.setId("4dcb12ec-13d8-4466-b8b6-bd575eae4612");
-        codePlugin.setDescription("AdafruitGFX quick start for color displays: ST77xx and ILI9341");
+        codePlugin.setDescription("AdafruitGFX quick start for color displays: ST77xx/ILI9341/SSD1351");
         codePlugin.setConfig(group.getConfig());
-        codePlugin.setExtendedDescription("Draw menus using AdafruitGFX library using our quick start for ST77xx and ILI9341. This version is a template that creates the display variable and configures it.");
+        codePlugin.setExtendedDescription("Draw menus using AdafruitGFX library using our quick start for SSD1351, ST77xx and ILI9341. This version is a template that creates the display variable and configures it.");
         codePlugin.setThemeDescription(ThemeDescription.colorWithFont(FontMode.ADAFRUIT));
         codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/");
         codePlugin.setJavaImpl(this);
@@ -45,9 +46,10 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
                 separatorProperty("DISPLAY", "Display Information"),
                 new CreatorProperty("DISPLAY_TYPE", "Display Type", "Choose the display type for your display",
                      "Adafruit_ST7735", DISPLAY, VARIABLE, CannedPropertyValidators.choicesValidator(List.of(
-                             new ChoiceDescription("Adafruit_ST7735", "Adafruit ST7735 library"),
-                             new ChoiceDescription("Adafruit_ST7789", "Adafruit ST7789 library"),
-                             new ChoiceDescription("Adafruit_ILI9341", "Adafruit ILI9341 library")
+                             new ChoiceDescription("Adafruit_ST7735", "Adafruit ST7735 TFT library"),
+                             new ChoiceDescription("Adafruit_ST7789", "Adafruit ST7789 TFT library"),
+                             new ChoiceDescription("Adafruit_SSD1351", "Adafruit SSD1351 RGB-OLED library"),
+                             new ChoiceDescription("Adafruit_ILI9341", "Adafruit ILI9341 TFT library")
                         ), "Adafruit_ST7735"), ALWAYS_APPLICABLE),
                 new CreatorProperty("DISPLAY_VARIABLE", "Display Variable Name", "The variable name available in your sketch", "display", DISPLAY, VARIABLE, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE),
                 CreatorProperty.uintProperty("DISPLAY_WIDTH", "Display Width in Pixels", "Display width in pixels", DISPLAY, 320, 8192),
@@ -148,6 +150,7 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         CodeVariable display = switch(displayType) {
             case "Adafruit_ST7735", "Adafruit_ST7789" -> st77xxVariable(displayType);
             case "Adafruit_ILI9341" -> ili9341Variable(displayType);
+            case "Adafruit_SSD1351" -> ssd1351Variable(displayType);
             default -> throw new IllegalStateException("Unexpected value: " + displayType);
         };
         
@@ -161,6 +164,19 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
 
         List<CodeParameter> params = standardSpiConfigurationParams(hwSpi);
 
+        return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
+                VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
+    }
+
+    private CodeVariable ssd1351Variable(String displayType) {
+        boolean hwSpi = findPropOrFail("DISPLAY_DATA_PIN").equals("-1");
+
+        List<CodeParameter> stdParams = standardSpiConfigurationParams(hwSpi);
+        List<CodeParameter> dispSizeParams = List.of(
+                CodeParameter.unNamedValue(findPropOrFail("DISPLAY_WIDTH")),
+                CodeParameter.unNamedValue(findPropOrFail("DISPLAY_HEIGHT"))
+        );
+        var params = Stream.concat(dispSizeParams.stream(), stdParams.stream()).toList();
         return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
                 VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
     }

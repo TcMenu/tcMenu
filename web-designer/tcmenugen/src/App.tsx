@@ -14,7 +14,7 @@ import {IoExpanderComponent} from "./generator/IoExpanderComponent";
 import ReleaseNotes from "./releaseNotes";
 import {get, set} from 'idb-keyval';
 import fontEdIcon from './img/font-editor-example.jpg'
-import {i18nStateHasChanged} from "./generator/I18nImpls";
+import {closedI18n, i18nStateHasChanged, resetI18n} from "./generator/I18nImpls";
 
 const TC_MENU_STORAGE_KEY = "tcMenuTurboProject";
 const TC_MENU_POLICY_KEY = "tcMenuTurboPolicyAccepted";
@@ -114,6 +114,7 @@ export function setCurrentlyOpenProject(proj: MenuTreeWithCodeOptions | null, di
     } else {
         localStorage.removeItem(TC_MENU_STORAGE_KEY);
         globalDirectoryHandle = null;
+        closedI18n();
     }
     projectListeners.forEach(l => l(proj));
 }
