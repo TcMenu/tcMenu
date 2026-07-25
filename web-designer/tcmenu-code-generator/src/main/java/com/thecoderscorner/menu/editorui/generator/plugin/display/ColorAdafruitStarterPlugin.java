@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.plugin.display;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -73,6 +74,8 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
                 CommonDisplayPluginHelper.updatesPerSecond(),
                 CommonDisplayPluginHelper.displayRotation0to3(),
                 CommonDisplayPluginHelper.doubleBufferSize(),
+                CreatorProperty.uintProperty("DISPLAY_SPI_SPEED", "SPI Clock Speed (0 is default)", "Optionally adjust the clock speed of the SPI bus, useful for hardware SPI to boost drawing performance.",
+                        DISPLAY, 0, 1_000_000_000, new MatchesApplicability("DISPLAY_VARIABLE", "Adafruit_ILI9341|Adafruit_SSD1351")),
                 new CreatorProperty("DISPLAY_CUSTOM_SPI_NAME", "Which SPI bus to use", "Choose the SPI class that will be used",
                         "SPI", DISPLAY, VARIABLE, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE)
         );
@@ -104,9 +107,14 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
                     CodeParameter.unNamedValue(findPropOrFail("DISPLAY_HEIGHT"))
             ), ALWAYS_APPLICABLE));
         } else {
-            functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(), ALWAYS_APPLICABLE));
+            if (Integer.parseInt(findPropOrFail("DISPLAY_SPI_SPEED")) > 0) {
+                functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(
+                        CodeParameter.unNamedValue(findPropOrFail("DISPLAY_SPI_SPEED"))
+                ), ALWAYS_APPLICABLE));
+            } else {
+                functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(), ALWAYS_APPLICABLE));
+            }
         }
-
         // configure renderer
         functions.add(new FunctionDefinition("setRotation", "${DISPLAY_VARIABLE}", false, false, List.of(
                 CodeParameter.unNamedValue("${DISPLAY_ROTATION}")), ALWAYS_APPLICABLE));

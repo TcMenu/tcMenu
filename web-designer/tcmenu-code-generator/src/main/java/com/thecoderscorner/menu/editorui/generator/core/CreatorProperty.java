@@ -42,6 +42,10 @@ public class CreatorProperty {
         return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), ALWAYS_APPLICABLE);
     }
 
+    public static CreatorProperty uintProperty(String id, String name, String desc, SubSystem system, int defVal, int max, CodeApplicability applicability) {
+        return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), applicability);
+    }
+
     public static CreatorProperty rgbProperty(String id, String name, String desc, String defVal) {
         return new CreatorProperty(id, name, desc, defVal, SubSystem.THEME, PropType.VARIABLE,
                 CannedPropertyValidators.rgbValidator(), ALWAYS_APPLICABLE);
