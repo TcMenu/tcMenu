@@ -255,7 +255,8 @@ public class GenerateCodeController {
 
             var codeOptions = new CodeGeneratorOptionsBuilder().withExisting(menuWithOptions.getOptions())
                     .withProperties(frontEndProperties).codeOptions();
-            persistor.save(filePath.toString(), menuWithOptions.getDescription(), menuWithOptions.getMenuTree(), codeOptions, localeHandler);
+            var output = persistor.save(filePath.toString(), menuWithOptions.getDescription(), menuWithOptions.getMenuTree(), codeOptions, localeHandler);
+            logger.fileModificiation(new GeneratedFile(filePath.toString(), output, true));
             generator.startConversion(projectPath, plugins, menuWithOptions.getMenuTree(), List.of(),
                     menuWithOptions.getOptions(), localeHandler, combinedSetProperties);
 
@@ -417,7 +418,7 @@ public class GenerateCodeController {
         return list;
     }
 
-    static class ControllerFeedbackLogger implements UserFeedbackLogger {
+    public static class ControllerFeedbackLogger implements UserFeedbackLogger {
         private final List<LogEntry> logEntries = new java.util.ArrayList<>(200);
         private final List<GeneratedFile> filesInOutput = new ArrayList<>();
 

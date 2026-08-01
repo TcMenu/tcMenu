@@ -48,7 +48,7 @@ public interface ProjectPersistor {
      * @param handler  the locale handler to ensure any locale specifics are saved too
      * @throws IOException if there is a problem saving.
      */
-    void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler handler) throws IOException;
+    String save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler handler) throws IOException;
 
     List<PersistedMenu> copyTextToItems(String items);
 

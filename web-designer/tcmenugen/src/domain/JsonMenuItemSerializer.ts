@@ -214,9 +214,6 @@ export class JsonMenuItemSerializer {
                 Object.assign(item, itemObj);
                 (item as ScrollChoiceMenuItem).setNumberOfEntries(itemObj.numEntries ?? 0);
                 (item as ScrollChoiceMenuItem).setFixedItemWidth(itemObj.itemWidth ?? 0);
-                if (itemObj.currentValue) {
-                    item.setCurrentValue(new ScrollChoice(itemObj.currentValue.currentPos, itemObj.currentValue.currentValue));
-                }
                 if(itemObj.choiceMode) {
                     const mode = ScrollChoiceMode[itemObj.choiceMode as keyof typeof ScrollChoiceMode];
                     (item as ScrollChoiceMenuItem).setChoiceMode(mode);

@@ -24,6 +24,11 @@ export function TextItemEditor({ item, onHashChange }: { item: EditableTextMenuI
         onHashChange();
     }
 
+    const valueDidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        item.setCurrentValue(e.target.value);
+        onHashChange();
+    }
+
     return <>
         <div className="form-group">
             <label htmlFor="starter">Choose the editing type</label>
@@ -40,9 +45,12 @@ export function TextItemEditor({ item, onHashChange }: { item: EditableTextMenuI
                     <IntegerEditor id="maxValue" initialValue={item.getTextLength()} onChange={lengthDidChange}
                                    min={1} max={255}/>
                 </div>
-
             </div>
         }
+        <div className="form-group">
+            <label htmlFor="defaultValue">Default Value</label>
+            <input id="defaultValue" type="text" value={item.getCurrentValue()} onChange={valueDidChange}/>
+        </div>
     </>;
 }
 
@@ -87,6 +95,8 @@ export function ScrollChoiceItemEditor({item, onHashChange}: { item: ScrollChoic
         item.setCurrentValue(new ScrollChoice(v, ""));
         onHashChange();
     }
+
+    const currentScrollPos = item.getCurrentValue()?.currentPos ?? 0;
 
     return (
         <>
@@ -142,7 +152,7 @@ export function ScrollChoiceItemEditor({item, onHashChange}: { item: ScrollChoic
             )}
             <div className="form-group">
                 <label htmlFor="defaultValue">Default Value - numeric index</label>
-                <IntegerEditor id="defaultValue" initialValue={0} onChange={onDefValueChange}/>
+                <IntegerEditor id="defaultValue" initialValue={currentScrollPos} onChange={onDefValueChange}/>
             </div>
         </>
     );

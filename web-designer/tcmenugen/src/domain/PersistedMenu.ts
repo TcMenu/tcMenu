@@ -2,9 +2,9 @@ import {
     AnalogMenuItem,
     BooleanMenuItem,
     EditableLargeNumberMenuItem, EditableTextMenuItem,
-    EnumMenuItem, ListCreationMode,
+    EnumMenuItem, FloatMenuItem, ListCreationMode,
     ListMenuItem,
-    MenuItem, Rgb32MenuItem, ScrollChoiceMenuItem,
+    MenuItem, Rgb32MenuItem, ScrollChoice, ScrollChoiceMenuItem,
     SubMenuItem
 } from "./MenuItem";
 import {
@@ -140,11 +140,19 @@ function getProjectFromJson(json: any): PersistedProject {
 }
 
 function applyCurrentValue(item: PersistedMenu, prj: PersistedProject) {
-    if (item.item instanceof EnumMenuItem && item.defaultValue) {
-        const idx = item.item.getItemList().indexOf(item.defaultValue);
-        item.item.setCurrentValue(idx !== -1 ? idx : 0);
-    } else {
-        item.item.setCurrentValue(item.defaultValue);
+    if (item.defaultValue !== undefined && item.defaultValue !== null) {
+        if (item.item instanceof EnumMenuItem) {
+            const idx = item.item.getItemList().indexOf(item.defaultValue);
+            item.item.setCurrentValue(idx !== -1 ? idx : parseInt(item.defaultValue));
+        } else if (item.item instanceof ScrollChoiceMenuItem) {
+            item.item.setCurrentValue(ScrollChoice.fromString(item.defaultValue));
+        } else if (item.item instanceof BooleanMenuItem) {
+            item.item.setCurrentValue(item.defaultValue === "true" || item.defaultValue === "1");
+        } else if (item.item instanceof AnalogMenuItem || item.item instanceof EditableLargeNumberMenuItem || item.item instanceof FloatMenuItem) {
+            item.item.setCurrentValue(parseFloat(item.defaultValue));
+        } else {
+            item.item.setCurrentValue(item.defaultValue);
+        }
     }
 
     if (item.item instanceof ListMenuItem && item.item.getListCreationMode() === ListCreationMode.FLASH_ARRAY && prj.stringLists) {
@@ -166,7 +174,7 @@ export function parseEmfJsonToProject(jsonData: string, mode?: RoundTripMode) : 
 
     for(let item of prj.items) {
         tree.addMenuItem(item.parentId, item.item);
-        if (item.defaultValue && checkItemValueCanPersist(item.item)) {
+        if (item.defaultValue) {
             applyCurrentValue(item, prj);
         }
     }

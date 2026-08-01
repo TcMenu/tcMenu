@@ -412,7 +412,7 @@ export class ScrollChoice {
     }
 
     static fromString(val: string): ScrollChoice {
-        let data = val?.split(":");
+        let data = val?.split("-");
         if(data?.length === 2) {
             return new ScrollChoice(parseInt(data[0]), data[1]);
         } else {

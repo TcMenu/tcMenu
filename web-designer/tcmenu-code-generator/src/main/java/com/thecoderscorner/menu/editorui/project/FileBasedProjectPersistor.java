@@ -109,7 +109,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler localeHandler) throws IOException {
+    public String save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler localeHandler) throws IOException {
         logger.log(INFO, "Save file starting for: " + fileName);
 
         // make sure we save out any in flight changes to internationalisation files.
@@ -127,6 +127,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         var s = serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0])));
         Path filePath = Paths.get(fileName);
         Files.writeString(filePath, s);
+        return s;
     }
 
     @Override
