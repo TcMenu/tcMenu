@@ -98,12 +98,13 @@ public class GenerateCodeControllerTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(6, response.getGeneratedFiles().size());
+        assertEquals(7, response.getGeneratedFiles().size());
         assertTrue(response.getFileByName("TestApp.ino").getContent().contains("setupMenu();"));
         assertTrue(response.getFileByName("TestApp.ino").getContent().contains("taskManager.runLoop();"));
 
         assertTrue(response.getFileByName("TestApp_menu.h").getContent().contains("#ifndef MENU_GENERATED_CODE_H"));
         assertTrue(response.getFileByName("TestApp_menu.h").getContent().contains("extern GraphicsDeviceRenderer renderer;"));
+        assertTrue(response.getFileByName("TestApp.emf").getContent().contains("items"));
         assertThat(response.getLogLines()).isNotEmpty();
         assertTrue(response.isSuccessful());
     }
