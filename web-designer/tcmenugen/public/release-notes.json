@@ -2,7 +2,7 @@
   {
     "release": "4.5.9",
     "qaStatus": "Production",
-    "dateReleased": "2026-05-18",
+    "dateReleased": "2026-08-01",
     "notes": [
       "Round trip mode is now supported, IE you can fully open a menu project in the browser",
       "Fixed many small bugs and issues",
