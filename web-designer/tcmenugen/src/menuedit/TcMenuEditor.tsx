@@ -530,7 +530,7 @@ export function ItemEditor({ item, project }: { item: MenuItem<any> | null, proj
             )}
 
             <div className="form-group">
-                {!canHaveEeprom(item.messageType) ? <div>Can't save {item.messageType} items</div> : isDynamicEeprom ? (
+                {!canHaveEeprom(item.messageType) ? <></> : isDynamicEeprom ? (
                         <>
                             <label htmlFor="eepromLoc">Should save to EEPROM</label>
                             <select id="eepromLoc" value={item.getEEPROMLocation()} onChange={onEepromChange}>

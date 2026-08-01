@@ -254,7 +254,7 @@ export class BooleanMenuItem extends MenuItem<boolean> {
 
 export class FloatMenuItem extends MenuItem<number> {
     messageType: string = 'Float';
-    private decimalPlaces: number = 1;
+    private numDecimalPlaces: number = 1;
 
     public constructor(id: string) {
         super(0.0);
@@ -262,11 +262,11 @@ export class FloatMenuItem extends MenuItem<number> {
     }
 
     public getDecimalPlaces(): number {
-        return this.decimalPlaces;
+        return this.numDecimalPlaces;
     }
 
     public setDecimalPlaces(decPlaces: number) {
-        this.decimalPlaces = decPlaces;
+        this.numDecimalPlaces = decPlaces;
         this.markChanged();
     }
 }

@@ -68,6 +68,8 @@ public class GenerateCodeController {
             # See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/multi-language-locale-menu/
             # key1 = value1
             """;
+    private static final int MAX_ALLOWED_DESC = 512;
+    private static final int MAX_ALLOWED_NAME = 128;
     private final Cache<String, CodeBuildInfo> codeBuildCache = Caffeine.newBuilder()
             .maximumSize(128)
             .expireAfterWrite(Duration.ofMinutes(15))
@@ -116,18 +118,18 @@ public class GenerateCodeController {
         if (request.getProject() == null) throw new IllegalArgumentException("Project is missing");
         var project = request.getProject();
         if (ObjectUtils.isEmpty(project.getProjectName())) throw new IllegalArgumentException("Project name is missing");
-        if (project.getProjectName().length() > 100) throw new IllegalArgumentException("Project name too long");
+        if (project.getProjectName().length() > MAX_ALLOWED_DESC) throw new IllegalArgumentException("Project name too long");
         if (project.getCodeOptions() == null) throw new IllegalArgumentException("Code options are missing");
         var options = project.getCodeOptions();
         if (options.getApplicationUUID() == null) throw new IllegalArgumentException("Application UUID is missing");
         if (ObjectUtils.isEmpty(options.getApplicationName())) throw new IllegalArgumentException("Application name is missing");
-        if (options.getApplicationName().length() > 100) throw new IllegalArgumentException("Application name too long");
+        if (options.getApplicationName().length() > MAX_ALLOWED_NAME) throw new IllegalArgumentException("Application name too long");
         if (options.getEmbeddedPlatform() == null) throw new IllegalArgumentException("Embedded platform is missing");
 
         if (request.getRequiredFiles() != null) {
             for (var file : request.getRequiredFiles()) {
                 if (ObjectUtils.isEmpty(file.getFileName())) throw new IllegalArgumentException("File name is missing");
-                if (file.getFileName().length() > 255) throw new IllegalArgumentException("File name too long");
+                if (file.getFileName().length() > MAX_ALLOWED_NAME) throw new IllegalArgumentException("File name too long");
             }
         }
     }
