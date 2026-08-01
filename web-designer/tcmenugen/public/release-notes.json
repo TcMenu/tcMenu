@@ -4,7 +4,10 @@
     "qaStatus": "Production",
     "dateReleased": "2026-05-18",
     "notes": [
-
+      "Round trip mode is now supported, IE you can fully open a menu project in the browser",
+      "Fixed many small bugs and issues",
+      "Fixed an issue that led to incorrect default values and incorrect decimal places on float items",
+      "Internationalization support reinstated for round trip mode in the browser"
     ]
   }, {
     "release": "4.5.8",
