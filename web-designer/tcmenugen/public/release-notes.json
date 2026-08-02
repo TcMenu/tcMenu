@@ -1,5 +1,12 @@
 [
   {
+    "release": "4.5.10",
+    "qaStatus": "Production",
+    "dateReleased": "2026-08-02",
+    "notes": [
+      "No changes as yet"
+    ]
+  }, {
     "release": "4.5.9",
     "qaStatus": "Production",
     "dateReleased": "2026-08-01",

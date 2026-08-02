@@ -45,7 +45,7 @@ Ensure you are in the `font-bmp-editor/target` directory.
     cp classes/img/tcMenuDesigner.ico .
 
     jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \ 
-    --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 4.5.9 --verbose \
+    --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 4.5.10 --verbose \
     --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/win' \
     --add-modules "jdk.crypto.cryptoki" \
     -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
@@ -56,7 +56,7 @@ Ensure you are in the `font-bmp-editor/target` directory.
 Ensure you are in the `font-bmp-editor/target` directory.
 
     jpackage  -n BitMapEdit -p jfx/deps --input jfx/app  --icon ./classes/img/AppIcon.icns \
-    --app-version 4.5.9 --verbose \
+    --app-version 4.5.10 --verbose \
     --java-options '-Djava.library.path=$APPDIR/mac -Dprism.lcdtext=false' \
     --add-modules "jdk.crypto.cryptoki" \
     -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp

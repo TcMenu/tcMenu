@@ -6,7 +6,7 @@
 
     <groupId>com.thecoderscorner.tcmenu</groupId>
     <artifactId>tcmenu-aggregator</artifactId>
-    <version>4.5.9</version>
+    <version>4.5.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>tcmenu-ide-project-root</name>
