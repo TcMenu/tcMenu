@@ -92,6 +92,12 @@ But in summary, tcMenu continues to be fully open source under Apache 2.0. The n
 
 The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer components.
 
+## I18N multi-language menus in initializer mode
+
+In initializer mode multi-lanaguage menus are still workable using the same resource bundle arrangements discussed in tis link: https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/multi-language-locale-menu/
+
+The python script is here [tcmenu-i18n.py](zMedia/tcmenu-i18n.py)
+
 ## Loading and saving menu items
 
 tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM.
