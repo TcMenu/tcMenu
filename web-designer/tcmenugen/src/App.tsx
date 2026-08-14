@@ -39,6 +39,61 @@ export async function waitForDirectoryHandle(): Promise<FileSystemDirectoryHandl
     return null;
 }
 
+/**
+ * Re-establish the directory mapping, including after the browser has discarded
+ * the in-memory handle or permission has expired.
+ */
+export async function ensureDirectoryHandle(proj: MenuTreeWithCodeOptions,
+                                             allowDirectoryPicker = false): Promise<FileSystemDirectoryHandle | null> {
+    const checkPermission = async (handle: FileSystemDirectoryHandle) => {
+        const permissionHandle = handle as any;
+        try {
+            let permission = await permissionHandle.queryPermission({mode: 'readwrite'});
+            if (permission !== 'granted') {
+                permission = await permissionHandle.requestPermission({mode: 'readwrite'});
+            }
+            return permission === 'granted' ? handle : null;
+        } catch (e) {
+            console.warn('Unable to restore project directory permission', e);
+            return null;
+        }
+    };
+
+    if (globalDirectoryHandle) {
+        const handle = await checkPermission(globalDirectoryHandle);
+        if (handle) return handle;
+        globalDirectoryHandle = null;
+    }
+
+    const pendingHandle = await waitForDirectoryHandle();
+    if (pendingHandle) {
+        const handle = await checkPermission(pendingHandle);
+        if (handle) {
+            globalDirectoryHandle = handle;
+            return handle;
+        }
+    }
+
+    const savedHandle = await get('last_project_dir');
+    if (savedHandle) {
+        const handle = await checkPermission(savedHandle);
+        if (handle) {
+            globalDirectoryHandle = handle;
+            set('last_project_dir', handle).catch(() => undefined);
+            i18nStateHasChanged();
+            return handle;
+        }
+    }
+
+    if (allowDirectoryPicker && 'showDirectoryPicker' in window) {
+        // @ts-ignore - showDirectoryPicker is not present in all TS DOM libraries.
+        const selected = await window.showDirectoryPicker({mode: 'readwrite'});
+        setCurrentlyOpenProject(proj, selected);
+        return selected;
+    }
+    return null;
+}
+
 
 export const findFileWithExtension = async (directoryHandle: any, ext1: string, ext2: string = ".undef"): Promise<any | null> => {
     for await (const entry of directoryHandle.values()) {
@@ -295,6 +350,22 @@ export const MainRoutes = () => {
             <Route path="/generate-code" element={<GenerateCodeView />} />
             <Route path="/io-expanders" element={<IoExpanderComponent />} />
             <Route path="/release-notes" element={<ReleaseNotes />} />
+            <Route path="/online-help" element={<div>
+                <h1>Online help and resources</h1>
+                <p>Thanks for choosing TcMenu, hopefully we'll have you up and running quickly! The usual places to start are listed below</p>
+                <ul>
+                    <li><a href="https://www.thecoderscorner.com/products/apps/tcmenu-designer/getting-started-with-tcmenu-turbo/">The quick start guide</a></li>
+                    <li><a href="https://www.thecoderscorner.com/products/apps/tcmenu-designer/menu-designer-as-initializer/">Initializer menu project guide</a></li>
+                    <li><a href="https://www.thecoderscorner.com/products/apps/tcmenu-designer/menu-designer-round-trip/">Round-trip menu project guide</a></li>
+                    <li><a href="https://github.com/TcMenu/tcMenu/discussions">TcMenu Discussions forum</a></li>
+                </ul>
+                <p>These links are to deeper, more detailed information</p>
+                <ul>
+                    <li><a href="https://github.com/TcMenu">The main tcMenu organisation repo</a></li>
+                    <li><a href="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/">TcMenu Library documentation</a></li>
+                    <li><a href="https://www.thecoderscorner.com/products/arduino-libraries/">All our libraries compatibility and support</a></li>
+                </ul>
+            </div>} />
             <Route path="/bitmap-generator" element={<div>
                 <h1>Font and Bitmap Editor</h1>
                 <p>You can edit fonts, title widgets and bitmaps using the new Font Bmp Editor application.</p>
@@ -346,6 +417,7 @@ function App() {
                             {project && <li><NavLink to="/generate-code">Generate Code</NavLink></li>}
                             {project && <li><NavLink to="/io-expanders">Io Expanders</NavLink></li>}
                             <li><NavLink to="/bitmap-generator">Font Bmp Editor</NavLink></li>
+                            <li><NavLink to="/online-help">Help</NavLink></li>
                         </ul>
                     </nav>
                 </div>

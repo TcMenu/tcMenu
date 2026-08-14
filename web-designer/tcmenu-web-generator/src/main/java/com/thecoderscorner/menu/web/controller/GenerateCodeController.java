@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.ThemeDescription;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
+import com.thecoderscorner.menu.editorui.project.PersistedProject;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
@@ -111,6 +112,34 @@ public class GenerateCodeController {
 
     public GenerateCodeRequest processGenerateCodeRequest(String requestData) {
         return serializer.getGson().fromJson(requestData, GenerateCodeRequest.class);
+    }
+
+    /**
+     * Re-serialise a browser project with the same persistor used by the Java
+     * desktop application. This endpoint is deliberately separate from code
+     * generation so a project can be saved at any point while editing.
+     */
+    @PostMapping(path = "/emf", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> saveEmfProject(@RequestBody String requestData) throws IOException {
+        var request = serializer.getGson().fromJson(requestData, com.google.gson.JsonObject.class);
+        if (request == null || !request.has("project")) {
+            return ResponseEntity.badRequest().body("Project is missing");
+        }
+
+        PersistedProject persisted = serializer.getGson().fromJson(request.get("project"), PersistedProject.class);
+        if (persisted == null || persisted.getCodeOptions() == null) {
+            return ResponseEntity.badRequest().body("Project options are missing");
+        }
+
+        Path temporaryFile = Files.createTempFile("tcmenu-emf-", ".emf");
+        try {
+            var menuProject = persistor.getMenuTreeWithCodeOptions(persisted);
+            persistor.save(temporaryFile.toString(), menuProject.getDescription(), menuProject.getMenuTree(),
+                    menuProject.getOptions(), LocaleMappingHandler.NOOP_IMPLEMENTATION);
+            return ResponseEntity.ok(Files.readString(temporaryFile));
+        } finally {
+            Files.deleteIfExists(temporaryFile);
+        }
     }
 
     private void validateRequest(GenerateCodeRequest request) {

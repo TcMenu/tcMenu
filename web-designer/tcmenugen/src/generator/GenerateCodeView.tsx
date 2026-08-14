@@ -1,4 +1,4 @@
-import {findFileWithExtension, getDirectoryHandle, useCurrentlyOpenProject} from "../App";
+import {ensureDirectoryHandle, findFileWithExtension, useCurrentlyOpenProject} from "../App";
 import React, {useEffect, useState} from "react";
 import {ALL_PLATFORMS} from "../domain/Platforms";
 import {AuthenticationDefinition, EepromDefinition} from "./EepromAndAuthSupport";
@@ -16,6 +16,7 @@ import {
     NO_REMOTE_ID,
     PublishableCodePluginItem,
     runGenerateCode,
+    saveProjectAsEmf,
     searchPlugins,
     ThemeMode,
     userNeedsChooseDisplay,
@@ -321,14 +322,13 @@ export function GenerateCodeView() {
         setHash(h => h + 1);
     }
 
-    async function requiredFilesForBuild(): Promise<GeneratedFile[]> {
+    async function requiredFilesForBuild(dir: FileSystemDirectoryHandle | null): Promise<GeneratedFile[]> {
         if(!project) return [];
 
         let ret = Array<GeneratedFile>();
 
         if(project.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER) {
-            const dir = getDirectoryHandle();
-            if(dir == null) throw new Error("No directory handle");
+            if(dir == null) throw new Error("The local directory linkage is not established");
             const inoFile = await findFileWithExtension(dir, '.ino', '_main.cpp');
             if(inoFile !== null) {
                 const inoActFile = await inoFile.getFile();
@@ -381,21 +381,64 @@ export function GenerateCodeView() {
         setLoading(true);
 
         if(!project) return;
-
-        const possibleDir = getDirectoryHandle()?.name ?? null;
-        runGenerateCode(project, await requiredFilesForBuild(), possibleDir).then(response => {
+        try {
+            const dir = project.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER
+                ? await ensureDirectoryHandle(project, true)
+                : null;
+            const possibleDir = dir?.name ?? null;
+            const files = await requiredFilesForBuild(dir);
+            const response = await runGenerateCode(project, files, possibleDir);
             console.log("Success:", response.successful);
             console.log("Generated files:", response.generatedFiles ? response.generatedFiles.length : 0);
             setGenerationResponse(response);
-        }).catch(err => {
-            console.error("Generation failed", err);
+
+        } catch(err) {
             setGenerationResponse({
                 successful: false,
                 buildId: "N/A",
-                logLines: [{log: "Failed to communicate with generator: " + err.message, level: "ERROR"}],
+                logLines: [{log: "Code generation failed: " + err, level: "ERROR"}],
                 generatedFiles: []
             });
-        }).finally(() => setLoading(false));
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function onSaveEmf() {
+        if (!project) return;
+        setLoading(true);
+        try {
+            let targetDirectory = project.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER
+                ? await ensureDirectoryHandle(project, true)
+                : null;
+            const emf = await saveProjectAsEmf(project);
+
+            if (targetDirectory) {
+                const existing = await findFileWithExtension(targetDirectory, '.emf');
+                const safeProjectName = (project.options.applicationName || 'tcMenuProject')
+                    .replace(/[\\/:*?"<>|]/g, '_').trim() || 'tcMenuProject';
+                const fileName = existing?.name || `${safeProjectName}.emf`;
+                const file = await targetDirectory.getFileHandle(fileName, {create: true});
+                const writable = await (file as any).createWritable();
+                await writable.write(emf);
+                await writable.close();
+            } else {
+                const blob = new Blob([emf], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                const safeProjectName = (project.options.applicationName || 'tcMenuProject')
+                    .replace(/[\\/:*?"<>|]/g, '_').trim() || 'tcMenuProject';
+                anchor.download = `${safeProjectName}.emf`;
+                anchor.click();
+                URL.revokeObjectURL(url);
+            }
+            alert('EMF project saved successfully.');
+        } catch (err) {
+            alert(`Could not save EMF project: ${err}`);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const ALL_FONTS = [ FontMode.DEFAULT_FONT, FontMode.ADAFRUIT, FontMode.ADAFRUIT_LOCAL,
@@ -536,6 +579,13 @@ export function GenerateCodeView() {
             }
             <div style={{marginTop: "20px"}}>
                 <button type="button" className="generate-button" onClick={onCodeGenerate}>Generate Code</button>
+                <button type="button" className="secondary-button" style={{marginLeft: "10px"}}
+                        onClick={onSaveEmf} disabled={loading}>Save EMF externally</button>
+                {project.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER &&
+                    <button type="button" className="secondary-button" style={{marginLeft: "10px"}}
+                            onClick={() => ensureDirectoryHandle(project, true)} disabled={loading}>
+                        Reconnect project directory
+                    </button>}
             </div>
         </div>
     );

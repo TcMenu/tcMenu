@@ -165,6 +165,20 @@ export async function runGenerateCode(request: MenuTreeWithCodeOptions,
     return await req.json() as GenerationResponse;
 }
 
+/** Serialize through the Java persistor so the downloaded file uses the
+ * canonical desktop EMF representation. */
+export async function saveProjectAsEmf(project: MenuTreeWithCodeOptions): Promise<string> {
+    const req = await fetch("/api/v1/generator/generate/emf", {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "Accept": "application/json"},
+        body: JSON.stringify({project: projectToPersistedJson(project)})
+    });
+    if (!req.ok) {
+        throw new Error(`Unable to save EMF project, status was ${req.status}`);
+    }
+    return await req.text();
+}
+
 export async function getPluginsByIds(ids: string[]): Promise<Array<PublishableCodePluginItem>> {
     let req = await fetch("/api/v1/generator/plugins/byIdList", {
         method: "POST", body: JSON.stringify(ids), headers: {"Content-Type": "application/json", "Accept": "application/json"}});

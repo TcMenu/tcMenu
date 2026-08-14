@@ -2,9 +2,10 @@
   {
     "release": "4.5.10",
     "qaStatus": "Production",
-    "dateReleased": "2026-08-02",
+    "dateReleased": "2026-08-14",
     "notes": [
-      "No changes as yet"
+      "Produced a simple help page that links to the most important resources",
+      "When browser file API loses the authorisation, make sure there's always an error and at least a way to download the EMF file"
     ]
   }, {
     "release": "4.5.9",
