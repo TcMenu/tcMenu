@@ -135,7 +135,7 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         var replacements = List.of(
                 new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", Boolean.toString(false), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(false), ALWAYS_APPLICABLE),
-                new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
+                new CodeReplacement("__TEXT_HANDLING_CODE__", getDefaultTextFunctions(true), ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", "", ALWAYS_APPLICABLE),
                 new CodeReplacement("__ACTUAL_GENERATED_HDR__", headerName, ALWAYS_APPLICABLE),
                 new CodeReplacement("__EXTRA_TYPE_DEFS_NEEDED__", "", ALWAYS_APPLICABLE),

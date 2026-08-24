@@ -88,11 +88,19 @@ public abstract class CommonAdafruitDisplayPlugin extends BaseJavaPluginItem {
                 }
             """;
 
+    protected String getDefaultTextFunctions(boolean needUnicodeCreator) {
+        if(!needUnicodeCreator) {
+            return DEFAULT_TEXT_FUNCTIONS;
+        } else {
+            return DEFAULT_TEXT_FUNCTIONS + DEFAULT_UNICODE_CREATOR;
+        }
+    }
+
     /**
      * These methods are used by all Adafruit GFX based plugins, so rather than repeat any
      * code, it is declared once here.
      */
-    protected final static  String DEFAULT_TEXT_FUNCTIONS = """
+    private final static  String DEFAULT_TEXT_FUNCTIONS = """
             
             void AdafruitDrawable::internalDrawText(const Coord &where, const void *font, int mag, const char *sz) {
                 graphics->setTextWrap(false);
@@ -151,9 +159,11 @@ public abstract class CommonAdafruitDisplayPlugin extends BaseJavaPluginItem {
                 computedHeight = height;
             }
             
-            UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
-                return new UnicodeFontHandler(newAdafruitTextPipeline(graphics), ENCMODE_UTF8);
-            }
-            
+            """;
+            public static final String DEFAULT_UNICODE_CREATOR = """
+                    UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
+                        return new UnicodeFontHandler(newAdafruitTextPipeline(graphics), ENCMODE_UTF8);
+                    }
+
             """;
 }

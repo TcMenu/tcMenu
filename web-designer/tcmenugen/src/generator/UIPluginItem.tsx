@@ -176,7 +176,7 @@ const UIPluginItem: React.FC<UIPluginItemProps> = ({ subsystem, boardId, plugin,
                     </div>
                 );
             case PropertyValidationMode.VARIABLE:
-                const isVarValid = prop.latestValue === "" || /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(prop.latestValue);
+                const isVarValid = prop.latestValue === "" || /^[a-zA-Z_][a-zA-Z0-9_]|0x[0-9A-Fa-f]+$/.test(prop.latestValue);
                 return (
                     <input
                         type="text"

@@ -12,6 +12,8 @@ import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import java.util.List;
 import java.util.Objects;
 
+import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.ALWAYS_APPLICABLE;
+
 public class FunctionDefinition {
     private final String functionName;
     private final String objectName;
@@ -28,6 +30,10 @@ public class FunctionDefinition {
         this.parameters = parameters;
         this.applicability = applicability;
         this.infiniteLoop = infiniteLoop;
+    }
+
+    public static FunctionDefinition ofRegCpp(String fn, String obj, List<CodeParameter> params) {
+        return new FunctionDefinition(fn, obj, false, false, params, ALWAYS_APPLICABLE);
     }
 
     @Override

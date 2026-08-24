@@ -37,8 +37,8 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="${ITEM_FONT}" export="font" whenProperty="ITEM_FONT" matches="ad[al]:.*" />
-        <Variable name="${TITLE_FONT}" export="font" whenProperty="ITEM_FONT" matches="ad[al]:.*" />
+        <Variable name="${ITEM_FONT}" export="font" whenProperty="ITEM_FONT" matches="(ad[al]|tc[al]):.*" />
+        <Variable name="${TITLE_FONT}" export="font" whenProperty="ITEM_FONT" matches="(ad[al]|tc[al]):.*" />
     </GlobalVariables>
 
     <SetupFunctions>

@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginGroup;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.input.BspStmTouchControllerPlugin;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.ArrayList;
@@ -22,7 +23,10 @@ public class InbuiltDisplayInputPlugins implements JavaPluginGroup {
         addPlugin(new GxEPD2SimplePluginImpl(this, manager));
         addPlugin(new DfRobotDisplayPluginImpl(this, manager));
         addPlugin(new ColorAdafruitStarterPlugin(this, manager));
+        addPlugin(new AdafruitFrameBufferPlugin(this, manager));
         addPlugin(new MonoAdafruitStarterPlugin(this, manager));
+
+        addPlugin(new BspStmTouchControllerPlugin(this, manager));
     }
 
     public void addPlugin(JavaPluginItem plugin) {

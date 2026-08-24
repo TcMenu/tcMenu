@@ -15,9 +15,9 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.*;
 
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_MIN;
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_NORMAL;
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.ADAFRUIT;
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.ADAFRUIT_LOCAL;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.*;
 
 public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
     public final static FontDefinition defaultForTcUnicode = new FontDefinition(ADAFRUIT, "OpenSansRegular7pt", 0);
@@ -50,7 +50,10 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
         return List.of(
                 separatorProperty("FONT", "Font Settings"),
                 fontProperty("THEME_ITEM_FONT", "Font for menu items", "The default Font that menu items draw with", "def:,1"),
-                fontProperty("THEME_TITLE_FONT", "Font for titles", "The Font that will be used to draw titles", "def:,1")
+                fontProperty("THEME_TITLE_FONT", "Font for titles", "The Font that will be used to draw titles", "def:,1"),
+                new CreatorProperty("USE_TC_UNICODE", "Use TcUnicode/UTF-8 for text", "Use TcUnicode for font drawing. Features UTF-8 fonts with font editor", "false",
+                        SubSystem.THEME, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.boolValidator(), ALWAYS_APPLICABLE)
+
         );
 
     }
@@ -68,9 +71,10 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
         var fdOpt = getFontDefinition(propName);
         if(fdOpt.isEmpty()) return "";
         var fd = fdOpt.get();
-        if(fd.fontMode() == ADAFRUIT || fd.fontMode() == ADAFRUIT_LOCAL) {
-            var start = fd.fontMode() == ADAFRUIT ? "<" : "\"";
-            var end = fd.fontMode() == ADAFRUIT ? ">" : "\"";
+        if(fd.fontMode() == ADAFRUIT || fd.fontMode() == ADAFRUIT_LOCAL || fd.fontMode() == TCUNICODE || fd.fontMode() == TCUNICODE_LOCAL) {
+            boolean global = fd.fontMode() == ADAFRUIT || fd.fontMode() == TCUNICODE;
+            var start = global ? "<" : "\"";
+            var end = global ? ">" : "\"";
             return "#include %sFonts/%s.h%s".formatted(start, fd.fontName(), end) + System.lineSeparator();
         }
         else {
@@ -112,9 +116,7 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                         new ChoiceDescription("TITLE_FIRST_ROW", "Title on first row (scrolls with menu)"),
                         new ChoiceDescription("TITLE_ALWAYS", "Title always at top")
                         ), "TITLE_ALWAYS"),
-                        ALWAYS_APPLICABLE),
-                new CreatorProperty("USE_TC_UNICODE", "Use TcUnicode/UTF-8 for text", "Use TcUnicode for font drawing. Features UTF-8 fonts with font editor", "false",
-                        SubSystem.THEME, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.boolValidator(), ALWAYS_APPLICABLE)
+                        ALWAYS_APPLICABLE)
         );
     }
 
@@ -163,22 +165,10 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
     }
 
     @Override
-    public List<HeaderDefinition> getHeaderDefinitions() {
-        return List.of(
-                new HeaderDefinition("${SRC_DIR_OFFSET}einkThemeBuilderBlock.h", HeaderDefinition.HeaderType.CPP_SRC_FILE, PRIORITY_NORMAL, ALWAYS_APPLICABLE),
-                new HeaderDefinition("tcUnicodeHelper.h", HeaderDefinition.HeaderType.GLOBAL, PRIORITY_NORMAL, new EqualityApplicability("USE_TC_UNICODE", "true", false)),
-                new HeaderDefinition("${ITEM_FONT}", HeaderDefinition.HeaderType.FONT, PRIORITY_NORMAL, ALWAYS_APPLICABLE),
-                new HeaderDefinition("${TITLE_FONT}", HeaderDefinition.HeaderType.FONT, PRIORITY_NORMAL, ALWAYS_APPLICABLE)
-        );
-    }
-
-    @Override
     public List<CodeVariable> getVariables() {
         return List.of(
-                new CodeVariable("${ITEM_FONT}", "const GFXfont*", VariableDefinitionMode.FONT_EXPORT, false, false, false, List.of(),
-                        new MatchesApplicability("ITEM_FONT", "ad[al]:.*")),
-                new CodeVariable("${TITLE_FONT}", "const GFXfont*", VariableDefinitionMode.FONT_EXPORT, false, false, false, List.of(),
-                        new MatchesApplicability("ITEM_FONT", "ad[al]:.*"))
+                CodeVariable.fontExport("THEME_ITEM_FONT"),
+                CodeVariable.fontExport("THEME_TITLE_FONT")
         );
     }
 
@@ -210,6 +200,15 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                 CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_BG", item + " background color", "Background color of a " + desc, defaultPalette[1]),
                 CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_HL", item + " highlight color", "Highlight color of widgets, checkbox, buttons for " + desc, defaultPalette[2]),
                 CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_EX", item + " extra color", "Extra color of items for borders, buttons etc for " + desc, defaultPalette[3])
+        );
+    }
+
+    protected List<HeaderDefinition> generatedHeaders(String hdr) {
+        return List.of(
+                new HeaderDefinition("tcUnicodeHelper.h", HeaderDefinition.HeaderType.GLOBAL, PRIORITY_NORMAL, new EqualityApplicability("USE_TC_UNICODE", "true", false)),
+                new HeaderDefinition("${THEME_ITEM_FONT}", HeaderDefinition.HeaderType.FONT, PRIORITY_NORMAL, ALWAYS_APPLICABLE),
+                new HeaderDefinition("${THEME_TITLE_FONT}", HeaderDefinition.HeaderType.FONT, PRIORITY_NORMAL, ALWAYS_APPLICABLE),
+                new HeaderDefinition("${SRC_DIR_OFFSET}" + hdr + ".h", HeaderDefinition.HeaderType.CPP_SRC_FILE, PRIORITY_MIN, ALWAYS_APPLICABLE)
         );
     }
 

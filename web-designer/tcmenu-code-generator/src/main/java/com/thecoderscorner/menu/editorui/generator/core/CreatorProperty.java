@@ -15,8 +15,7 @@ import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyVali
 import java.util.Objects;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.ALWAYS_APPLICABLE;
-import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.optPinValidator;
-import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.uintValidator;
+import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.*;
 
 /**
  * All creator instances can define properties. These are shown in the UI during code creation and can be edited by the
@@ -42,6 +41,10 @@ public class CreatorProperty {
         return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), ALWAYS_APPLICABLE);
     }
 
+    public static CreatorProperty variableProperty(String id, String name, String desc, SubSystem system, String defVal) {
+        return new CreatorProperty(id, name, desc, defVal, system, PropType.VARIABLE, variableValidator(), ALWAYS_APPLICABLE);
+    }
+
     public static CreatorProperty uintProperty(String id, String name, String desc, SubSystem system, int defVal, int max, CodeApplicability applicability) {
         return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), applicability);
     }
@@ -49,6 +52,10 @@ public class CreatorProperty {
     public static CreatorProperty rgbProperty(String id, String name, String desc, String defVal) {
         return new CreatorProperty(id, name, desc, defVal, SubSystem.THEME, PropType.VARIABLE,
                 CannedPropertyValidators.rgbValidator(), ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty boolProperty(String id, String name, String desc, boolean initial, SubSystem subSystem) {
+        return new CreatorProperty(id, name, desc, Boolean.toString(initial), subSystem, PropType.VARIABLE, boolValidator(), ALWAYS_APPLICABLE);
     }
 
     /** Definitions of how a specific property is intended to be used */

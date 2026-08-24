@@ -242,7 +242,7 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
                 new CodeReplacement("__NEEDED_INCLUDE_FILE__", headerForDisplayType(displayType), ALWAYS_APPLICABLE),
                 new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", "true", ALWAYS_APPLICABLE),
                 new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(true), ALWAYS_APPLICABLE),
-                new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
+                new CodeReplacement("__TEXT_HANDLING_CODE__", getDefaultTextFunctions(true), ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", typeDataForDisplay(), ALWAYS_APPLICABLE),
                 new CodeReplacement("__ACTUAL_GENERATED_HDR__", "TcMenuGxEPDeInk.h", ALWAYS_APPLICABLE),
                 new CodeReplacement("__EXTRA_VARIABLES__", "bool firstPageDone = false;", ALWAYS_APPLICABLE),

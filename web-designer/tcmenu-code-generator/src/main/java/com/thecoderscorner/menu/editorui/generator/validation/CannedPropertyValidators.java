@@ -98,6 +98,15 @@ public class CannedPropertyValidators {
         return new RgbPropertyValidationRules();
     }
 
+    public static PropertyValidationRules alignmentChoices() {
+        return choicesValidator(List.of(
+                new ChoiceDescription("JUSTIFY_TITLE_LEFT_WITH_VALUE", "Left aligned"),
+                new ChoiceDescription("JUSTIFY_CENTER_WITH_VALUE", "Center aligned"),
+                new ChoiceDescription("JUSTIFY_RIGHT_WITH_VALUE", "Right aligned"),
+                new ChoiceDescription("JUSTIFY_TITLE_LEFT_VALUE_RIGHT", "Name left, value right aligned")
+        ), "JUSTIFY_CENTER_WITH_VALUE");
+    }
+
     private static class EmptyValidationRule implements PropertyValidationRules {
         @Override
         public boolean isValueValid(String value) {

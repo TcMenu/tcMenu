@@ -20,6 +20,7 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS, PICO_SDK_CMAKE);
     public static final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
+    public static final List<EmbeddedPlatform> allPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, MBED_RTOS, PICO_SDK_CMAKE);
     public static final List<EmbeddedPlatform> trueCppPlatform = List.of(MBED_RTOS, PICO_SDK_CMAKE);
     public static final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
 

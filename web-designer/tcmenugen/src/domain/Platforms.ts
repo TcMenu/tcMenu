@@ -10,7 +10,7 @@ export const ARDUINO_ESP32 = new EmbeddedPlatform("Arduino ESP32", "ARDUINO_ESP3
 export const STM32DUINO = new EmbeddedPlatform("STM32Duino", "STM32DUINO", false);
 export const RASPBERRY_PIJ = new EmbeddedPlatform("RaspberryPI-Java", "RASPBERRY_PIJ", false);
 export const MBED_RTOS = new EmbeddedPlatform("mbed RTOS", "MBED_RTOS", false);
-export const PICO_SDK_CMAKE = new EmbeddedPlatform("PicoSDK CMake", "PICO_SDK", false);
+export const PICO_SDK_CMAKE = new EmbeddedPlatform("PicoSDK/StmCube CMake", "PICO_SDK", false);
 
 export const ALL_PLATFORMS = [
     ARDUINO_AVR,
@@ -19,8 +19,8 @@ export const ALL_PLATFORMS = [
     ARDUINO_ESP32,
     STM32DUINO,
     RASPBERRY_PIJ,
-    MBED_RTOS,
-    PICO_SDK_CMAKE
+    PICO_SDK_CMAKE,
+    MBED_RTOS
 ];
 
 export function embeddedPlatformFromId(id: string): EmbeddedPlatform {

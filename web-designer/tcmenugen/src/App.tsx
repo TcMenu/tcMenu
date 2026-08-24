@@ -427,7 +427,7 @@ function App() {
                 <p>&copy; 2026 Nutricherry LTD and TheCodersCorner.com. All rights reserved.
                     &nbsp;&nbsp;<a href="https://www.thecoderscorner.com/legal/privacy/">Privacy</a>
                     &nbsp;&#183;&nbsp;<a href="https://www.thecoderscorner.com">Built by us</a>
-                    &nbsp;&#183;&nbsp;<a href="https://www.thecoderscorner.com/support-services/">Commercial support</a>
+                    &nbsp;&#183;&nbsp;<a href="https://www.thecoderscorner.com/support-services/training-support/">Commercial support</a>
                 </p>
             </footer>
         </div>

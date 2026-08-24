@@ -19,6 +19,10 @@ public class CodeReplacement {
         this.applicability = applicability;
     }
 
+    public static CodeReplacement always(String key, String replacement) {
+        return new CodeReplacement(key, replacement, JavaPluginItem.ALWAYS_APPLICABLE);
+    }
+
     public String getFind() {
         return find;
     }

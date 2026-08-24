@@ -217,8 +217,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         String varName = expando.expandExpression(context, exp.getVariableName());
         if(exp.getDefinitionMode() == VariableDefinitionMode.FONT_EXPORT) {
             var font = fromString(varName).orElseThrow(() -> new IllegalStateException("Font not defined for " + exp.getVariableName()));
-            if(font.fontMode() == FontMode.ADAFRUIT || font.fontMode() == FontMode.ADAFRUIT_LOCAL) {
-                if(isTcUnicode() && font.fontNumber() == 0) {
+            if(font.fontMode() == FontMode.ADAFRUIT || font.fontMode() == FontMode.ADAFRUIT_LOCAL ||
+                    font.fontMode() == FontMode.TCUNICODE || font.fontMode() == FontMode.TCUNICODE_LOCAL) {
+                if(font.fontMode() == FontMode.TCUNICODE || font.fontMode() == FontMode.TCUNICODE_LOCAL) {
                     return "extern const UnicodeFont " + font.fontName() + "[];";
                 } else {
                     return "extern const GFXfont " + font.fontName() + ";";

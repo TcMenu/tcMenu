@@ -7,10 +7,14 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
+import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class CodeVariable {
     private final String variableName;
@@ -33,6 +37,17 @@ public class CodeVariable {
         this.parameterList = parameterList;
         this.applicability = applicability;
         this.useNew = isUseNew;
+    }
+
+    public static CodeVariable globalExported(String variableName, String objectName, VariableDefinitionMode definitionMode,
+                                              List<CodeParameter> parameterList) {
+        return new CodeVariable(variableName, objectName, definitionMode, false, false, false,
+                parameterList, JavaPluginItem.ALWAYS_APPLICABLE);
+    }
+
+    public static CodeVariable fontExport(String property) {
+        return new CodeVariable("${" + property + "}", "", VariableDefinitionMode.FONT_EXPORT, true, false, false,
+                List.of(), new MatchesApplicability(property, "(ad[al]|tc[al]):.*"));
     }
 
     @Override

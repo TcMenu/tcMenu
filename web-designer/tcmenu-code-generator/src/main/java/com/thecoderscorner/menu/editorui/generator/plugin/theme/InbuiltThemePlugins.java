@@ -22,6 +22,7 @@ public class InbuiltThemePlugins implements JavaPluginGroup {
         config.setVendorUrl("https://www.coderscorner.com");
 
         addPlugin(new EinkBlockTheme(this, manager));
+        addPlugin(new IceWhiteModernTheme(this, manager));
     }
 
     public void addPlugin(JavaPluginItem plugin) {

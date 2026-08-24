@@ -11,8 +11,14 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.
 
 public class CommonDisplayPluginHelper {
     public static CreatorProperty updatesPerSecond() {
-        return new CreatorProperty("UPDATES_PER_SEC", "Updates per second", "How many times the screen is updated per second",
-                "2", SubSystem.DISPLAY, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.uintValidator(10), ALWAYS_APPLICABLE);
+        return updatesPerSecond(2);
+    }
+
+    public static CreatorProperty updatesPerSecond(int initial) {
+        return new CreatorProperty("UPDATES_PER_SEC", "Updates per second",
+                "How many times the screen is updated per second",
+                String.valueOf(initial), SubSystem.DISPLAY, CreatorProperty.PropType.VARIABLE,
+                CannedPropertyValidators.uintValidator(30), ALWAYS_APPLICABLE);
     }
 
     public static CreatorProperty displayRotation0to3() {

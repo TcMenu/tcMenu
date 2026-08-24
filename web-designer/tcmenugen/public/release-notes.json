@@ -1,5 +1,14 @@
 [
   {
+    "release": "5.0.0",
+    "qaStatus": "Production",
+    "dateReleased": "2026-08-22",
+    "notes": [
+      "Major: Support added for STM32Cube devices with new drivers for common BSP packages",
+      "Ensure that new items are created visible by default",
+      "New themes and theme font handling correction"
+    ]
+  },  {
     "release": "4.5.10",
     "qaStatus": "Production",
     "dateReleased": "2026-08-14",
