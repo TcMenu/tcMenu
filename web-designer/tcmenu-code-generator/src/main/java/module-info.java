@@ -14,6 +14,7 @@ module com.thecoderscorner.tcmenu.generator {
     requires org.slf4j;
     requires spring.core;
     requires spring.beans;
+    requires org.jspecify;
 
     exports com.thecoderscorner.menu.editorui;
     exports com.thecoderscorner.menu.editorui.storage;

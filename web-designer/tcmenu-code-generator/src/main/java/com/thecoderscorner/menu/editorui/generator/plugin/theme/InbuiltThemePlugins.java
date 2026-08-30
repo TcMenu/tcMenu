@@ -23,6 +23,10 @@ public class InbuiltThemePlugins implements JavaPluginGroup {
 
         addPlugin(new EinkBlockTheme(this, manager));
         addPlugin(new IceWhiteModernTheme(this, manager));
+        addPlugin(new CoolBlueModernTheme(this, manager));
+        addPlugin(new DarkModeModernTheme(this, manager));
+        addPlugin(new NoThemeSelected(this, manager));
+        addPlugin(new ManualThemeSelected(this, manager));
     }
 
     public void addPlugin(JavaPluginItem plugin) {

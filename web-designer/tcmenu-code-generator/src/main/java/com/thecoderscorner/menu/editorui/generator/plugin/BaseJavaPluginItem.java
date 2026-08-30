@@ -31,6 +31,12 @@ public abstract class BaseJavaPluginItem implements JavaPluginItem {
                 .getLatestValue();
     }
 
+    protected String findPropOrDefault(String s, String d) {
+        return getRequiredProperties().stream().filter(p -> p.getName().equals(s))
+                .map(CreatorProperty::getLatestValue)
+                .findFirst().orElse(d);
+    }
+
     protected CodeVariable basicGraphicsDeviceVariable(String drawableName, int sizeBuffer) {
         return new CodeVariable("renderer", "GraphicsDeviceRenderer", VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, List.of(
                 CodeParameter.unNamedValue(sizeBuffer),

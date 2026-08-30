@@ -217,6 +217,7 @@ public class AdafruitFrameBufferPlugin extends CommonAdafruitDisplayPlugin {
             }
             
             void TcAdafruitFrameDrawable::drawXBitmap(const Coord& where, const Coord& size, const uint8_t* data) {
+                graphics->fillRect(where.x, where.y, size.x, size.y, backgroundColor);
                 graphics->drawXBitmap(where.x, where.y, data, size.x, size.y, drawColor);
             }
             

@@ -45,8 +45,10 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
 
     @Override
     public List<RequiredSourceFile> getRequiredSourceFiles() {
+        String itemPalette = buildPalette("ITEM");
         var replacements = replacementsWithExtras(
-                new CodeReplacement("__ITEM_PALETTE__", buildPalette("ITEM"), ALWAYS_APPLICABLE),
+                new CodeReplacement("__ITEM_PALETTE__", itemPalette, ALWAYS_APPLICABLE),
+                new CodeReplacement("__ACTION_PALETTE", itemPalette, ALWAYS_APPLICABLE),
                 new CodeReplacement("__TITLE_PALETTE__", buildPalette("TITLE"), ALWAYS_APPLICABLE),
                 new CodeReplacement("__SELECTED_BG__", findPropOrFail("THEME_SELECTED_BG"), ALWAYS_APPLICABLE),
                 new CodeReplacement("__SELECTED_FG__", findPropOrFail("THEME_SELECTED_FG"), ALWAYS_APPLICABLE),

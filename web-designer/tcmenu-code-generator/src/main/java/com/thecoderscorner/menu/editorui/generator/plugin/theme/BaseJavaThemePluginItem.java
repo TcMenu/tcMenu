@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.plugin.theme;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
-import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -21,16 +20,20 @@ import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.*;
 
 public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
     public final static FontDefinition defaultForTcUnicode = new FontDefinition(ADAFRUIT, "OpenSansRegular7pt", 0);
+    public enum IconEditMode { NONE, LO_RES, MED_RES }
 
     protected BaseJavaThemePluginItem(SubSystem subsystem, String imagePath) {
         super(subsystem, imagePath);
     }
 
-    public String unicodeAndIconsCode(boolean iconsOn) {
+    public String unicodeAndIconsCode() {
+        var iconEditMode = IconEditMode.valueOf(findPropOrDefault("THEME_EDIT_ICONS", "LO_RES"));
         var unicode = findPropOrFail("USE_TC_UNICODE").equals("true");
         var str = "";
-        if(iconsOn) {
+        if(iconEditMode == IconEditMode.LO_RES) {
             str += System.lineSeparator() + "            .withStandardLowResCursorIcons()";
+        } else if (iconEditMode == IconEditMode.MED_RES) {
+            str += System.lineSeparator() + "            .withStandardMedResCursorIcons()";
         }
 
         if(unicode) {
@@ -58,7 +61,7 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
 
     }
 
-    private String fontIncludeHeaders() {
+    private String fontExportHeader() {
         var f1 = fontIncludeHeader("THEME_ITEM_FONT");
         var f2 = fontIncludeHeader("THEME_TITLE_FONT");
         if(f1.isEmpty() && f2.isEmpty()) return "";
@@ -71,11 +74,10 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
         var fdOpt = getFontDefinition(propName);
         if(fdOpt.isEmpty()) return "";
         var fd = fdOpt.get();
-        if(fd.fontMode() == ADAFRUIT || fd.fontMode() == ADAFRUIT_LOCAL || fd.fontMode() == TCUNICODE || fd.fontMode() == TCUNICODE_LOCAL) {
-            boolean global = fd.fontMode() == ADAFRUIT || fd.fontMode() == TCUNICODE;
-            var start = global ? "<" : "\"";
-            var end = global ? ">" : "\"";
-            return "#include %sFonts/%s.h%s".formatted(start, fd.fontName(), end) + System.lineSeparator();
+        if(fd.fontMode() == ADAFRUIT || fd.fontMode() == ADAFRUIT_LOCAL) {
+            return "extern GFXfont* " + fd.fontName() + ";" + System.lineSeparator();
+        } else if(fd.fontMode() == TCUNICODE || fd.fontMode() == TCUNICODE_LOCAL) {
+            return "extern const UnicodeFont " + fd.fontName() + "[];" + System.lineSeparator();
         }
         else {
             return "";
@@ -116,7 +118,9 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                         new ChoiceDescription("TITLE_FIRST_ROW", "Title on first row (scrolls with menu)"),
                         new ChoiceDescription("TITLE_ALWAYS", "Title always at top")
                         ), "TITLE_ALWAYS"),
-                        ALWAYS_APPLICABLE)
+                        ALWAYS_APPLICABLE),
+                CreatorProperty.uintProperty("THEME_ACTION_ROUND_CORNER", "Use rounded corners on actionable items (0=off)", "Use rounded corners on actionable items, 0 is off all corners same", SubSystem.THEME, 4, 15),
+                CreatorProperty.uintProperty("THEME_TITLE_ROUND_CORNER", "Use rounded corners on the title (0=off)", "Use rounded corners on title, 0 is off, all corners same", SubSystem.THEME, 4, 15)
         );
     }
 
@@ -124,17 +128,36 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
         List<CodeReplacement> defaultReplacements = List.of(
                 new CodeReplacement("__ITEM_PADDING__", findPropOrFail("ITEM_PADDING"), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TITLE_PADDING__", findPropOrFail("TITLE_PADDING"), ALWAYS_APPLICABLE),
+                new CodeReplacement("__ACTION_PADDING__", calculateActionPadding(), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TITLE_SPACING__", findPropOrFail("TITLE_TO_ITEM_SPACING"), ALWAYS_APPLICABLE),
+                new CodeReplacement("__MENU_BORDER_CODE_ACTION__", handleTheBorder("THEME_ACTION_ROUND_CORNER"), ALWAYS_APPLICABLE),
+                new CodeReplacement("__MENU_BORDER_CODE_TITLE__", handleTheBorder("THEME_TITLE_ROUND_CORNER"), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TITLE_MODE__", findPropOrFail("TITLE_SHOW_MODE"), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TITLE_FONT_DECL__", fontDeclarationCode("THEME_TITLE_FONT"), ALWAYS_APPLICABLE),
                 new CodeReplacement("__ITEM_FONT_DECL__", fontDeclarationCode("THEME_ITEM_FONT"), ALWAYS_APPLICABLE),
-                new CodeReplacement("__UNICODE_AND_ICONS__", unicodeAndIconsCode(true), ALWAYS_APPLICABLE),
-                new CodeReplacement("__FONT_INCLUDE_HEADERS__", fontIncludeHeaders(), ALWAYS_APPLICABLE)
+                new CodeReplacement("__UNICODE_AND_ICONS__", unicodeAndIconsCode(), ALWAYS_APPLICABLE),
+                new CodeReplacement("__FONT_EXPORT_STATEMENTS__", fontExportHeader(), ALWAYS_APPLICABLE),
+                new CodeReplacement("__USE_SLIDERS__", findPropOrDefault("THEME_USE_SLIDERS_ANALOG", "false"), ALWAYS_APPLICABLE)
         );
 
         var extras = new ArrayList<>(Arrays.asList(codeReplacement));
         extras.addAll(defaultReplacements);
         return List.copyOf(extras);
+    }
+
+    private String calculateActionPadding() {
+        var actRounding = Integer.parseInt(findPropOrDefault("THEME_ACTION_ROUND_CORNER", "0"));
+        var itemPadding = Integer.parseInt(findPropOrDefault("ITEM_PADDING", "0"));
+        return String.valueOf(Math.min(15, actRounding + itemPadding));
+    }
+
+    private String handleTheBorder(String propName) {
+        var prop = Integer.parseInt(findPropOrFail(propName));
+        if(prop == 0) {
+            return "";
+        } else {
+            return "%n            .withBorder(MenuBorder(%d, BORD_FILL_ROUNDED))".formatted(prop);
+        }
     }
 
     @Override
@@ -212,14 +235,27 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
         );
     }
 
+    protected CreatorProperty editIconChoice() {
+        return new CreatorProperty("THEME_EDIT_ICONS", "Edit and active icon choice", "Choose which edit icons to use or turn them off",
+                "LO_RES", SubSystem.THEME, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.choicesValidator(List.of(
+                new ChoiceDescription("NONE", "No Edit Icons"),
+                new ChoiceDescription("LO_RES", "Low resolution edit icons"),
+                new ChoiceDescription("MED_RES", "Medium resolution edit icons")
+        ), "MED_RES"), ALWAYS_APPLICABLE);
+    }
+
+
     protected String buildThemeFile() {
         return """
                 #ifndef TCMENU_THEME_BLOCK
                 #define TCMENU_THEME_BLOCK
                 
                 #include <graphics/TcThemeBuilder.h>
-                __FONT_INCLUDE_HEADERS__
+                
+                __FONT_EXPORT_STATEMENTS__
+                
                 color_t defaultItemPalette[] = { __ITEM_PALETTE__ };
+                color_t defaultActionPalette[] = { __ACTION_PALETTE__ };
                 color_t defaultTitlePalette[] = { __TITLE_PALETTE__ };
                 
                 /**
@@ -234,7 +270,7 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                     themeBuilder.withSelectedColors(__SELECTED_BG__, __SELECTED_FG__)
                             .dimensionsFromRenderer()
                             .withItemPadding(MenuPadding(__ITEM_PADDING__))
-                            .withRenderingSettings(BaseGraphicalRenderer::__TITLE_MODE__, false)
+                            .withRenderingSettings(BaseGraphicalRenderer::__TITLE_MODE__, __USE_SLIDERS__)
                             .withPalette(defaultItemPalette)
                             .__ITEM_FONT_DECL__
                             .withSpacing(1)__UNICODE_AND_ICONS__
@@ -244,11 +280,13 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                             .withPalette(defaultTitlePalette)
                             .withPadding(MenuPadding(__TITLE_PADDING__))
                             .withJustification(__TITLE_JUSTIFICATION__)
-                            .withSpacing(__TITLE_SPACING__)
+                            .withSpacing(__TITLE_SPACING__)__MENU_BORDER_CODE_TITLE__
                             .apply();
                 
                     themeBuilder.defaultActionProperties()
                             .withJustification(__ACTION_JUSTIFICATION__)
+                            .withPadding(MenuPadding(__ACTION_PADDING__))
+                            .withPalette(defaultActionPalette)__MENU_BORDER_CODE_ACTION__
                             .apply();
                 
                     themeBuilder.defaultItemProperties()
