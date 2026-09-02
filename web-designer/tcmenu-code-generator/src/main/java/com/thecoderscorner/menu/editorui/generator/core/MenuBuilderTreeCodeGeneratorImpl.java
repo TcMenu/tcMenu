@@ -153,7 +153,7 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
             case EditableTextMenuItem et when et.getItemType() == EditItemType.PLAIN_TEXT -> "inline TextMenuItem& getMenu%s() { return getTextItemById(%s); }".formatted(varName, define);
             case EditableTextMenuItem et when et.getItemType() == EditItemType.IP_ADDRESS -> "inline IpAddressMenuItem& getMenu%s() { return getIpAddressItemById(%s); }".formatted(varName, define);
             case EditableTextMenuItem et when et.getItemType() == EditItemType.GREGORIAN_DATE -> "inline DateFormattedMenuItem& getMenu%s() { return getDateItemById(%s); }".formatted(varName, define);
-            case EditableTextMenuItem et when TIME_TYPES.contains(et.getItemType()) -> "inline DateFormattedMenuItem& getMenu%s() { return getDateItemById(%s); }".formatted(varName, define);
+            case EditableTextMenuItem et when TIME_TYPES.contains(et.getItemType()) -> "inline TimeFormattedMenuItem& getMenu%s() { return getTimeItemById(%s); }".formatted(varName, define);
             case FloatMenuItem _ -> "inline FloatMenuItem& getMenu%s() { return getFloatItemById(%s); }".formatted(varName, define);
             case ActionMenuItem _ -> "inline ActionMenuItem& getMenu%s() { return getActionItemById(%s); }".formatted(varName, define);
             case ScrollChoiceMenuItem _ -> "inline ScrollChoiceMenuItem& getMenu%s() { return getScrollChoiceItemById(%s); }".formatted(varName, define);
