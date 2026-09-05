@@ -25,6 +25,7 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
         var themeItems = new ArrayList<CreatorProperty>();
         themeItems.addAll(defFontProperties());
         themeItems.addAll(defDrawingProperties());
+        themeItems.addAll(defRoundCornerProperties());
         themeItems.addAll(colorThemeEntries());
         requiredProperties = List.copyOf(themeItems);
 

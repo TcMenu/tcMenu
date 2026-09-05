@@ -27,6 +27,8 @@ public class InbuiltThemePlugins implements JavaPluginGroup {
         addPlugin(new DarkModeModernTheme(this, manager));
         addPlugin(new NoThemeSelected(this, manager));
         addPlugin(new ManualThemeSelected(this, manager));
+        addPlugin(new MonoBorderedTitleTheme(this, manager));
+        addPlugin(new MonoFilledTitleTheme(this, manager));
     }
 
     public void addPlugin(JavaPluginItem plugin) {
@@ -37,5 +39,4 @@ public class InbuiltThemePlugins implements JavaPluginGroup {
     public CodePluginConfig getConfig() {
         return config;
     }
-
 }

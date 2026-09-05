@@ -118,7 +118,12 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                         new ChoiceDescription("TITLE_FIRST_ROW", "Title on first row (scrolls with menu)"),
                         new ChoiceDescription("TITLE_ALWAYS", "Title always at top")
                         ), "TITLE_ALWAYS"),
-                        ALWAYS_APPLICABLE),
+                        ALWAYS_APPLICABLE)
+        );
+    }
+
+    public List<CreatorProperty> defRoundCornerProperties() {
+        return List.of(
                 CreatorProperty.uintProperty("THEME_ACTION_ROUND_CORNER", "Use rounded corners on actionable items (0=off)", "Use rounded corners on actionable items, 0 is off all corners same", SubSystem.THEME, 4, 15),
                 CreatorProperty.uintProperty("THEME_TITLE_ROUND_CORNER", "Use rounded corners on the title (0=off)", "Use rounded corners on title, 0 is off, all corners same", SubSystem.THEME, 4, 15)
         );
@@ -151,8 +156,8 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
         return String.valueOf(Math.min(15, actRounding + itemPadding));
     }
 
-    private String handleTheBorder(String propName) {
-        var prop = Integer.parseInt(findPropOrFail(propName));
+    protected String handleTheBorder(String propName) {
+        var prop = Integer.parseInt(findPropOrDefault(propName, "0"));
         if(prop == 0) {
             return "";
         } else {

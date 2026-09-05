@@ -25,6 +25,7 @@ public abstract class BaseFullRgbThemePluginItem extends BaseJavaThemePluginItem
         var themeItems = new ArrayList<CreatorProperty>();
         themeItems.addAll(defFontProperties());
         themeItems.addAll(defDrawingProperties());
+        themeItems.addAll(defRoundCornerProperties());
         themeItems.addAll(defaultTftProperties());
         requiredProperties = List.copyOf(themeItems);
         themeHeaderFile = headerFile;
@@ -61,7 +62,7 @@ public abstract class BaseFullRgbThemePluginItem extends BaseJavaThemePluginItem
                 separatorProperty("THEME_EXTRA_DRAWING", "Extra Color/TFT options"),
                 editIconChoice(),
                 new CreatorProperty("THEME_BUTTON_ALIGNMENT", "Alignment of buttons/title", "Choose an alignment that will be applied by default to buttons and the title",
-                        "????", SubSystem.THEME, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.alignmentChoices(), ALWAYS_APPLICABLE),
+                        "JUSTIFY_TITLE_LEFT_VALUE_RIGHT", SubSystem.THEME, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.alignmentChoices(), ALWAYS_APPLICABLE),
                 CreatorProperty.boolProperty("THEME_USE_SLIDERS_ANALOG", "Use horizontal slider for analog values", "Use horizontal slider control similar to a scroll bar for analog items", false, SubSystem.THEME)
         );
     }
