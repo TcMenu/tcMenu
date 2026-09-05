@@ -1,6 +1,5 @@
 package com.thecoderscorner.menu.editorui.generator.plugin.display;
 
-import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
@@ -10,10 +9,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CreatorProperty.PropType;
@@ -191,12 +187,12 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
     @Override
     public List<FunctionDefinition> getFunctions() {
         return List.of(
-                new FunctionDefinition("init", "display", false, false, List.of(
+                FunctionDefinition.ofRegCpp("init", "display", List.of(
                         CodeParameter.unNamedValue(115200),
                         CodeParameter.unNamedValue(true),
                         CodeParameter.unNamedValue("${EINK_RESET_DELAY}"),
                         CodeParameter.unNamedValue("${EINK_RESET_PULLDOWN}")
-                ), ALWAYS_APPLICABLE),
+                )),
                 basicSetRotation(),
                 basicUpdatesPerSecond()
         );

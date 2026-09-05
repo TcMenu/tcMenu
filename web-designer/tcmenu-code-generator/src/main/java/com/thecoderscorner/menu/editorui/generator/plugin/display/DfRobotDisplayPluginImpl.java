@@ -6,9 +6,7 @@ import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType;
 
@@ -52,15 +50,15 @@ public class DfRobotDisplayPluginImpl extends BaseJavaPluginItem {
     @Override
     public List<FunctionDefinition> getFunctions() {
         return List.of(
-                new FunctionDefinition("begin", "lcd", false, false, List.of(
+                FunctionDefinition.ofRegCpp("begin", "lcd", List.of(
                         CodeParameter.unNamedValue(16),
                         CodeParameter.unNamedValue(2)
-                ), ALWAYS_APPLICABLE),
+                )),
                 basicUpdatesPerSecond(),
-                new FunctionDefinition("configureBacklightPin", "lcd", false, false, List.of(
+                FunctionDefinition.ofRegCpp("configureBacklightPin", "lcd", List.of(
                         CodeParameter.unNamedValue(10)
-                ), ALWAYS_APPLICABLE),
-                new FunctionDefinition("backlight", "lcd", false, false, List.of(), ALWAYS_APPLICABLE)
+                )),
+                FunctionDefinition.ofRegCpp("backlight", "lcd", List.of())
         );
     }
 

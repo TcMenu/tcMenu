@@ -62,6 +62,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
     
     private String functionToCode(FunctionDefinition func) {
+        if(func.isBuilderSyntax()) {
+            return asBuilder(func);
+        }
         var memberAccessor = (func.isObjectPointer()) ? "->" : ".";
 
         String fn = indentCode();
@@ -75,6 +78,33 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         fn += parameters;
         fn += ");";
         return fn;
+    }
+
+    private String asBuilder(FunctionDefinition func) {
+        StringBuilder f = new StringBuilder();
+
+        // declaration of variable
+        f.append(indentCode()).append(func.getObjectName()).append(" ").append(func.getFunctionName()).append(";");
+        f.append(System.lineSeparator());
+
+        // each call into builder.
+        for(int i=0; i<func.getParameters().size(); i++) {
+            if(i == 0) {
+                // first line is not chained.
+                f.append(indentCode()).append(func.getFunctionName()).append(".");
+            } else {
+                f.append(indentCode()).append("   .");
+            }
+            f.append(func.getParameters().get(i).getValue());
+
+            // at the end finish with a ';' otherwise newline.
+            if(i == func.getParameters().size() - 1) {
+                f.append(';');
+            } else {
+                f.append(System.lineSeparator());
+            }
+        }
+        return f.toString();
     }
 
     private String indentCode() {

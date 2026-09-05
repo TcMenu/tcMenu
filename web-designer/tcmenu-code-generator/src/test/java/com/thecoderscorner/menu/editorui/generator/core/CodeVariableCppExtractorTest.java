@@ -8,8 +8,11 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,7 +64,7 @@ public class CodeVariableCppExtractorTest {
                 .requiresExtern();
         assertEquals("extern MenuItem menuMyItem;", extractor.mapStructHeader(initializer));
         assertEquals("MenuItem menuMyItem(42, someVar);", extractor.mapStructSource(initializer));
-        Assertions.assertThat(initializer.getHeaderRequirements()).containsExactlyInAnyOrder(
+        assertThat(initializer.getHeaderRequirements()).containsExactlyInAnyOrder(
                 new HeaderDefinition("SomeHeader.h", GLOBAL, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable())
         );
     }
@@ -105,6 +109,30 @@ public class CodeVariableCppExtractorTest {
         String expectedChoices = "char* enumStrEnums[] = { AAA, BBB };";
 
         assertEquals(expectedChoices, extractor.mapStructSource(initializer));
+    }
+
+    @Test
+    public void testRegularCppFunctionMapping() {
+        var options = new CodeGeneratorOptionsBuilder().codeOptions();
+        CodeConversionContext context = new CodeConversionContext(EmbeddedPlatform.ARDUINO32, "menuVariable", options, List.of());
+        CodeVariableCppExtractor cppExtractor = new CodeVariableCppExtractor(context);
+        var mapped = cppExtractor.mapFunctions(List.of(FunctionDefinition.ofRegCpp("funcName", "obj",
+                List.of(CodeParameter.unNamedValue("10"), CodeParameter.unNamedValue("20"))
+        )), List.of());
+        assertThat(mapped).isEqualToIgnoringNewLines("        obj.funcName(10, 20);");
+
+        var builder = cppExtractor.mapFunctions(List.of(FunctionDefinition.ofBuilderDeclaration("build", "SomeBuilder", List.of(
+                CodeParameter.unNamedValue("withXyz(10, 20)"),
+                CodeParameter.unNamedValue("interruptMode(20)"),
+                CodeParameter.unNamedValue("build()"))
+        )), List.of());
+
+        assertThat("|" + System.lineSeparator() + builder).isEqualToIgnoringNewLines("""
+                |
+                        SomeBuilder build;
+                        build.withXyz(10, 20)
+                           .interruptMode(20)
+                           .build();""");
     }
 
 }

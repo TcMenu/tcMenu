@@ -98,28 +98,28 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
 
         // handle initialise
         if(displayType.equals("Adafruit_ST7735")) {
-            functions.add(new FunctionDefinition("initR", "${DISPLAY_VARIABLE}", false, false, List.of(
+            functions.add(FunctionDefinition.ofRegCpp("initR", "${DISPLAY_VARIABLE}", List.of(
                     CodeParameter.unNamedValue(findPropOrFail("ST7735_TAB_TYPE"))
-            ), ALWAYS_APPLICABLE));
+            )));
         } else if(displayType.equals("Adafruit_ST7789")) {
-            functions.add(new FunctionDefinition("init", "${DISPLAY_VARIABLE}", false, false, List.of(
+            functions.add(FunctionDefinition.ofRegCpp("init", "${DISPLAY_VARIABLE}", List.of(
                     CodeParameter.unNamedValue(findPropOrFail("DISPLAY_WIDTH")),
                     CodeParameter.unNamedValue(findPropOrFail("DISPLAY_HEIGHT"))
-            ), ALWAYS_APPLICABLE));
+            )));
         } else {
             if (Integer.parseInt(findPropOrFail("DISPLAY_SPI_SPEED")) > 0) {
-                functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(
+                functions.add(FunctionDefinition.ofRegCpp("begin", "${DISPLAY_VARIABLE}", List.of(
                         CodeParameter.unNamedValue(findPropOrFail("DISPLAY_SPI_SPEED"))
-                ), ALWAYS_APPLICABLE));
+                )));
             } else {
-                functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(), ALWAYS_APPLICABLE));
+                functions.add(FunctionDefinition.ofRegCpp("begin", "${DISPLAY_VARIABLE}", List.of()));
             }
         }
         // configure renderer
-        functions.add(new FunctionDefinition("setRotation", "${DISPLAY_VARIABLE}", false, false, List.of(
-                CodeParameter.unNamedValue("${DISPLAY_ROTATION}")), ALWAYS_APPLICABLE));
-        functions.add(new FunctionDefinition("setUpdatesPerSecond", "renderer", false, false, List.of(
-                CodeParameter.unNamedValue("${UPDATES_PER_SEC}")), ALWAYS_APPLICABLE));
+        functions.add(FunctionDefinition.ofRegCpp("setRotation", "${DISPLAY_VARIABLE}", List.of(
+                CodeParameter.unNamedValue("${DISPLAY_ROTATION}"))));
+        functions.add(FunctionDefinition.ofRegCpp("setUpdatesPerSecond", "renderer", List.of(
+                CodeParameter.unNamedValue("${UPDATES_PER_SEC}"))));
 
         return List.copyOf(functions);
     }

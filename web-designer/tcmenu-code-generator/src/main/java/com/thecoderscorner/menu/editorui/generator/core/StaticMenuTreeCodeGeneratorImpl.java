@@ -1,9 +1,9 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.AnalogMenuItem;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
@@ -15,9 +15,7 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.io.StringWriter;
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
@@ -152,21 +150,21 @@ public class StaticMenuTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
-                    return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, false,false, params, new AlwaysApplicable());
                 }).toList()
         );
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
-                    return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, false, false, params, new AlwaysApplicable());
                 }).toList()
         );
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
-                    return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, false, false, params, new AlwaysApplicable());
                 }).toList()
         );
 
@@ -174,7 +172,7 @@ public class StaticMenuTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter((item) -> !item.isVisible())
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "false"));
-                    return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, false, false, params, new AlwaysApplicable());
                 }).toList()
         );
 
@@ -182,7 +180,7 @@ public class StaticMenuTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
                 .map(item -> {
                     var analogMenuItem = (AnalogMenuItem) item;
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, Integer.toString(analogMenuItem.getStep())));
-                    return new FunctionDefinition("setStep", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setStep", "menu" + menuNameFor(item), false, false, false, params, new AlwaysApplicable());
                 }).toList()
         );
 

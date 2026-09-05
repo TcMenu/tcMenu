@@ -46,15 +46,15 @@ public abstract class BaseJavaPluginItem implements JavaPluginItem {
     }
 
     protected FunctionDefinition basicUpdatesPerSecond() {
-        return new FunctionDefinition("setUpdatesPerSecond", "renderer", false, false, List.of(
+        return FunctionDefinition.ofRegCpp("setUpdatesPerSecond", "renderer", List.of(
                 CodeParameter.unNamedValue("${UPDATES_PER_SEC")
-        ), ALWAYS_APPLICABLE);
+        ));
     }
 
     protected FunctionDefinition basicSetRotation() {
-        return new FunctionDefinition("setRotation", "display", false, false, List.of(
+        return FunctionDefinition.ofRegCpp("setRotation", "display", List.of(
                 CodeParameter.unNamedValue("${DISPLAY_ROTATION}")
-        ), ALWAYS_APPLICABLE);
+        ));
     }
 
     protected String expandToNull(String s) {

@@ -187,9 +187,9 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
 
     @Override
     public List<FunctionDefinition> getFunctions() {
-        return List.of(new FunctionDefinition("applyTheme", "", false, false, List.of(
+        return List.of(FunctionDefinition.ofRegCpp("applyTheme", "", List.of(
                 CodeParameter.unNamedValue("renderer")
-        ), ALWAYS_APPLICABLE));
+        )));
     }
 
     @Override

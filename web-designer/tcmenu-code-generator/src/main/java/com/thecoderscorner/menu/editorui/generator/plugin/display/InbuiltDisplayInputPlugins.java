@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginGroup;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.input.BspStmTouchControllerPlugin;
+import com.thecoderscorner.menu.editorui.generator.plugin.input.InterruptBasedRotaryEncoderPlugin;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class InbuiltDisplayInputPlugins implements JavaPluginGroup {
         addPlugin(new MonoAdafruitStarterPlugin(this, manager));
 
         addPlugin(new BspStmTouchControllerPlugin(this, manager));
+        addPlugin(new InterruptBasedRotaryEncoderPlugin(this, manager));
     }
 
     public void addPlugin(JavaPluginItem plugin) {

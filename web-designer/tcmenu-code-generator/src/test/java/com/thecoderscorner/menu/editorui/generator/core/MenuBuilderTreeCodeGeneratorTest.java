@@ -154,7 +154,7 @@ public class MenuBuilderTreeCodeGeneratorTest {
                 inline IpAddressMenuItem& getMenuConnectivityIPAddress() { return getIpAddressItemById(MENU_CONNECTIVITY_IPADDRESS_ID); }
                 inline TextMenuItem& getMenuConnectivitySSID() { return getTextItemById(MENU_CONNECTIVITY_SSID_ID); }
                 inline TextMenuItem& getMenuConnectivityPasscode() { return getTextItemById(MENU_CONNECTIVITY_PASSCODE_ID); }
-                inline DateFormattedMenuItem& getMenuConnectivityTime24() { return getDateItemById(MENU_CONNECTIVITY_TIME24_ID); }
+                inline TimeFormattedMenuItem& getMenuConnectivityTime24() { return getTimeItemById(MENU_CONNECTIVITY_TIME24_ID); }
                 inline DateFormattedMenuItem& getMenuConnectivityDateField() { return getDateItemById(MENU_CONNECTIVITY_DATE_FIELD_ID); }
                 inline RemoteMenuItem& getMenuConnectivityIoTMonitor() { return getIoTRemoteMenuById(MENU_CONNECTIVITY_IO_TMONITOR_ID); }
                 inline EepromAuthenticationInfoMenuItem& getMenuConnectivityAuthenticator() { return getAuthenticationMenuById(MENU_CONNECTIVITY_AUTHENTICATOR_ID); }

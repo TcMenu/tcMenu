@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,21 +20,28 @@ public class FunctionDefinition {
     private final String objectName;
     private final boolean objectPointer;
     private final boolean infiniteLoop;
+    @Getter
+    private final boolean builderSyntax;
     private final List<CodeParameter> parameters;
     private final CodeApplicability applicability;
 
     public FunctionDefinition(String functionName, String objectName, boolean objectPointer, boolean infiniteLoop,
-                              List<CodeParameter> parameters, CodeApplicability applicability) {
+                              boolean builderSyntax, List<CodeParameter> parameters, CodeApplicability applicability) {
         this.functionName = functionName;
         this.objectName = objectName;
         this.objectPointer = objectPointer;
+        this.builderSyntax = builderSyntax;
         this.parameters = parameters;
         this.applicability = applicability;
         this.infiniteLoop = infiniteLoop;
     }
 
     public static FunctionDefinition ofRegCpp(String fn, String obj, List<CodeParameter> params) {
-        return new FunctionDefinition(fn, obj, false, false, params, ALWAYS_APPLICABLE);
+        return new FunctionDefinition(fn, obj, false, false, false, params, ALWAYS_APPLICABLE);
+    }
+
+    public static FunctionDefinition ofBuilderDeclaration(String fn, String obj, List<CodeParameter> buildSteps) {
+        return new FunctionDefinition(fn, obj, false, false, true, buildSteps, ALWAYS_APPLICABLE);
     }
 
     @Override
@@ -84,4 +92,5 @@ public class FunctionDefinition {
     public boolean isInfiniteLoopFn() {
         return infiniteLoop;
     }
+
 }

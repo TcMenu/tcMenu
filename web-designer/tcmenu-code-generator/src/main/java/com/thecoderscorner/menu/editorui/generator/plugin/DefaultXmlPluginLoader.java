@@ -345,7 +345,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 var applicability = toApplicability(childElem, applicabilityMap);
                 var isPtr = getAttrOrNull(childElem, "pointer") != null;
                 var isInfinite = getAttributeOrDefault(childElem, "neverReturns", "false").equalsIgnoreCase("true");
-                functionList.add(new FunctionDefinition(name, obj, isPtr, isInfinite, toCodeParameters(childElem, lambdas), applicability));
+                functionList.add(new FunctionDefinition(name, obj, isPtr, isInfinite, false, toCodeParameters(childElem, lambdas), applicability));
             }
         }
         return functionList;

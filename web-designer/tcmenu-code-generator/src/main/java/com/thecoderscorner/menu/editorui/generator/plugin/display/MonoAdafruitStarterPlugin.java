@@ -86,16 +86,16 @@ public class MonoAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
     public List<FunctionDefinition> getFunctions() {
         var functions = new ArrayList<FunctionDefinition>();
 
-        functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(), ALWAYS_APPLICABLE));
+        functions.add(FunctionDefinition.ofRegCpp("begin", "${DISPLAY_VARIABLE}", List.of()));
 
         // configure renderer
-        functions.add(new FunctionDefinition("setRotation", "${DISPLAY_VARIABLE}", false, false, List.of(
-                CodeParameter.unNamedValue("${DISPLAY_ROTATION}")), ALWAYS_APPLICABLE));
-        functions.add(new FunctionDefinition("setUpdatesPerSecond", "renderer", false, false, List.of(
-                CodeParameter.unNamedValue("${UPDATES_PER_SEC}")), ALWAYS_APPLICABLE));
+        functions.add(FunctionDefinition.ofRegCpp("setRotation", "${DISPLAY_VARIABLE}", List.of(
+                CodeParameter.unNamedValue("${DISPLAY_ROTATION}"))));
+        functions.add(FunctionDefinition.ofRegCpp("setUpdatesPerSecond", "renderer", List.of(
+                CodeParameter.unNamedValue("${UPDATES_PER_SEC}"))));
 
-        functions.add(new FunctionDefinition("setUseSliderForAnalog", "renderer", false, false, List.of(
-                CodeParameter.unNamedValue("false")), ALWAYS_APPLICABLE));
+        functions.add(FunctionDefinition.ofRegCpp("setUseSliderForAnalog", "renderer", List.of(
+                CodeParameter.unNamedValue("false"))));
 
         return List.copyOf(functions);
     }
