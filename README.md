@@ -1,4 +1,5 @@
-## tcMenu - A menu library and designer for Arduino and mbed with IoT capabilities
+## tcMenu — A Cross‑Platform Embedded UI & IoT Framework
+
 [![Java Test](https://github.com/TcMenu/tcMenu/actions/workflows/test.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/test.yml)
 [![Linux nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml)
 [![macOS nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml)
