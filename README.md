@@ -104,20 +104,32 @@ tcMenu can also save menu item state to EEPROM storage. On AVR that will general
 
 ## Input and display technologies
 
-Here are a few examples of how the menu can look with version 2.0 of our menu library on Arduino, ESP, and mbed:
+Here are a few examples of how the menu can look with version 2.0 of our menu library on Arduino, PicoSDK, STM32Cube and mbed:
 
 <figure>
-    <img src="zMedia/ice-white-ltdc.jpeg" alt="Ice white theme on STM32Cube LTDC framebuffer"/>
-    <figcaption>Ice White theme running on STM32Cube LTDC framebuffer</figcaption>
+    <img src="zMedia/ice-white-ltdc.jpeg" alt="Ice white theme on STM32Cube LTDC framebuffer and touch screen"/>
+    <figcaption>Ice White theme running on STM32Cube LTDC framebuffer with touch screen</figcaption>
 </figure>
 
-![Arduino menu running on ESP32 with ILI9341 and touch screen](zMedia/theme-cool-blue-modern.jpg)
+<figure>
+    <img src="zMedia/theme-cool-blue-modern.jpg" alt="Cool blue theme on ESP32 SPI ILI9341 and touch screen"/>
+    <figcaption>Cool blue theme on ESP32 SPI ILI9341 and touch screen</figcaption>
+</figure>
 
-![Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen](zMedia/theme-dark-mode-modern.jpg)
+<figure>
+    <img src="zMedia/theme-dark-mode-modern.jpg" alt="Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen"/>
+    <figcaption>Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen</figcaption>
+</figure>
 
-![Arduino menu on OLED running on ESP8266 with SH1106 and touch screen](zMedia/theme-oled-bordered.jpg)
+<figure>
+    <img src="zMedia/theme-oled-bordered.jpg" alt="Arduino menu on OLED running on ESP8266 with SH1106 and rotary encoder"/>
+    <figcaption>Arduino menu on OLED running on ESP8266 with SH1106 and rotary encoder</figcaption>
+</figure>
 
-![Arduino menu on LCD running on AVR](zMedia/menu-on-lcd-avr.jpg)
+<figure>
+    <img src="zMedia/menu-on-lcd-avr.jpg" alt="Arduino menu on 20x4 LCD running on AVR ATMega2560 with rotary encoder"/>
+    <figcaption>Arduino menu on 20x4 LCD running on AVR ATMega2560 with rotary encoder</figcaption>
+</figure>
 
 ### Support for rotary encoders, digital/analog joysticks and touch buttons
 
