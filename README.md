@@ -106,6 +106,11 @@ tcMenu can also save menu item state to EEPROM storage. On AVR that will general
 
 Here are a few examples of how the menu can look with version 2.0 of our menu library on Arduino, ESP, and mbed:
 
+<figure>
+    <img src="zMedia/ice-white-ltdc.jpeg" alt="Ice white theme on STM32Cube LTDC framebuffer"/>
+    <figcaption>Ice White theme running on STM32Cube LTDC framebuffer</figcaption>
+</figure>
+
 ![Arduino menu running on ESP32 with ILI9341 and touch screen](zMedia/theme-cool-blue-modern.jpg)
 
 ![Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen](zMedia/theme-dark-mode-modern.jpg)
