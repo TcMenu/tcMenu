@@ -6,15 +6,15 @@
 
 [Build your menu now with web designer](https://designer.thecoderscorner.com)
 
-A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
+tcMenu is a modular, cross‑platform UI framework for embedded devices. It provides a structured menu system, flexible input handling, portable rendering, and optional IoT/remote control integration. More than an Arduino menu library, tcMenu helps you build complete embedded applications with consistent UI behaviour across Arduino, mbed, STM32, ESP32, PicoSDK and more.
 
 https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
 
-Get started building your menu right away using [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. 
+Get started building your menu right away using the [web‑based TcMenu Designer](https://designer.thecoderscorner.com). It generates all core menu code for you and places callback stubs directly into your sketch or source files.
 
-Think of the designer like a form designer in the desktop domain. Furthermore, It's non-destructive on the sketch file, so can be round tripped during development. 
+The designer works much like a form designer in desktop development — you define the structure, behaviour, and appearance, and the tool handles the boilerplate. It’s also fully non‑destructive: your application code remains yours, and you can round‑trip safely throughout development.
 
-TcMenu organisation invests a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost-neutral to me by using either option to sponsor the project.
+TcMenu is an open‑source project used by thousands of developers across Arduino, STM32, ESP32, PicoSDK and more. Hosting the designer, maintaining the infrastructure, and developing new features all take real time and cost. If you find TcMenu valuable, please consider helping keep the project cost‑neutral by sponsoring its development.
 
 Sponsor me on [GitHub](https://github.com/TcMenu/tcMenu) (this repository). 
 
