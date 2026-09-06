@@ -106,30 +106,31 @@ tcMenu can also save menu item state to EEPROM storage. On AVR that will general
 
 Here are a few examples of how the menu can look with version 2.0 of our menu library on Arduino, PicoSDK, STM32Cube and mbed:
 
-<figure>
-    <img src="zMedia/ice-white-ltdc.jpeg" alt="Ice white theme on STM32Cube LTDC framebuffer and touch screen"/>
-    <figcaption>Ice White theme running on STM32Cube LTDC framebuffer with touch screen</figcaption>
-</figure>
+### Ice White theme 
 
-<figure>
-    <img src="zMedia/theme-cool-blue-modern.jpg" alt="Cool blue theme on ESP32 SPI ILI9341 and touch screen"/>
-    <figcaption>Cool blue theme on ESP32 SPI ILI9341 and touch screen</figcaption>
-</figure>
+Running on STM32Cube LTDC framebuffer with touch screen. The LTDC driver is accelerated proving excellent performance.
 
-<figure>
-    <img src="zMedia/theme-dark-mode-modern.jpg" alt="Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen"/>
-    <figcaption>Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen</figcaption>
-</figure>
+<img src="zMedia/ice-white-ltdc.jpeg" alt="Ice white theme on STM32Cube LTDC framebuffer and touch screen"/>
 
-<figure>
-    <img src="zMedia/theme-oled-bordered.jpg" alt="Arduino menu on OLED running on ESP8266 with SH1106 and rotary encoder"/>
-    <figcaption>Arduino menu on OLED running on ESP8266 with SH1106 and rotary encoder</figcaption>
-</figure>
+### Cool blue theme and dark modern theme
 
-<figure>
-    <img src="zMedia/menu-on-lcd-avr.jpg" alt="Arduino menu on 20x4 LCD running on AVR ATMega2560 with rotary encoder"/>
-    <figcaption>Arduino menu on 20x4 LCD running on AVR ATMega2560 with rotary encoder</figcaption>
-</figure>
+On ESP32 SPI ILI9341 and touch screen. With the SPI speed set at 10-20Mhz the performance is good. TcMenu has plugins for TFT-eSPI and Adafruit display drivers, we have an extension to the Adafruit driver that improves drawing speed. We also support color OLEDs and ST77xx displays.
+
+<img src="zMedia/theme-cool-blue-modern.jpg" alt="Cool blue theme on ESP32 SPI ILI9341 and touch screen"/>
+
+<img src="zMedia/theme-dark-mode-modern.jpg" alt="Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen"/>
+
+### Monochrome and eInk
+
+We offer a few different OLED and Monochrome themes and have drivers for most OLEDs. For eInk we have a special theme that allows for the eInk devices with 3 or 7 colors.  
+
+<img src="zMedia/theme-oled-bordered.jpg" alt="Arduino menu on OLED running on ESP8266 with SH1106 and rotary encoder"/>
+
+### LCD/LiquidCrystal
+
+The oldest of all plugins, the first we supported all the way back in 2018! We fully support 16x2 and 20x4 LCDs.
+
+<img src="zMedia/menu-on-lcd-avr.jpg" alt="Arduino menu on 20x4 LCD running on AVR ATMega2560 with rotary encoder"/>
 
 ### Support for rotary encoders, digital/analog joysticks and touch buttons
 
