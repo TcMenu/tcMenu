@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 export abstract class IoExpander {
-    protected constructor(public name: string) {}
+    constructor(public name: string) {}
     abstract getId(): string;
     abstract toString(): string;
     abstract clone(): IoExpander;
@@ -21,9 +21,6 @@ export class InternalDeviceExpander extends IoExpander {
 }
 
 export class CustomDeviceExpander extends IoExpander {
-    constructor(name: string) {
-        super(name);
-    }
     getId(): string { return this.name; }
     toString(): string { return "customIO:" + this.name; }
     clone(): IoExpander { return new CustomDeviceExpander(this.name); }

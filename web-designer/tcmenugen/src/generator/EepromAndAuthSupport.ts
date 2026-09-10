@@ -34,10 +34,6 @@ export abstract class EepromDefinition {
 }
 
 export class NoEEPROM extends EepromDefinition {
-    constructor() {
-        super();
-    }
-
     public stringDefinition() {
         return "";
     }
@@ -48,10 +44,6 @@ export class NoEEPROM extends EepromDefinition {
 }
 
 export class ArduinoEepromDefinition extends EepromDefinition {
-    constructor() {
-        super();
-    }
-
     public stringDefinition() {
         return "eeprom:";
     }
@@ -62,10 +54,6 @@ export class ArduinoEepromDefinition extends EepromDefinition {
 }
 
 export class AVREepromDefinition extends EepromDefinition {
-    constructor() {
-        super();
-    }
-
     public stringDefinition() {
         return "avr:";
     }

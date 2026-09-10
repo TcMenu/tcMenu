@@ -4,12 +4,10 @@ import {
     EditableLargeNumberMenuItem, EditableTextMenuItem,
     EnumMenuItem, FloatMenuItem, ListCreationMode,
     ListMenuItem,
-    MenuItem, Rgb32MenuItem, ScrollChoice, ScrollChoiceMenuItem,
-    SubMenuItem
+    MenuItem, Rgb32MenuItem, ScrollChoice, ScrollChoiceMenuItem
 } from "./MenuItem";
 import {
     CodeGeneratorOptions,
-    CreatorProperty,
     EepromSaveMode, MenuInMenuCollection,
     MenuInMenuConnectionType,
     MenuInMenuReplicationMode,

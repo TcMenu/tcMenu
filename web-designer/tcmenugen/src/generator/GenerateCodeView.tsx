@@ -1,5 +1,5 @@
 import {ensureDirectoryHandle, findFileWithExtension, useCurrentlyOpenProject} from "../App";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {ALL_PLATFORMS} from "../domain/Platforms";
 import {AuthenticationDefinition, EepromDefinition} from "./EepromAndAuthSupport";
 import {ChooseEepromDialog} from "./ChooseEepromDialog";
@@ -41,7 +41,7 @@ export function GenerateCodeView() {
     const [generationResponse, setGenerationResponse] = useState<GenerationResponse | null>(null);
     const [, setHash] = useState(0);
 
-    const getPluginIdsToFetch = () => {
+    const getPluginIdsToFetch = useCallback(() => {
         if (!project) return [];
         const ids = new Set<string>();
         if (project.options.lastInputUuid) ids.add(project.options.lastInputUuid);
@@ -54,9 +54,9 @@ export function GenerateCodeView() {
         }
 
         return Array.from(ids).filter(id => id !== userNeedsChooseInput.id && id !== userNeedsChooseDisplay.id && id !== userNeedsChooseTheme.id);
-    };
+    }, [project]);
 
-    const prepopulatePluginProperties = (fp: PublishableCodePluginItem): PublishableCodePluginItem => {
+    const prepopulatePluginProperties = useCallback((fp: PublishableCodePluginItem): PublishableCodePluginItem => {
         if (!project) return fp;
         let modified = false;
         const newProperties = fp.properties.map(prop => {
@@ -86,18 +86,7 @@ export function GenerateCodeView() {
             ...fp,
             properties: newProperties
         };
-    };
-
-    const mergePluginsIntoState = (fetchedPlugins: PublishableCodePluginItem[]) => {
-        setPlugins(prev => {
-            let newPlugins = [...prev];
-            fetchedPlugins.forEach(fp => {
-                const updatedFp = prepopulatePluginProperties(fp);
-                newPlugins = updateOnePluginInState(newPlugins, updatedFp);
-            });
-            return newPlugins;
-        });
-    };
+    }, [project]);
 
     const updateOnePluginInState = (currentPlugins: PublishableCodePluginItem[], updatedPlugin: PublishableCodePluginItem) => {
         const newPlugins = [...currentPlugins];
@@ -108,7 +97,18 @@ export function GenerateCodeView() {
             newPlugins.push(updatedPlugin);
         }
         return newPlugins;
-    }
+    };
+
+    const mergePluginsIntoState = useCallback((fetchedPlugins: PublishableCodePluginItem[]) => {
+        setPlugins(prev => {
+            let newPlugins = [...prev];
+            fetchedPlugins.forEach(fp => {
+                const updatedFp = prepopulatePluginProperties(fp);
+                newPlugins = updateOnePluginInState(newPlugins, updatedFp);
+            });
+            return newPlugins;
+        });
+    }, [prepopulatePluginProperties]);
 
     useEffect(() => {
         const idsToFetch = getPluginIdsToFetch();
@@ -124,7 +124,7 @@ export function GenerateCodeView() {
         } else {
             setPlugins([]); // Clear if nothing to fetch
         }
-    }, [project]);
+    }, [getPluginIdsToFetch, mergePluginsIntoState]);
 
     if(error) return (
         <div className="wide-project-container">
