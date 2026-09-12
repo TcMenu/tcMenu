@@ -155,7 +155,7 @@ function applyCurrentValue(item: PersistedMenu, prj: PersistedProject) {
 
     if (item.item instanceof ListMenuItem && item.item.getListCreationMode() === ListCreationMode.FLASH_ARRAY && prj.stringLists) {
         const items = prj.stringLists
-            .filter(psl => psl.id === item.item.getMenuId() && psl.listItems != null)
+            .filter(psl => psl.id.toString() === item.item.getMenuId() && psl.listItems != null)
             .map(psl => psl.listItems)
             .at(0);
         if (items) {
@@ -172,7 +172,7 @@ export function parseEmfJsonToProject(jsonData: string, mode?: RoundTripMode) : 
 
     for(let item of prj.items) {
         tree.addMenuItem(item.parentId, item.item);
-        if (item.defaultValue) {
+        if (item.defaultValue || item.item instanceof ListMenuItem) {
             applyCurrentValue(item, prj);
         }
     }
