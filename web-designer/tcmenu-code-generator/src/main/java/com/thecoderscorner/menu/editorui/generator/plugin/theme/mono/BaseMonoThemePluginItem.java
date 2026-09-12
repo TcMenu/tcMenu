@@ -1,9 +1,10 @@
-package com.thecoderscorner.menu.editorui.generator.plugin.theme;
+package com.thecoderscorner.menu.editorui.generator.plugin.theme.mono;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.BaseJavaThemePluginItem;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 
 import java.util.ArrayList;
@@ -28,9 +29,13 @@ public abstract class BaseMonoThemePluginItem extends BaseJavaThemePluginItem {
                     "1", SubSystem.THEME, CreatorProperty.PropType.VARIABLE, CannedPropertyValidators.uintValidator(7), ALWAYS_APPLICABLE));
         }
         props.add(CreatorProperty.boolProperty("THEME_INVERSE_SELECT", "Use inverse video for selection", "When an item is selected the row will show in inverse video", filled, SubSystem.THEME));
+        props.add(CreatorProperty.boolProperty("DISPLAY_WHITE_TXT_BLACK_BG", "Display has white text on black background", "For most OLED this is true, white text, black background, for Nokia 5110 this is false", true, SubSystem.THEME));
         props.addAll(defFontProperties());
         properties = List.copyOf(props);
+    }
 
+    protected boolean displayIsWhiteOnBlack() {
+        return findPropOrDefault("DISPLAY_WHITE_TXT_BLACK_BG", "true").equals("true");
     }
 
     @Override

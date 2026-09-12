@@ -73,6 +73,9 @@ const AnalogMenuInfo minfoMySubMyAnalog = { "My Analog", 2, 2, 255, onAnalogItem
 AnalogMenuItem menuMySubMyAnalog(&minfoMySubMyAnalog, 0, &menuMySubMyEnum, INFO_LOCATION_PGM);
 
 void setupMenu() {
+    // always initialise the task manager atomics before anything else.
+    tmInitAtomics();
+
     // First we set up eeprom and authentication (if needed).
     setEepromStorageMode(TC_STORE_ROM_DYNAMIC);
     glBspRom.initialise(50);

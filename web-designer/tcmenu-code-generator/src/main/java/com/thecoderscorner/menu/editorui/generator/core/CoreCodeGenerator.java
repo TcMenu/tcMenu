@@ -290,7 +290,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             }
 
             writer.write(LINE_BREAK);
-            writer.write("void setupMenu() {");
+            writer.write("""
+                            void setupMenu() {
+                                // always initialise the task manager atomics before anything else.
+                                tmInitAtomics();
+                            """);
             writer.write(LINE_BREAK);
 
             writer.write("    // First we set up eeprom and authentication (if needed)." + LINE_BREAK);

@@ -1,9 +1,10 @@
-package com.thecoderscorner.menu.editorui.generator.plugin.theme;
+package com.thecoderscorner.menu.editorui.generator.plugin.theme.color;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.BaseJavaThemePluginItem;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import org.jspecify.annotations.NonNull;
 

@@ -4,6 +4,11 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginGroup;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.color.CoolBlueModernTheme;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.color.DarkModeModernTheme;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.color.IceWhiteModernTheme;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.mono.MonoBorderedTitleTheme;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.mono.MonoFilledTitleTheme;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.ArrayList;

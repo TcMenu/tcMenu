@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.generator.plugin.theme;
+package com.thecoderscorner.menu.editorui.generator.plugin.theme.color;
 
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;

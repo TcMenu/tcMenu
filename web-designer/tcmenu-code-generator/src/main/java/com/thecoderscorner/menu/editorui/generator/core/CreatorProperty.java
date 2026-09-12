@@ -9,9 +9,11 @@ package com.thecoderscorner.menu.editorui.generator.core;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
+import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.ALWAYS_APPLICABLE;
@@ -56,6 +58,10 @@ public class CreatorProperty {
 
     public static CreatorProperty boolProperty(String id, String name, String desc, boolean initial, SubSystem subSystem) {
         return new CreatorProperty(id, name, desc, Boolean.toString(initial), subSystem, PropType.VARIABLE, boolValidator(), ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty ofChoices(String id, String name, String desc, SubSystem subSystem, String initialValue, List<ChoiceDescription> choices) {
+        return new CreatorProperty(id, name, desc, initialValue, subSystem, PropType.VARIABLE, CannedPropertyValidators.choicesValidator(choices, initialValue), ALWAYS_APPLICABLE);
     }
 
     /** Definitions of how a specific property is intended to be used */

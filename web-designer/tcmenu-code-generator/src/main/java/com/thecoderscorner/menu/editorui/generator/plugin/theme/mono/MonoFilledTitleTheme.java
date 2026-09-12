@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.generator.plugin.theme;
+package com.thecoderscorner.menu.editorui.generator.plugin.theme.mono;
 
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -7,7 +7,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginGroup;
 public class MonoFilledTitleTheme extends BaseMonoThemePluginItem {
     private final CodePluginItem plugin;
 
-    protected MonoFilledTitleTheme(JavaPluginGroup group, CodePluginManager manager) {
+    public MonoFilledTitleTheme(JavaPluginGroup group, CodePluginManager manager) {
         super("/plugin/theme/theme-oled-inverse.jpg", "ThemeMonoInverseBuilder", true);
 
         plugin = monoPluginDef(group, manager, "396ED4DF-AD7B-4951-A848-A9E5838A549B",
@@ -23,11 +23,19 @@ public class MonoFilledTitleTheme extends BaseMonoThemePluginItem {
 
     @Override
     protected String titlePalette() {
-        return "BLACK, WHITE, BLACK, BLACK";
+        if(displayIsWhiteOnBlack()) {
+            return "BLACK, WHITE, BLACK, BLACK";
+        } else {
+            return "WHITE, BLACK, WHITE, WHITE";
+        }
     }
 
     @Override
     protected String itemPalette() {
-        return "WHITE, BLACK, WHITE, WHITE";
+        if(displayIsWhiteOnBlack()) {
+            return "WHITE, BLACK, WHITE, WHITE";
+        } else {
+            return "BLACK, WHITE, BLACK, BLACK";
+        }
     }
 }

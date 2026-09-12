@@ -42,6 +42,9 @@ const PROGMEM EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, callback1, enumStrE
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest, INFO_LOCATION_PGM);
 
 void setupMenu() {
+    // always initialise the task manager atomics before anything else.
+    tmInitAtomics();
+
     // First we set up eeprom and authentication (if needed).
     setEepromStorageMode(TC_STORE_ROM_DYNAMIC);
     menuMgr.setEepromRef(&glAvrRom);
