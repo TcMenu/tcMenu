@@ -21,9 +21,9 @@ using namespace tcgfx;
 
 #ifndef COOKIE_CUT_MEMBUFFER_SIZE
 #ifdef __AVR__
-#define COOKIE_CUT_MEMBUFFER_SIZE 16
-#else
 #define COOKIE_CUT_MEMBUFFER_SIZE 32
+#else
+#define COOKIE_CUT_MEMBUFFER_SIZE 64
 #endif // AVR reduced size buffer
 #endif // COOKIE_CUT_MEMBUFFER_SIZE
 
@@ -40,7 +40,7 @@ void AdafruitDrawable::drawBitmap(const Coord &where, const DrawableIcon *icon, 
         graphics->fillRect(where.x, where.y, icon->getDimensions().x, icon->getDimensions().y, backgroundColor);
         graphics->drawXBitmap(where.x, where.y, icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y, drawColor);
     } else if(icon->getIconType() == DrawableIcon::ICON_NATIVE) {
-        graphics->drawRGBBitmap(where.x, where.y, (const uint16_t*)icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y);
+        graphics->drawRGBBitmap(where.x, where.y, reinterpret_cast<const uint16_t*>(icon->getIcon(selected)), icon->getDimensions().x, icon->getDimensions().y);
     } else if(icon->getIconType() == DrawableIcon::ICON_MONO) {
         graphics->drawBitmap(where.x, where.y, icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y, drawColor, backgroundColor);
     } else if(icon->getPalette() != nullptr){
@@ -58,7 +58,7 @@ void AdafruitDrawable::drawBitmapNbpp(const Coord& where, const uint8_t* data, c
 
     uint16_t next = 0;
     uint8_t byteIteration = bitsInByte;
-    uint8_t current;
+    uint8_t current = 0;
 
     asTft->startWrite();
 
@@ -137,7 +137,7 @@ void AdafruitDrawable::drawPixel(uint16_t x, uint16_t y) {
 
 void drawCookieCutBitmap(Adafruit_SPITFT* gfx, int16_t x, int16_t y, const uint8_t *bitmap, int16_t w,
                          int16_t h, int16_t totalWidth, int16_t xStart, int16_t yStart,
-                         uint16_t fgColor, uint16_t bgColor) {
+                         color_t fgColor, color_t bgColor) {
 
     // total width here is different to the width we are drawing, imagine rolling out a long
     // line of dough and cutting cookies from it. The cookie is the part of the image we want
@@ -213,6 +213,46 @@ void drawCookieCutBitmap2bpp(Adafruit_SPITFT* gfx, int16_t x, int16_t y, const u
     gfx->endWrite();
 }
 
+void drawCookieCutBitmap4bpp(Adafruit_SPITFT* gfx, int16_t x, int16_t y, const uint8_t *bitmap, int16_t w,
+                             int16_t h, int16_t totalWidth, int16_t xStart, int16_t yStart,
+                             const uint16_t* palette) {
+    // total width here is different to the width we are drawing, imagine rolling out a long
+    // line of dough and cutting cookies from it. The cookie is the part of the image we want
+    uint16_t byteWidth = (totalWidth + 1) / 2; // Bitmap scanline pad = whole byte
+    uint16_t yEnd = h + yStart;
+    uint16_t xEnd = w + xStart;
+    uint8_t byte;
+
+    gfx->startWrite();
+
+    int next = 0;
+
+    for (uint16_t j = yStart; j < yEnd; j++, y++) {
+        byte = bitmap[(j * byteWidth) + (xStart / 2)];
+        gfx->setAddrWindow(x, y, w, 1);
+        for (uint16_t i = xStart; i < xEnd; i++) {
+            if((i & 1) == 0) {
+                byte = bitmap[(j * byteWidth) + (i / 2)];
+            }
+            auto offset = (i & 1) << 2;
+            auto color = (byte >> offset) & 0x0f;
+            memBuffer[next] = palette[color];
+            next = next + 1;
+            if(next == COOKIE_CUT_MEMBUFFER_SIZE) {
+                gfx->writePixels(memBuffer, next);
+                next = 0;
+            }
+        }
+        if(next != 0) {
+            gfx->writePixels(memBuffer, next);
+            next = 0;
+        }
+    }
+
+    gfx->endWrite();
+}
+
+
 //
 // TcGFXcanvas2 - the 2bit graphics canvas class
 //
@@ -236,9 +276,9 @@ TcGFXcanvas2::~TcGFXcanvas2() {
     delete[] buffer;
 }
 
-bool TcGFXcanvas2::reInitCanvas(int w, int h) {
+bool TcGFXcanvas2::reInitCanvas(const int16_t w, const int16_t h) {
     // first check we can allocate this buffer
-    size_t bytesNeededForThisBuffer = (((w + 3) / 4) * h) * 2;
+    size_t bytesNeededForThisBuffer = ((w + 3) / 4) * h;
     if(bytesNeededForThisBuffer >= maxBytesAvailable) {
         return false;
     }
@@ -284,7 +324,7 @@ void TcGFXcanvas2::drawPixel(int16_t x, int16_t y, uint16_t color) {
     *ptr |= SHIFT_PIXEL(x, color);
 }
 
-uint8_t makeColorToByte(uint16_t color) {
+uint8_t makeColorToByte(color_t color) {
     uint8_t col = (color & 3);
 
     uint8_t ret =  col;
@@ -301,13 +341,13 @@ uint8_t makeColorToByte(uint16_t color) {
     return ret;
 }
 
-void TcGFXcanvas2::fillScreen(uint16_t color) {
+void TcGFXcanvas2::fillScreen(color_t color) {
     if (!buffer) return;
     uint8_t col = makeColorToByte(color);
     memset(buffer, col, getByteCount());
 }
 
-void TcGFXcanvas2::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
+void TcGFXcanvas2::drawFastVLine(int16_t x, int16_t y, int16_t h, color_t color) {
     if (h < 0) { // Convert negative heights to positive equivalent
         h *= -1;
         y -= h - 1;
@@ -352,7 +392,7 @@ void TcGFXcanvas2::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color
     }
 }
 
-void TcGFXcanvas2::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
+void TcGFXcanvas2::drawFastHLine(int16_t x, int16_t y, int16_t w, color_t color) {
     if (w < 0) { // Convert negative widths to positive equivalent
         w *= -1;
         x -= w - 1;
@@ -430,7 +470,7 @@ uint8_t TcGFXcanvas2::getRawPixel(int16_t x, int16_t y) const {
     return 0;
 }
 
-void TcGFXcanvas2::drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
+void TcGFXcanvas2::drawFastRawVLine(int16_t x, int16_t y, int16_t h, color_t color) {
     // x & y already in raw (rotation 0) coordinates, no need to transform.
     uint8_t *ptr = POSITION_IN_BUFFER(x, y);
     size_t rowBytes = (WIDTH + PIXELS_PER_BYTE_ROUNDING) / PIXELS_PER_BYTE;
@@ -444,7 +484,7 @@ void TcGFXcanvas2::drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t co
     }
 }
 
-void TcGFXcanvas2::drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
+void TcGFXcanvas2::drawFastRawHLine(int16_t x, int16_t y, int16_t w, color_t color) {
     // x & y already in raw (rotation 0) coordinates, no need to transform.
     uint8_t *ptr = POSITION_IN_BUFFER(x, y);
     size_t remainingWidthBits = w;
@@ -487,76 +527,254 @@ void TcGFXcanvas2::drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t co
     }
 }
 
-DeviceDrawable *AdafruitDrawable::getSubDeviceFor(const Coord &where, const Coord& size, const color_t *palette, int paletteSize) {
-    if(spriteHeight != 0 && canvasDrawable == nullptr) canvasDrawable = new AdafruitCanvasDrawable2bpp(this, graphics->width(), spriteHeight);
-    if(!canvasDrawable) return nullptr;
+//
+// TcGFXcanvas4 - the 4bit graphics canvas class
+//
 
-    return (canvasDrawable->initSprite(where, size, palette, paletteSize)) ? canvasDrawable : nullptr;
-}
+#define PIXELS_PER_BYTE_4 2
+#define PIXELS_PER_BYTE_ROUNDING_4 1
+#define POSITION_IN_BUFFER_4(x,y) (&buffer[((x) / PIXELS_PER_BYTE_4) + ((y) * ((WIDTH + PIXELS_PER_BYTE_ROUNDING_4) / PIXELS_PER_BYTE_4))])
+#define SHIFT_PIXEL_4(x, c) (((c) & 0x0f) << (((x) & 1) << 2))
 
-AdafruitCanvasDrawable2bpp::AdafruitCanvasDrawable2bpp(AdafruitDrawable *root,  int width, int height) : root(root),
-                                                                                                         sizeMax({width, height}), sizeCurrent(), palette{} {
-    canvas = new TcGFXcanvas2(width, height);
-    setGraphics(canvas);
-}
+uint8_t bitsOffMask4[] = { 0xF0, 0x0F };
 
-void AdafruitCanvasDrawable2bpp::transaction(bool isStarting, bool redrawNeeded) {
-    if (!isStarting) {
-        // if it's ending, we push the canvas onto the display.
-        drawCookieCutBitmap2bpp((Adafruit_SPITFT*)root->getGfx(), where.x, where.y, canvas->getBuffer(), sizeCurrent.x, sizeCurrent.y,
-                                canvas->width(), 0, 0, palette);
+TcGFXcanvas4::TcGFXcanvas4(uint16_t w, uint16_t h): Adafruit_GFX((int16_t)w, (int16_t)h) {
+    size_t byteCount = getByteCount();
+    if ((buffer = new uint8_t[byteCount])) {
+        memset(buffer, 0, byteCount);
+        maxBytesAvailable = byteCount;
     }
 }
 
-bool AdafruitCanvasDrawable2bpp::initSprite(const Coord& spriteWhere, const Coord& spriteSize, const color_t* colPalette, size_t paletteSize) {
-    if(!canvas->reInitCanvas(spriteSize.x, spriteSize.y)) {
+TcGFXcanvas4::~TcGFXcanvas4() {
+    delete[] buffer;
+}
+
+bool TcGFXcanvas4::reInitCanvas(int16_t w, int16_t h) {
+    // first check we can allocate this buffer
+    size_t bytesNeededForThisBuffer = ((w + 1) / 2) * h;
+    if(bytesNeededForThisBuffer >= maxBytesAvailable) {
         return false;
     }
-    where = spriteWhere;
-    sizeCurrent = spriteSize;
-    if(paletteSize > 4) paletteSize = 4;
-    for(size_t i=0; i<paletteSize; i++) {
-        palette[i] = colPalette[i];
-    }
 
-    if(root->isTcUnicodeEnabled()) {
-        this->enableTcUnicode();
-    }
+    // now reset the width and height to the new arrangements.
+    WIDTH = w;
+    HEIGHT = h;
+    _width = WIDTH;
+    _height = HEIGHT;
+    rotation = 0;
+    cursor_y = cursor_x = 0;
+    textsize_x = textsize_y = 1;
     return true;
 }
 
-color_t AdafruitCanvasDrawable2bpp::getUnderlyingColor(color_t col) {
-    for(int i=0; i<4; i++) {
-        if(palette[i] == col) return i;
+void TcGFXcanvas4::drawPixel(int16_t x, int16_t y, color_t color) {
+    if(!buffer) return;
+
+    if ((x < 0) || (y < 0) || (x >= _width) || (y >= _height))
+        return;
+
+    int16_t t;
+    switch (rotation) {
+        case 1:
+            t = x;
+            x = WIDTH - 1 - y;
+            y = t;
+            break;
+        case 2:
+            x = WIDTH - 1 - x;
+            y = HEIGHT - 1 - y;
+            break;
+        case 3:
+            t = x;
+            x = y;
+            y = HEIGHT - 1 - t;
+            break;
     }
 
+    uint8_t *ptr = POSITION_IN_BUFFER_4(x, y);
+    const int bitOffset = (x & 1);
+    *ptr &= bitsOffMask4[bitOffset];
+    *ptr |= SHIFT_PIXEL_4(x, color);
+}
+
+static uint8_t makeColorToByte4(uint16_t color) {
+    const uint8_t col = (color & 0x0f);
+    return col | (col << 4);
+}
+
+void TcGFXcanvas4::fillScreen(color_t color) {
+    if (!buffer) return;
+    uint8_t col = makeColorToByte4(color);
+    memset(buffer, col, getByteCount());
+}
+
+void TcGFXcanvas4::drawFastVLine(int16_t x, int16_t y, int16_t h, color_t color) {
+    if (h < 0) { // Convert negative heights to positive equivalent
+        h *= -1;
+        y -= h - 1;
+        if (y < 0) {
+            h += y;
+            y = 0;
+        }
+    }
+
+    // Edge rejection (no-draw if totally off canvas)
+    if ((x < 0) || (x >= width()) || (y >= height()) || ((y + h - 1) < 0)) {
+        return;
+    }
+
+    if (y < 0) { // Clip top
+        h += y;
+        y = 0;
+    }
+    if (y + h > height()) { // Clip bottom
+        h = height() - y;
+    }
+
+    if (getRotation() == 0) {
+        drawFastRawVLine(x, y, h, color);
+    } else if (getRotation() == 1) {
+        int16_t t = x;
+        x = WIDTH - 1 - y;
+        y = t;
+        x -= h - 1;
+        drawFastRawHLine(x, y, h, color);
+    } else if (getRotation() == 2) {
+        x = WIDTH - 1 - x;
+        y = HEIGHT - 1 - y;
+
+        y -= h - 1;
+        drawFastRawVLine(x, y, h, color);
+    } else if (getRotation() == 3) {
+        int16_t t = x;
+        x = y;
+        y = HEIGHT - 1 - t;
+        drawFastRawHLine(x, y, h, color);
+    }
+}
+
+void TcGFXcanvas4::drawFastHLine(int16_t x, int16_t y, int16_t w, color_t color) {
+    if (w < 0) { // Convert negative widths to positive equivalent
+        w *= -1;
+        x -= w - 1;
+        if (x < 0) {
+            w += x;
+            x = 0;
+        }
+    }
+
+    // Edge rejection (no-draw if totally off canvas)
+    if ((y < 0) || (y >= height()) || (x >= width()) || ((x + w - 1) < 0)) {
+        return;
+    }
+
+    if (x < 0) { // Clip left
+        w += x;
+        x = 0;
+    }
+    if (x + w >= width()) { // Clip right
+        w = width() - x;
+    }
+
+    if (getRotation() == 0) {
+        drawFastRawHLine(x, y, w, color);
+    } else if (getRotation() == 1) {
+        int16_t t = x;
+        x = WIDTH - 1 - y;
+        y = t;
+        drawFastRawVLine(x, y, w, color);
+    } else if (getRotation() == 2) {
+        x = WIDTH - 1 - x;
+        y = HEIGHT - 1 - y;
+
+        x -= w - 1;
+        drawFastRawHLine(x, y, w, color);
+    } else if (getRotation() == 3) {
+        int16_t t = x;
+        x = y;
+        y = HEIGHT - 1 - t;
+        y -= w - 1;
+        drawFastRawVLine(x, y, w, color);
+    }
+}
+
+uint8_t TcGFXcanvas4::getPixel(int16_t x, int16_t y) const {
+    int16_t t;
+    switch (rotation) {
+        case 1:
+            t = x;
+            x = WIDTH - 1 - y;
+            y = t;
+            break;
+        case 2:
+            x = WIDTH - 1 - x;
+            y = HEIGHT - 1 - y;
+            break;
+        case 3:
+            t = x;
+            x = y;
+            y = HEIGHT - 1 - t;
+            break;
+    }
+    return getRawPixel(x, y);
+}
+
+uint8_t TcGFXcanvas4::getRawPixel(int16_t x, int16_t y) const {
+    if ((x < 0) || (y < 0) || (x >= WIDTH) || (y >= HEIGHT)) return 0;
+
+    if (buffer) {
+        uint8_t *ptr = POSITION_IN_BUFFER_4(x, y);
+        auto col = *ptr >> ((x & 1) << 2);
+        return col & 0x0f;
+    }
     return 0;
 }
 
-DeviceDrawable *AdafruitCanvasDrawable2bpp::getSubDeviceFor(const Coord&, const Coord&, const color_t *, int) {
-    return nullptr; // don't allow further nesting.
+void TcGFXcanvas4::drawFastRawVLine(int16_t x, int16_t y, int16_t h, color_t color) {
+    // x & y already in raw (rotation 0) coordinates, no need to transform.
+    uint8_t *ptr = POSITION_IN_BUFFER_4(x, y);
+    size_t rowBytes = (WIDTH + 1) / 2;
+
+    uint8_t bitMaskReset = bitsOffMask4[x & 1];
+    uint8_t colorBits = SHIFT_PIXEL_4(x, color);
+    for (int16_t i = 0; i < h; i++) {
+        *ptr &= bitMaskReset;
+        *ptr |= colorBits;
+        ptr += rowBytes;
+    }
 }
 
-void AdafruitCanvasDrawable2bpp::drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const uint16_t* palette) {
-    auto yTot = int16_t(where.y + size.y);
-    auto xTot = int16_t(where.x + size.x);
-    int bitsInByte = bpp == 2 ? 4 : 2;
-    uint8_t downShift = bpp == 2 ? 6 : 4;
+void TcGFXcanvas4::drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
+    // x & y already in raw (rotation 0) coordinates, no need to transform.
+    uint8_t *ptr = POSITION_IN_BUFFER_4(x, y);
+    size_t remainingWidthPixels = w;
 
-    uint8_t byteIteration = bitsInByte;
-    uint8_t current;
-    for(int16_t y = where.y; y<yTot; y++) {
-        for(int16_t x = where.x; x<xTot; x++) {
-            if(byteIteration == bitsInByte) {
-                current = pgm_read_byte(data);
-                data += 1;
-                byteIteration = 0;
-            }
-            uint8_t idx = current >> downShift;
-            current = current << bitsInByte;
-            byteIteration++;
-            canvas->drawPixel(x, y, idx);
-        }
-        byteIteration = bitsInByte; // always need a new byte in this case
+    // check to see if first byte needs to be partially filled
+    if ((x & 1) > 0 && remainingWidthPixels > 0) {
+        *ptr &= bitsOffMask4[1];
+        *ptr |= SHIFT_PIXEL_4(1, color);
+        ptr++;
+        remainingWidthPixels--;
     }
+
+    // do the remaining whole bytes
+    if (remainingWidthPixels > 0) {
+        size_t remainingWholeBytes = remainingWidthPixels / 2;
+        size_t lastBytePixels = remainingWidthPixels % 2;
+
+        if (remainingWholeBytes > 0) {
+            memset(ptr, makeColorToByte4(color), remainingWholeBytes);
+            ptr += remainingWholeBytes;
+        }
+
+        if (lastBytePixels > 0) {
+            *ptr &= bitsOffMask4[0];
+            *ptr |= SHIFT_PIXEL_4(0, color);
+        }
+    }
+}
+
+DeviceDrawable *AdafruitDrawable::getSubDeviceFor(const Coord &where, const Coord& size, const color_t *palette, int paletteSize) {
+    __ROOT_DRAW_SUB_DEVICE_FOR__
 }

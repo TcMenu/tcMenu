@@ -146,6 +146,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             generateSource(allPlugins, cppFile, menuCodeGen, projectName, extractor, callbackFunctions);
             fileProcessor.dealWithRequiredPlugins(allPlugins, srcDir, directory, psl, previousPluginFiles);
 
+
             if (localeHandler.isLocalSupportEnabled()) {
                 I18nCodeGenerator localeCodeGen;
                 if(options.getSaveLocation() == ONE_SINGLE_FILE_MENU_MAIN || options.getSaveLocation() == ONE_SINGLE_FILE) {

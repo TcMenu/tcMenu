@@ -19,7 +19,9 @@
 using namespace iotouch;
 using namespace tcgfx;
 
-TfteSpiDrawable::TfteSpiDrawable(TFT_eSPI *tft, int spriteHeight) : tft(tft), spriteWithConfig(nullptr), spriteHeight(spriteHeight) {}
+TfteSpiDrawable::TfteSpiDrawable(TFT_eSPI *tft, int spriteHeight) : tft(tft), spriteWithConfig(nullptr), spriteHeight(spriteHeight) {
+    setSubDeviceType(SUB_DEVICE_4BPP);
+}
 
 DeviceDrawable *TfteSpiDrawable::getSubDeviceFor(const Coord &where, const Coord& size, const color_t *palette, int paletteSize) {
     if(paletteSize > SPRITE_PALETTE_SIZE) return nullptr; // cant exceed color palette size

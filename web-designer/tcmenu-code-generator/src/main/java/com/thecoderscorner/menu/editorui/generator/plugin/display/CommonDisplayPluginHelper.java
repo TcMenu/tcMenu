@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.plugin.display;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
@@ -29,9 +30,5 @@ public class CommonDisplayPluginHelper {
                 new ChoiceDescription("2", "180 degrees"),
                 new ChoiceDescription("3", "270 degrees")
         ), "0"), ALWAYS_APPLICABLE);
-    }
-
-    public static CreatorProperty doubleBufferSize() {
-        return CreatorProperty.uintProperty("DISPLAY_BUFFER_SIZE", "Lines to double buffer (40-80 bytes line)", "Higher performance and less flicker, draws items into a memory buffer and then writes the result optimally on the TFT (Aka Sprite height)", SubSystem.DISPLAY, 0, 320);
     }
 }

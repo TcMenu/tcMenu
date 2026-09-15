@@ -489,6 +489,10 @@ public class GenerateCodeController {
 
         @Override
         public void fileModificiation(GeneratedFile generatedFile) {
+            filesInOutput.removeIf(existing ->
+                    Path.of(existing.getFileName()).getFileName().equals(Path.of(generatedFile.getFileName()).getFileName())
+            );
+
             filesInOutput.add(generatedFile);
         }
     }

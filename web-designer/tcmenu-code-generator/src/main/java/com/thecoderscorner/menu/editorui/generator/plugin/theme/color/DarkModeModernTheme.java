@@ -11,7 +11,7 @@ public class DarkModeModernTheme extends BaseFullRgbThemePluginItem {
     public static final String SEL_DARK_FG = "RGB(255, 255, 255)";
 
     public static final String TITLE_FG = "RGB(255,255,255)";
-    public static final String TITLE_BG = "RGB(43,43,43)";
+    public static final String TITLE_BG = "RGB(55,55,55)";
     public static final String TITLE_HL = "RGB(192,192,192)";
     public static final String TITLE_EX = "RGB(0,133,255)";
 

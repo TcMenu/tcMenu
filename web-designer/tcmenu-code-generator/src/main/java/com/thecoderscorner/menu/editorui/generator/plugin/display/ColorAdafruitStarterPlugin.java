@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplica
 import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
@@ -73,11 +74,19 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
                         ), "INITR_BLACKTAB"), new MatchesApplicability("DISPLAY_TYPE", "Adafruit_ST77..")),
                 CommonDisplayPluginHelper.updatesPerSecond(),
                 CommonDisplayPluginHelper.displayRotation0to3(),
-                CommonDisplayPluginHelper.doubleBufferSize(),
                 CreatorProperty.uintProperty("DISPLAY_SPI_SPEED", "SPI Clock Speed (0 is default)", "Optionally adjust the clock speed of the SPI bus, useful for hardware SPI to boost drawing performance.",
                         DISPLAY, 0, 1_000_000_000, new MatchesApplicability("DISPLAY_VARIABLE", "Adafruit_ILI9341|Adafruit_SSD1351")),
                 new CreatorProperty("DISPLAY_CUSTOM_SPI_NAME", "Which SPI bus to use", "Choose the SPI class that will be used",
-                        "SPI", DISPLAY, VARIABLE, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE)
+                        "SPI", DISPLAY, VARIABLE, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE),
+                separatorProperty("DISPLAY_DOUBLE_BUFFER_SEP", "Screen buffering and performance"),
+                CreatorProperty.ofChoices("DISPLAY_DOUBLE_BUFFER", "Double buffering mode", "Higher performance and less flicker, draws items into a memory buffer and then writes the result optimally on the TFT (Aka Sprite height)", SubSystem.DISPLAY, "NO", List.of(
+                        new ChoiceDescription("NO", "Not double buffered (slow)"),
+                        new ChoiceDescription("4BPP", "Buffered with 4bpp palette (recommended)"),
+                        new ChoiceDescription("2BPP", "Buffered with 2bpp palette (less RAM)")
+                )),
+                CreatorProperty.uintProperty("DISPLAY_BUFFER_SIZE", "Lines to double buffer (40-80 bytes line)",
+                        "Calculate this from the largest single menu item you intend to draw", SubSystem.DISPLAY, 0, 320,
+                        new EqualityApplicability("DISPLAY_DOUBLE_BUFFER", "NO", true))
         );
     }
 
@@ -133,13 +142,16 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
     public List<RequiredSourceFile> getRequiredSourceFiles() {
         var headerName =  "tcMenuAdaFruitGfx.h";
         var replacements = List.of(
+                new CodeReplacement("__ADA_BUFFER_CODE__", ADA_BUFFER_CODE, ALWAYS_APPLICABLE),
+                new CodeReplacement("__ROOT_DRAW_SUB_DEVICE_FOR__", getBufferForCode(), ALWAYS_APPLICABLE),
+                new CodeReplacement("__BUFFER_MODE__", bufferMode(), ALWAYS_APPLICABLE),
                 new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", Boolean.toString(false), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(false), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TEXT_HANDLING_CODE__", getDefaultTextFunctions(true), ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", "", ALWAYS_APPLICABLE),
                 new CodeReplacement("__ACTUAL_GENERATED_HDR__", headerName, ALWAYS_APPLICABLE),
                 new CodeReplacement("__EXTRA_TYPE_DEFS_NEEDED__", "", ALWAYS_APPLICABLE),
-                new CodeReplacement("__EXTRA_VARIABLES__", "", ALWAYS_APPLICABLE),
+                new CodeReplacement("__EXTRA_VARIABLES__", bufferIfNeeded(), ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Header", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Driver", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE)
         );
@@ -150,6 +162,38 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfx.h", getHeaderFile(false), replacements, true));
 
         return List.copyOf(sourceFiles);
+    }
+
+    private String getBufferForCode() {
+        var dblBuf = findPropOrFail("DISPLAY_DOUBLE_BUFFER");
+        if(dblBuf.equals("NO")) {
+            return "   return nullptr;";
+        }
+        int bpp = dblBuf.equals("4BPP") ? 4 : 2;
+        int palSize = dblBuf.equals("4BPP") ? 16 : 4;
+        return """
+                    if(spriteHeight != 0 && canvasDrawable == nullptr) {
+                        canvasDrawable = new AdafruitCanvasDrawableNbpp<TcGFXcanvas%d, %d, %d>(this, graphics->width(), spriteHeight);
+                    }
+                    if(!canvasDrawable) return nullptr;
+                    return (canvasDrawable->initSprite(where, size, palette, paletteSize)) ? canvasDrawable : nullptr;
+                """.formatted(bpp, bpp, palSize);
+    }
+
+    private String bufferIfNeeded() {
+        return switch (findPropOrFail("DISPLAY_DOUBLE_BUFFER")) {
+            case "4BPP" -> "AdafruitCanvasDrawableNbpp<TcGFXcanvas4, 4, 16>* canvasDrawable = nullptr;";
+            case "2BPP" -> "AdafruitCanvasDrawableNbpp<TcGFXcanvas2, 2, 4>* canvasDrawable = nullptr;";
+            default -> "";
+        };
+    }
+
+    private String bufferMode() {
+        return switch (findPropOrFail("DISPLAY_DOUBLE_BUFFER")) {
+            case "4BPP" -> "SUB_DEVICE_4BPP";
+            case "2BPP" -> "SUB_DEVICE_2BPP";
+            default -> "NO_SUB_DEVICE";
+        };
     }
 
     @Override
@@ -218,4 +262,140 @@ public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         }
         return params;
     }
+
+    private final String ADA_BUFFER_CODE = """
+            
+            // In 16 color palette mode, tcMenu takes the first 5 for drawing (0..4) but after that the other 11 can be used for anything else.
+            // When we render bitmaps or custom things into the buffer, we can use the remaining palette entries.
+            #define UNLOCKED_PALETTE_ENTRIES_START 5
+            
+            /**
+             * This class extends the basic AdafruitDrawable and provides a way for TFT based drawing to be done into a memory
+             * buffer first then written onto the display using an optimized method that gets quite close to faster libraries.
+             */
+            template<typename CANVASTY, size_t BPP, size_t PSIZE>
+            class AdafruitCanvasDrawableNbpp : public AdafruitDrawable {
+            private:
+                AdafruitDrawable* root;
+                CANVASTY* canvas;
+                Coord sizeMax;
+                Coord sizeCurrent;
+                Coord where;
+                color_t palette[PSIZE];
+            public:
+                AdafruitCanvasDrawableNbpp(AdafruitDrawable *root,  int width, int height) : root(root), sizeMax({width, height}), sizeCurrent(), palette{} {
+                    canvas = new CANVASTY(width, height);
+                    setGraphics(canvas);
+                }
+            
+                ~AdafruitCanvasDrawableNbpp() override {
+                    delete canvas;
+                }
+            
+                bool initSprite(const Coord& spriteWhere, const Coord& spriteSize, const color_t* colPalette, size_t paletteSize);
+            
+                void setPaletteEntry(size_t index, color_t col) override {
+                    if (index >= PSIZE) return;
+                    palette[index] = col;
+                }
+            
+                void transaction(const bool isStarting, bool redrawNeeded) override {
+                    if (!isStarting) {
+                        if (BPP == 4) {
+                            // if it's ending, we push the canvas onto the display.
+                            drawCookieCutBitmap4bpp(reinterpret_cast<Adafruit_SPITFT*>(root->getGfx()), where.x, where.y, canvas->getBuffer(),
+                                sizeCurrent.x, sizeCurrent.y,canvas->width(), 0, 0, palette);
+            
+                        } else {
+                            // if it's ending, we push the canvas onto the display.
+                            drawCookieCutBitmap2bpp(reinterpret_cast<Adafruit_SPITFT*>(root->getGfx()), where.x, where.y, canvas->getBuffer(),
+                                sizeCurrent.x, sizeCurrent.y,canvas->width(), 0, 0, palette);
+                        }
+                    }
+                }
+            
+                color_t getUnderlyingColor(color_t col) override {
+                    for(size_t i=0; i<PSIZE; i++) {
+                        if(palette[i] == col) return i;
+                    }
+                    return 0;
+                }
+                color_t containsUnderlyingColor(color_t col) {
+                    for(size_t i=0; i<PSIZE; i++) {
+                        if(palette[i] == col) return true;
+                    }
+                    return false;
+                }
+            
+                DeviceDrawable *getSubDeviceFor(const Coord &where, const Coord &size, const color_t *palette, int paletteSize) override {
+                    return nullptr; // don't allow further nesting.
+                }
+            
+                /**
+                 * Here we try to map as many colors as we can from the palette passed in into the current palette. In the case of
+                 * 2bpp bitmaps we don't try and do this at all as TcMenu needs all the entries to map the display.
+                 * @param newPalette the palette to try and map from
+                 * @param palSize the size of the palette to try and map from
+                 */
+                void tryToAddColorsToPalette(const color_t* newPalette, int palSize) {
+                    size_t index = UNLOCKED_PALETTE_ENTRIES_START;
+                    if (BPP != 4) return;
+                    for (int i = 0; i < palSize; i++) {
+                        if (containsUnderlyingColor(newPalette[i])) continue;
+                        palette[index] = newPalette[i];
+                        index++;
+                        if (index >= 16) return;
+                    }
+                }
+                void drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette) override;
+            };
+            
+            template<typename CANVASTY, size_t BPP, size_t PSIZE>
+            bool AdafruitCanvasDrawableNbpp<CANVASTY, BPP, PSIZE>::initSprite(const Coord& spriteWhere, const Coord& spriteSize, const color_t* colPalette, size_t paletteSize) {
+                if(!canvas->reInitCanvas(spriteSize.x, spriteSize.y)) {
+                    return false;
+                }
+                where = spriteWhere;
+                sizeCurrent = spriteSize;
+                if(paletteSize > PSIZE) paletteSize = PSIZE;
+                for(size_t i=0; i<paletteSize; i++) {
+                    palette[i] = colPalette[i];
+                }
+            
+                if(root->isTcUnicodeEnabled()) {
+                    this->enableTcUnicode();
+                }
+                return true;
+            }
+            
+            template<typename CANVASTY, size_t BPP, size_t PSIZE>
+            void AdafruitCanvasDrawableNbpp<CANVASTY, BPP, PSIZE>::drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette) {
+                // do not allow bpp > BPP as it may overflow the palette
+                if (static_cast<size_t>(bpp) > BPP) return;
+            
+                tryToAddColorsToPalette(palette, bpp == 2 ? 4 : 15);
+            
+                auto yTot = static_cast<int16_t>(where.y + size.y);
+                auto xTot = static_cast<int16_t>(where.x + size.x);
+                int bitsInByte = bpp == 2 ? 4 : 2;
+                uint8_t downShift = bpp == 2 ? 6 : 4;
+            
+                uint8_t byteIteration = bitsInByte;
+                uint8_t current = 0;
+                for(int16_t y = where.y; y<yTot; y++) {
+                    for(int16_t x = where.x; x<xTot; x++) {
+                        if(byteIteration == bitsInByte) {
+                            current = pgm_read_byte(data);
+                            data += 1;
+                            byteIteration = 0;
+                        }
+                        uint8_t idx = current >> downShift;
+                        current = current << bitsInByte;
+                        byteIteration++;
+                        canvas->drawPixel(x, y, idx);
+                    }
+                    byteIteration = bitsInByte; // always need a new byte in this case
+                }
+            }
+            """;
 }

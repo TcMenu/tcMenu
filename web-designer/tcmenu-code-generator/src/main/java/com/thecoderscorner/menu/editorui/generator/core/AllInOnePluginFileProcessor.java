@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
+import com.thecoderscorner.menu.editorui.generator.logger.GeneratedFile;
 import com.thecoderscorner.menu.editorui.generator.logger.UserFeedbackLogger;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
@@ -12,7 +13,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AllInOnePluginFileProcessor extends PluginFileProcessor {
     private final Pattern GENERATED_FOR_PATTERN_SRC  = Pattern.compile("// Each plugin's code now follows here.*");
@@ -70,6 +70,7 @@ public class AllInOnePluginFileProcessor extends PluginFileProcessor {
             lines.add(insertAt++, line);
         }
         Files.write(sourceFile, lines);
+        logger.fileModificiation(GeneratedFile.always(sourceFile, String.join(System.lineSeparator(), lines)));
     }
 
     @Override
