@@ -47,8 +47,8 @@ public class SingleFileI18nCodeGenerator extends I18nCodeGenerator {
             localeHandler.changeLocale(PropertiesLocaleEnabledHandler.DEFAULT_LOCALE);
             localeToCpp(writer, localeHandler.getCurrentLocale(), localeHandler.getUnderlyingMap(), I18nConvertMode.PROCESSING_DEFAULT_LOCALE);
             addTcLocaleStringMethod(writer);
-            feedbackLogger.fileModificiation(GeneratedFile.always(selFile, writer.toString()));
             writer.flush();
+            feedbackLogger.fileModificiation(GeneratedFile.always(selFile, baos.toString()));
             Files.write(selFile, baos.toString().getBytes());
             feedbackLogger.info("Wrote all locales to single file - " + selFile.getFileName());
             feedbackLogger.debug("Finished locale processing");
