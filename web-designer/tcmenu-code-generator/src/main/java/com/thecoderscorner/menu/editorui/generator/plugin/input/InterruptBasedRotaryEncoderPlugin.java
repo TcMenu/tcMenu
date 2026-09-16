@@ -49,7 +49,9 @@ public class InterruptBasedRotaryEncoderPlugin extends BaseJavaPluginItem {
         var codePlugin = new CodePluginItem();
         codePlugin.setId("6c2be130-bf74-42ad-834c-ac2edd7b3f90");
         codePlugin.setDescription("Interrupt/Timer based rotary encoder (counts in ISR)");
-        codePlugin.setExtendedDescription("An interrupt/timer based rotary encoder that counts inside the ISR, not affected by long running tasks. This is the recommended implementation to use.");
+        codePlugin.setExtendedDescription("An interrupt/timer based rotary encoder that counts inside the ISR, not " +
+                "affected by long running tasks. In nearly all cases this is the best implementation, and it is known " +
+                "working on: AVR, SAMD, STM32, ESP8266/ESP32, TEENSY, Pico, R4, mbed, Zephyr");
         codePlugin.setConfig(group.getConfig());
         codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/");
         codePlugin.setJavaImpl(this);
