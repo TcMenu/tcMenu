@@ -81,7 +81,7 @@ public class MenuEditorConfig {
 
     @Bean
     public DefaultXmlPluginLoader pluginLoader(EmbeddedPlatforms platforms, ConfigurationStorage configurationStorage,
-                                               @Value("${core.plugin.dir}") String pathOnHost) {
+                                               @Value("${core.plugins.base.dir}") String pathOnHost) {
         var plugins = new DefaultXmlPluginLoader(platforms, configurationStorage, pathOnHost);
         plugins.loadPlugins();
         log.info("Loaded plugins: {}", String.join(", ", plugins.getLoadedTopLevelPluginNames()));

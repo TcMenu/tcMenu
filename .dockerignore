@@ -1,0 +1,10 @@
+.git
+.idea
+**/*.iml
+**/target/classes
+**/target/generated-sources
+**/target/maven-status
+**/target/test-classes
+web-designer/tcmenugen/node_modules
+web-designer/tcmenugen/src
+.junie
