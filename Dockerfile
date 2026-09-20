@@ -9,7 +9,7 @@ RUN mkdir -p /opt/tcmenu/plugins /opt/tcmenu/web /opt/tcmenu/data/prod/logs
 
 # Copy application artifacts
 # 1. Spring Boot executable JAR
-COPY web-designer/tcmenu-web-generator/target/tcmenu-web-generator-*.jar /opt/tcmenu/tcmenu-web-generator.jar
+COPY web-designer/tcmenu-web-generator/target/tcMenuDesigner.jar /opt/tcmenu/tcmenu-web-generator.jar
 
 # 2. XML Plugins
 COPY web-designer/tcmenu-xml-plugins/ /opt/tcmenu/plugins/
