@@ -29,7 +29,7 @@ public class AdafruitFrameBufferPlugin extends CommonAdafruitDisplayPlugin {
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Draw menus using our hardware memory mapped framebuffer plugin using Adafruit GFX API. Maps to BSP LTDC driver with DMA2d ChromArt.");
         codePlugin.setThemeDescription(ThemeDescription.colorWithFont(FontMode.ADAFRUIT));
-        codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/stm-framebuffer-renderer-plugin/");
+        codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_mbed-renderer-plugin/");
         codePlugin.setJavaImpl(this);
         codePlugin.setManager(manager);
         codePlugin.setProperties(requiredProperties);
