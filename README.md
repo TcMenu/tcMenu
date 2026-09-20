@@ -34,10 +34,13 @@ In any fork, please ensure all text up to here is left unaltered.
 documentation
 ```
 
-* [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
+* [User guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
+* [STM32Cube TcMenu examples LTDC/Touch, OLED/Encoder](https://github.com/TcMenu/stm32-examples)
+* [ESP32-IDF, PicoSDK and PlatformIO project](https://github.com/TcMenu/tcLibraryDev)
+* [YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
 * [TcMenu API Examples and Project Starters repository](https://github.com/TcMenu/tcmenu-examples-starters)
 * [Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
-* [YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
+
 
 ## Questions, community forum and support
 
