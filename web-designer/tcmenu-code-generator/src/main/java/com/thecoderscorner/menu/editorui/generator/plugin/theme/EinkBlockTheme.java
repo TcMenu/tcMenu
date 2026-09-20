@@ -1,19 +1,13 @@
 package com.thecoderscorner.menu.editorui.generator.plugin.theme;
 
-import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_MIN;
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_NORMAL;
 
 public class EinkBlockTheme extends BaseJavaThemePluginItem {
     private final CodePluginItem pluginItem;
@@ -34,7 +28,7 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
         codePlugin.setDescription("EInk Block based theme for mono or color");
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Designed for e-ink/paper displays rendering selection and titles as inverse blocks");
-        codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/color-themes-for-all-display-sizes/");
+        codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/gx_epd-renderer-plugin/");
         codePlugin.setJavaImpl(this);
         codePlugin.setThemeDescription(ThemeDescription.forTheme(ThemeDescription.ThemeMode.PALETTE));
         codePlugin.setManager(manager);

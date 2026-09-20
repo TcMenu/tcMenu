@@ -77,7 +77,7 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 ### Additional libraries you may need depending on display
 
 * LiquidCrystalIO forked from Arduino version - https://github.com/TcMenu/LiquidCrystalIO 
-* Adafruit-GFX-mbed-fork - https://github.com/TcMenu/Adafruit-GFX-mbed-fork
+* Adafruit-GFX-mbed-fork (STM32Cube/PicoSDK/mbed library) - https://github.com/TcMenu/Adafruit-GFX-mbed-fork
 * TFT-eSPI by Bodmer - https://github.com/Bodmer/TFT_eSPI
 * Adafruit_GFX by AdaFruit- https://github.com/adafruit/Adafruit-GFX-Library 
 * U8G2 by olikraus - https://github.com/olikraus/u8g2
@@ -156,7 +156,6 @@ We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly 
 
 Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with the following TFT's ILI9341, ST7735 and also Nokia 5110 display. We even have a quick start option that helps you get started with this option.
 
-For mbed RTOS 5/6 we have a custom Adafruit_GFX OLED driver https://github.com/TcMenu/Adafruit-GFX-mbed-fork that supports SSD1306, SH1106. 
 
 ### U8G2 integration for mono display
 

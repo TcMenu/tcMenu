@@ -56,7 +56,7 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Uses the GxEPD2 library for eInk/ePaper displays from WaveShare and Good Display. This simple builder has common options ready configured.");
         codePlugin.setThemeDescription(ThemeDescription.paletteWithFont(FontMode.ADAFRUIT, DEFAULT_COLORS));
-        codePlugin.setDocsLink("TODO");
+        codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/gx_epd-renderer-plugin/");
         codePlugin.setJavaImpl(this);
         codePlugin.setManager(manager);
         codePlugin.setProperties(requiredProperties);
