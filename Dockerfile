@@ -18,8 +18,7 @@ COPY web-designer/tcmenu-xml-plugins/ /opt/tcmenu/plugins/
 COPY web-designer/tcmenugen/build/ /opt/tcmenu/web/
 
 # Set Environment variables
-ENV SPRING_PROFILES_ACTIVE=prod \
-    HOME_DIR=/opt/tcmenu/data \
+ENV HOME_DIR=/opt/tcmenu/data \
     PACKAGED_PLUGIN_DIR=/opt/tcmenu/plugins \
     TCMENU_WEB_STATIC_DIR=/opt/tcmenu/web \
     SERVER_PORT=8080
@@ -33,4 +32,4 @@ RUN addgroup -S tcmenu && adduser -S tcmenu -G tcmenu && \
 USER tcmenu
 
 # Start Spring Boot application
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/opt/tcmenu/tcmenu-web-generator.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=prod", "-jar", "/opt/tcmenu/tcmenu-web-generator.jar"]

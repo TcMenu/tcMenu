@@ -87,9 +87,45 @@ public class StaticWebConfigTest {
         assertEquals(200, subResponse.getStatus());
         assertEquals("console.log('sample');", subResponse.getContentAsString());
 
-        // Test not found
+        // Test client route without dot or api (e.g. /generate-code, /nested/react/route) falls back to index.html
+        MockHttpServletResponse genCodeResponse = executeRequest(handlerMapping, "/generate-code");
+        assertEquals(200, genCodeResponse.getStatus());
+        assertEquals("<html><body>Hello Static</body></html>", genCodeResponse.getContentAsString());
+
+        MockHttpServletResponse nestedRouteResponse = executeRequest(handlerMapping, "/nested/react/route");
+        assertEquals(200, nestedRouteResponse.getStatus());
+        assertEquals("<html><body>Hello Static</body></html>", nestedRouteResponse.getContentAsString());
+
+        // Test missing file with dot throws NoResourceFoundException (404)
         assertThrows(org.springframework.web.servlet.resource.NoResourceFoundException.class, () -> {
             executeRequest(handlerMapping, "/missing.txt");
+        });
+
+        // Test API path throws NoResourceFoundException (404)
+        assertThrows(org.springframework.web.servlet.resource.NoResourceFoundException.class, () -> {
+            executeRequest(handlerMapping, "/api/v1/generator/plugins");
+        });
+    }
+
+    @Test
+    public void testFallbackWhenIndexHtmlMissing() throws Exception {
+        Files.writeString(tempDir.resolve("sample.js"), "console.log('sample');");
+
+        var config = new StaticWebConfig(tempDir.toAbsolutePath().toString());
+        var servletContext = new MockServletContext();
+        var context = new GenericWebApplicationContext(servletContext);
+        context.refresh();
+
+        var registry = new TestResourceHandlerRegistry(context, servletContext);
+        config.addResourceHandlers(registry);
+
+        var handlerMapping = (SimpleUrlHandlerMapping) registry.getHandlerMapping();
+        assertNotNull(handlerMapping);
+        handlerMapping.setApplicationContext(context);
+        handlerMapping.initApplicationContext();
+
+        assertThrows(org.springframework.web.servlet.resource.NoResourceFoundException.class, () -> {
+            executeRequest(handlerMapping, "/generate-code");
         });
     }
 
@@ -136,5 +172,28 @@ public class StaticWebConfigTest {
         assertTrue(chain.getHandler() instanceof ParameterizableViewController);
         ParameterizableViewController vc = (ParameterizableViewController) chain.getHandler();
         assertEquals("forward:/index.html", vc.getViewName());
+    }
+
+    @Test
+    public void testLocationWithWindowsBackslashes() throws Exception {
+        Files.writeString(tempDir.resolve("index.html"), "<html><body>Windows Static</body></html>");
+
+        String windowsStylePath = tempDir.toAbsolutePath().toString().replace('/', '\\');
+        var config = new StaticWebConfig(windowsStylePath);
+        var servletContext = new MockServletContext();
+        var context = new GenericWebApplicationContext(servletContext);
+        context.refresh();
+
+        var registry = new TestResourceHandlerRegistry(context, servletContext);
+        config.addResourceHandlers(registry);
+
+        var handlerMapping = (SimpleUrlHandlerMapping) registry.getHandlerMapping();
+        assertNotNull(handlerMapping);
+        handlerMapping.setApplicationContext(context);
+        handlerMapping.initApplicationContext();
+
+        MockHttpServletResponse genCodeResponse = executeRequest(handlerMapping, "/generate-code");
+        assertEquals(200, genCodeResponse.getStatus());
+        assertEquals("<html><body>Windows Static</body></html>", genCodeResponse.getContentAsString());
     }
 }
