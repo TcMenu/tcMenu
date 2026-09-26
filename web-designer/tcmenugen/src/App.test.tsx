@@ -9,6 +9,6 @@ test('renders app header', () => {
       <App />
     </MemoryRouter>
   );
-  const headerElements = screen.getAllByText(/TcMenu Turbo/i);
+  const headerElements = screen.getAllByText(/TcMenu Web/i);
   expect(headerElements.length).toBeGreaterThan(0);
 });

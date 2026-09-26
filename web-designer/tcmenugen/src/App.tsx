@@ -11,10 +11,10 @@ import {TcMenuEditor} from "./menuedit/TcMenuEditor";
 import {GenerateCodeView} from "./generator/GenerateCodeView";
 import embedIcon from "./img/embedControlLogo300.png"
 import {IoExpanderComponent} from "./generator/IoExpanderComponent";
-import ReleaseNotes from "./releaseNotes";
 import {get, set} from 'idb-keyval';
 import fontEdIcon from './img/font-editor-example.jpg'
 import {closedI18n, i18nStateHasChanged} from "./generator/I18nImpls";
+import AvailableVersions from "./AvailableVersions";
 
 const TC_MENU_STORAGE_KEY = "tcMenuTurboProject";
 const TC_MENU_POLICY_KEY = "tcMenuTurboPolicyAccepted";
@@ -293,7 +293,7 @@ function PolicyDialog({onAccept}: { onAccept: () => void }) {
 const LandingPage = () => (
     <main style={{padding: '24px', maxWidth: '900px'}}>
         <section>
-            <h1>TcMenu Turbo</h1>
+            <h1>TcMenu Web Designer</h1>
             <p style={{fontSize: '1.15rem', maxWidth: '720px'}}>
                 Design your embedded menu structure, configure your project, and generate TcMenu code from one place.
             </p>
@@ -323,7 +323,8 @@ const LandingPage = () => (
             </ol>
         </section>
 
-        <p><Link to="/release-notes">View Release Notes</Link></p>
+        <p>There are three streams, "designer-next" is the newest, <NavLink to="/availableVersions" target="github">pick which version of TcMenu to use</NavLink></p>
+        <p><a href="https://github.com/TcMenu/tcMenu/releases" target="github">View release notes on GitHub</a></p>
 
         <section style={{marginTop: '24px'}}>
             <p>
@@ -349,7 +350,7 @@ export const MainRoutes = () => {
             <Route path="/menu-edit" element={<TcMenuEditor />} />
             <Route path="/generate-code" element={<GenerateCodeView />} />
             <Route path="/io-expanders" element={<IoExpanderComponent />} />
-            <Route path="/release-notes" element={<ReleaseNotes />} />
+            <Route path="/availableVersions" element={<AvailableVersions />} />
             <Route path="/online-help" element={<div>
                 <h1>Online help and resources</h1>
                 <p>Thanks for choosing TcMenu, hopefully we'll have you up and running quickly! The usual places to start are listed below</p>
@@ -407,8 +408,8 @@ function App() {
                 <Link to="/"><img src={logo} className="App-logo" alt="logo"/></Link>
                 <div className="header-content">
                     <div className="header-top-row">
-                        <p>TcMenu Turbo - Designer &gt;&gt;</p>
-                        <div className="active-profile"><a href="/release-notes">{profile}</a></div>
+                        <p>TcMenu Web Designer &gt;&gt;</p>
+                        <div className="active-profile"><NavLink to="/availableVersions">{profile} (change)</NavLink></div>
                     </div>
                     <nav>
                         <ul>

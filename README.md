@@ -49,18 +49,18 @@ Community questions can be asked in the discussions section of this repo, or usi
 * Discussions section of this git repo (available from top menu of github page).
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
 
-## Getting Started: TcMenu Designer Turbo (Web-Based)
+## Getting Started: TcMenu Web Designer
 
 The easiest and fastest way to build your first menu is using our web-based designer. It can generate nearly all existing menu, handle all existing plugins, and supports a new fluent mode where the output is much cleaner.
 
-* [Open Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com)
-* [Documentation and starter page for Designer Turbo](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
+* [Open Web based TcMenu Designer](https://designer.thecoderscorner.com)
+* [Documentation and starter page for Web Designer](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
 
 **Note for All-In-One or Fluent API mode you need to use TcMenu Library as 4.5.x.**
 
 ### Quick Start for the impatient
 
-Open the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
+Open [Web based TcMenu Designer](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
 Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements and hit generate. This will provide a zip with your new project.
 
