@@ -32,4 +32,4 @@ RUN addgroup -S tcmenu && adduser -S tcmenu -G tcmenu && \
 USER tcmenu
 
 # Start Spring Boot application
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=prod", "-jar", "/opt/tcmenu/tcmenu-web-generator.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dhosted.versions.path=/mnt/designer-versions.json", "-Dspring.profiles.active=prod", "-jar", "/opt/tcmenu/tcmenu-web-generator.jar"]
