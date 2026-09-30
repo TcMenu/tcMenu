@@ -42,7 +42,7 @@ Otherwise, for example:
 
 Then run docker
 
-    docker run -d --mount --type=bind,src=/<designer-versions.json>,dst=/mnt/designer-versions.json --name tcmenu-web-service -p "8080:8080" --restart unless-stopped `"tcmenu-web-generator:latest"
+    docker run -d --mount type=bind,src=<path-to>/designer-versions.json,dst=/mnt/designer-versions.json --name tcmenu-web-service -p "8080:8080" --restart unless-stopped `"tcmenu-web-generator:latest"
 
 
-Container should now be started on http://localhost:8080 ==="
+Container should now be started on http://localhost:8080
