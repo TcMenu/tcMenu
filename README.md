@@ -5,13 +5,13 @@
 [![macOS nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml)
 [![Windows nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml)
 
-[Build your menu now with web designer](https://designer.thecoderscorner.com)
+[Build your menu now with web designer](https://designer-next.thecoderscorner.com)
 
 tcMenu is a modular, cross‑platform UI framework for embedded devices. It provides a structured menu system, flexible input handling, portable rendering, and optional IoT/remote control integration. More than an Arduino menu library, tcMenu helps you build complete embedded applications with consistent UI behaviour across Arduino, mbed, STM32, ESP32, PicoSDK and more.
 
 https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
 
-Get started building your menu right away using the [web‑based TcMenu Designer](https://designer.thecoderscorner.com). It generates all core menu code for you and places callback stubs directly into your sketch or source files.
+Get started building your menu right away using the [web‑based TcMenu Designer](https://designer-next.thecoderscorner.com). It generates all core menu code for you and places callback stubs directly into your sketch or source files.
 
 The designer works much like a form designer in desktop development — you define the structure, behaviour, and appearance, and the tool handles the boilerplate. It’s also fully non‑destructive: your application code remains yours, and you can round‑trip safely throughout development.
 
@@ -53,14 +53,14 @@ Community questions can be asked in the discussions section of this repo, or usi
 
 The easiest and fastest way to build your first menu is using our web-based designer. It can generate nearly all existing menu, handle all existing plugins, and supports a new fluent mode where the output is much cleaner.
 
-* [Open Web based TcMenu Designer](https://designer.thecoderscorner.com)
+* [Open Web based TcMenu Designer](https://designer-next.thecoderscorner.com)
 * [Documentation and starter page for Web Designer](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
 
 **Note for All-In-One or Fluent API mode you need to use TcMenu Library as 4.5.x.**
 
 ### Quick Start for the impatient
 
-Open [Web based TcMenu Designer](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
+Open [Web based TcMenu Designer](https://designer-next.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
 Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements and hit generate. This will provide a zip with your new project.
 
