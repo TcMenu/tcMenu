@@ -64,13 +64,6 @@ export function ScrollChoiceItemEditor({item, onHashChange}: { item: ScrollChoic
         onHashChange();
     };
 
-    const onListChange = (newList: string[]) => {
-        item.setItemList(newList);
-        item.setNumberOfEntries(newList.length);
-        item.setFixedItemWidth(newList.map(s => s.length).reduce((a, b) => Math.max(a, b), 0));
-        onHashChange();
-    };
-
     function onFixedWidthChange(change: number) {
         item.setFixedItemWidth(change);
         onHashChange();

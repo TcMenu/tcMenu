@@ -155,6 +155,7 @@ export function TcMenuEditor() {
             const insertPoint = findNearestSubMenu(selectedItem)
             if (newItem && insertPoint) {
                 newItem.setItemName("New Item " + newItem.getMenuId());
+                newItem.setVisible(true);
                 project.menuTree.addMenuItem(insertPoint.getMenuId(), newItem);
                 setSelectedItem(newItem);
                 setTreeHash(h => h + 1);

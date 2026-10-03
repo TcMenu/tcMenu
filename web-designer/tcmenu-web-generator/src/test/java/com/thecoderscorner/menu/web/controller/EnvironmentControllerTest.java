@@ -17,12 +17,12 @@ public class EnvironmentControllerTest {
         try {
             original = System.getProperties().getProperty("spring.profiles.active");
             System.setProperty("spring.profiles.active", "dev");
-            EnvironmentController controller = new EnvironmentController();
+            EnvironmentController controller = new EnvironmentController("");
             MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
             mockMvc.perform(get("/api/v1/environment/profile"))
                     .andExpect(status().isOk())
-                    .andExpect(content().string(Matchers.matchesPattern("dev \\(.*\\)")));
+                    .andExpect(content().string(Matchers.matchesPattern("DEV .*")));
         } finally {
             if(original == null) original = "";
             System.setProperty("spring.profiles.active", original);
@@ -31,21 +31,21 @@ public class EnvironmentControllerTest {
 
     @Test
     public void testGetActiveProfileEmpty() throws Exception {
-        EnvironmentController controller = new EnvironmentController();
+        EnvironmentController controller = new EnvironmentController("");
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         mockMvc.perform(get("/api/v1/environment/profile"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.matchesPattern("noenv \\(.*\\)")));
+                .andExpect(content().string(Matchers.matchesPattern("noenv .*")));
     }
 
     @Test
     public void testGetActiveProfileNull() throws Exception {
-        EnvironmentController controller = new EnvironmentController();
+        EnvironmentController controller = new EnvironmentController(null);
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         mockMvc.perform(get("/api/v1/environment/profile"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.matchesPattern("noenv \\(.*\\)")));
+                .andExpect(content().string(Matchers.matchesPattern("noenv .*")));
     }
 }
