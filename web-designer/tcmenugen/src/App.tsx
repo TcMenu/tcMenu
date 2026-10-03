@@ -425,7 +425,7 @@ function App() {
             </header>
             <MainRoutes />
             <footer className="app-footer">
-                <p>&copy; 2026 Nutricherry LTD and TheCodersCorner.com. All rights reserved.
+                <p>&copy; 2026 Nutricherry LTD and TheCodersCorner.com.
                     &nbsp;&nbsp;<a href="https://www.thecoderscorner.com/legal/privacy/">Privacy</a>
                     &nbsp;&#183;&nbsp;<a href="https://www.thecoderscorner.com">Built by us</a>
                     &nbsp;&#183;&nbsp;<a href="https://www.thecoderscorner.com/support-services/training-support/">Commercial support</a>

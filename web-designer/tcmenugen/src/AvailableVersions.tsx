@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useEffect, useState} from 'react';
 
 export interface AvailableVersion {
     subdomain: string,
@@ -40,7 +40,7 @@ export default function AvailableVersions() {
         <p>
             If your workflow is particularly sensitive to version changes, you can run your own local copy of
             Designer on your own hardware. We only ask that you do not make that instance publicly available.
-            From 4.5.10 onwards, <a href="https://hub.docker.com/r/davetcc/tcmenu-web-generator">every release is
+            From 4.5.11 onwards, <a href="https://hub.docker.com/r/davetcc/tcmenu-web-generator">every release is
             available as a Docker image</a>.
         </p>
         <p>
@@ -49,7 +49,7 @@ export default function AvailableVersions() {
 
         {error && <div style={{color: 'red'}}>Error: {error}</div>}
 
-        {versions.length == 0 && <h2>No other versions available</h2> }
+        {versions.length === 0 && <h2>No other versions available</h2> }
 
         {versions.length > 0 && (
             <div>

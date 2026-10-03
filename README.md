@@ -6,11 +6,14 @@
 
 [Build your menu now with web designer](https://designer.thecoderscorner.com)
 
-A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
+A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules, and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
 https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
 
-Get started building your menu right away using [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. 
+Get started building your menu right away using our web based menu designer, it takes care of building the core menu code and putting any callback functions into your sketch file.
+
+* [Current web menu designer](https://designer-next.thecoderscorner.com)
+* [Stable web menu designer](https://designer.thecoderscorner.com)
 
 Think of the designer like a form designer in the desktop domain. Furthermore, It's non-destructive on the sketch file, so can be round tripped during development. 
 
@@ -33,12 +36,12 @@ In any fork, please ensure all text up to here is left unaltered.
 documentation
 ```
 
-* [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
+* [UI user guide, getting started, and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 * [TcMenu API Examples and Project Starters repository](https://github.com/TcMenu/tcmenu-examples-starters)
 * [Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
 * [YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
 
-## Questions, community forum and support
+## Questions, community forum, and support
 
 Community questions can be asked in the discussions section of this repo, or using the Arduino forum (but please tag me). We generally answer most community questions but the responses may not be timely. Before posting into the community make sure you've recreated the problem in a simple sketch, and please consider making at least a one time donation (see links further up):
 
@@ -58,7 +61,7 @@ The easiest and fastest way to build your first menu is using our web-based desi
 
 Open the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
-Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements and hit generate. This will provide a zip with your new project.
+Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements, and hit generate. This will provide a zip with your new project.
 
 ## Libraries required for tcMenu
 
@@ -84,13 +87,9 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 
 ### Licenses and usage
 
-All components of tcMenu other than the Web Designer and the bitmap/font editor are licensed under Apache 2.0.
+All components of tcMenu are licensed under Apache License 2.0. The TcMenu name, project branding, logos, icons, and artwork are not covered by this licence and remain the copyright of the project maintainers. Use of the TcMenu branding in products, services, redistributed versions, or marketing materials requires prior permission.
 
-The tcMenu Web Designer and bitmap/font editor are licensed under Apache 2.0 with the Commons Clause. See [LICENCES.md]
-
-But in summary, tcMenu continues to be fully open source under Apache 2.0. The new Web Designer and bitmap/font editor are now released under a protected licence. This keeps them free for makers, hobbyists, and internal company use, while requiring a commercial licence for redistribution, SaaS hosting, or embedding into paid products.
-
-The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer components.
+The goal is straightforward: keep tcMenu open and accessible while ensuring the long‑term sustainability of the project. The Apache licence encourages both personal and commercial use of the software, while protection of the TcMenu brand helps prevent confusion over official releases, services, and project sponsorship.
 
 ## I18N multi-language menus in initializer mode
 
@@ -100,7 +99,7 @@ The python script is here [tcmenu-i18n.py](zMedia/tcmenu-i18n.py)
 
 ## Loading and saving menu items
 
-tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM.
+tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32-bit boards generally an AT24 i2c EEPROM.
 
 ## Input and display technologies
 
@@ -114,11 +113,11 @@ Here are a few examples of how the menu can look with version 2.0 of our menu li
 
 ![Arduino menu on LCD running on AVR](zMedia/menu-on-lcd-avr.jpg)
 
-### Support for rotary encoders, digital/analog joysticks and touch buttons
+### Support for rotary encoders, digital/analog joysticks, and touch buttons
 
-We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574, AW9523 or MCP23017. Further, we even support more than one encoder.
+We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574, AW9523, or MCP23017. Further, we even support more than one encoder.
 
-You can configure 3 or more buttons to work like a digital joystick using button based rotary encoder emulation (Up, Down and OK buttons with optional left and right) on either board pins, i2c expander, shift register. DfRobot analog input style buttons. Either DfRobot, or other analog ladder (configurable in code).
+You can configure 3 or more buttons to work like a digital joystick using button based rotary encoder emulation (Up, Down, and OK buttons with optional left and right) on either board pins, i2c expander, shift register. DfRobot analog input style buttons. Either DfRobot, or other analog ladder (configurable in code).
 
 We also support the ESP32 touch pad interface, allowing up to 9 touch buttons to be used for menu input, they currently configure as per digital joystick.
 
@@ -136,7 +135,7 @@ We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly 
 
 ### Adafruit_GFX integration for many displays
 
-Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with the following TFT's ILI9341, ST7735 and also Nokia 5110 display. We even have a quick start option that helps you get started with this option.
+Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with the following TFT's ILI9341, ST7735, and also Nokia 5110 display. We even have a quick start option that helps you get started with this option.
 
 For mbed RTOS 5/6 we have a custom Adafruit_GFX OLED driver https://github.com/TcMenu/Adafruit-GFX-mbed-fork that supports SSD1306, SH1106. 
 
