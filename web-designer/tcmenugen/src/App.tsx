@@ -323,7 +323,8 @@ const LandingPage = () => (
             </ol>
         </section>
 
-        <p>There are three streams, "designer-next" is the newest, <NavLink to="/availableVersions" target="github">pick which version of TcMenu to use</NavLink></p>
+        <p>Keep the library and designer on the same version stream.
+            &nbsp;<NavLink to="/availableVersions" target="github">Pick which version of designer to use</NavLink>.</p>
         <p><a href="https://github.com/TcMenu/tcMenu/releases" target="github">View release notes on GitHub</a></p>
 
         <section style={{marginTop: '24px'}}>

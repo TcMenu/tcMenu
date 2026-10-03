@@ -6,7 +6,7 @@
     <name>font-bitmap-editor</name>
     <groupId>com.thecoderscorner.tcmenu</groupId>
     <description>JavaFX based font/bitmap editor</description>
-    <version>5.0.0</version>
+    <version>5.0.1</version>
 
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -47,12 +47,12 @@
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>4.5.2</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>embedCONTROLCore</artifactId>
-            <version>4.5.2</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

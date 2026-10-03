@@ -25,6 +25,8 @@ import com.thecoderscorner.menu.web.domain.CodeBuildInfo;
 import com.thecoderscorner.menu.web.domain.GenerateCodeRequest;
 import com.thecoderscorner.menu.web.domain.GenerationResponse;
 import com.thecoderscorner.menu.web.domain.LogEntry;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.event.Level;
@@ -40,8 +42,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -180,10 +180,10 @@ public class GenerateCodeController {
             validateRequest(request);
         } catch (IllegalArgumentException ex) {
             log.warn("Request validation failed: {}", ex.getMessage());
-            return GenerationResponse.badResponse(List.of(new LogEntry("Request was not valid", Level.ERROR)));
+            return GenerationResponse.badResponse(List.of(new LogEntry("Failed to parse request - " + ex.getMessage(), Level.ERROR)));
         } catch (Exception ex) {
-            log.error("Failed to parse request data", ex);
-            return GenerationResponse.badResponse(List.of(new LogEntry("Invalid request format", Level.ERROR)));
+            log.error("Failed to parse request - ", ex);
+            return GenerationResponse.badResponse(List.of(new LogEntry("Error processing request - " + ex.getMessage(), Level.ERROR)));
         }
 
         if(request.getRequiredFiles().size() > maxFiles) {

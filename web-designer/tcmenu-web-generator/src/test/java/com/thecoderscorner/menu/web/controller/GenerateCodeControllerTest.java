@@ -133,7 +133,8 @@ public class GenerateCodeControllerTest {
         // Then
         assertNotNull(response);
         assertFalse(response.isSuccessful());
-        assertThat(response.getLogLines()).anyMatch(log -> log.getLog().contains("Request was not valid"));
+        assertThat(response.getLogLines())
+                .anyMatch(log -> log.getLog().contains("Failed to parse request - Application UUID is missing"));
     }
 
     @Test

@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useEffect, useState} from 'react';
 
 export interface AvailableVersion {
     subdomain: string,
@@ -49,7 +49,7 @@ export default function AvailableVersions() {
 
         {error && <div style={{color: 'red'}}>Error: {error}</div>}
 
-        {versions.length == 0 && <h2>No other versions available</h2> }
+        {versions.length === 0 && <h2>No other versions available</h2> }
 
         {versions.length > 0 && (
             <div>

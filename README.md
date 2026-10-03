@@ -11,7 +11,10 @@ tcMenu is a modular, cross‑platform UI framework for embedded devices. It prov
 
 https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
 
-Get started building your menu right away using the [web‑based TcMenu Designer](https://designer-next.thecoderscorner.com). It generates all core menu code for you and places callback stubs directly into your sketch or source files.
+Get started building your menu right away without any installation using our hosted web designer. However, if you're sensitive to version changes or public hosting you can [install the docker images yourself](https://hub.docker.com/r/davetcc/tcmenu-web-generator/) and [quickly get it running](building-docker-image.md). We are presently hosting these versions:
+
+* [The newest version of designer - tracking 5.0.x](https://designer-next.thecoderscorner.com)
+* [The stable version of designer - tracking 4.5.x](https://designer.thecoderscorner.com)
 
 The designer works much like a form designer in desktop development — you define the structure, behaviour, and appearance, and the tool handles the boilerplate. It’s also fully non‑destructive: your application code remains yours, and you can round‑trip safely throughout development.
 
@@ -87,13 +90,9 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 
 ### Licenses and usage
 
-All components of tcMenu other than the Web Designer and the bitmap/font editor are licensed under Apache 2.0.
+All components of tcMenu are licensed under Apache License 2.0. However, the TcMenu name, project branding, logos, icons and artwork are not covered by this licence and remain the intellectual property of the project maintainers. Any use of the TcMenu branding that implies endorsement, affiliation or official project status requires prior permission.
 
-The tcMenu Web Designer and bitmap/font editor are licensed under Apache 2.0 with the Commons Clause. See [LICENCES.md]
-
-But in summary, tcMenu continues to be fully open source under Apache 2.0. The new Web Designer and bitmap/font editor are now released under a protected licence. This keeps them free for makers, hobbyists, and internal company use, while requiring a commercial licence for redistribution, SaaS hosting, or embedding into paid products.
-
-The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer components.
+The goal is straightforward: keep tcMenu open and accessible while protecting the identity and reputation of the project and supporting its long-term sustainability. Apache 2.0 permits both personal and commercial use of the software, while the TcMenu branding remains reserved to help distinguish official releases, services and project communications.
 
 ## I18N multi-language menus in initializer mode
 
