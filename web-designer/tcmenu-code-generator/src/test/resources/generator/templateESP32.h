@@ -17,7 +17,7 @@ H_FILE_CONTENT 10 otherKey
 #include <Arduino.h>
 #include <tcMenu.h>
 
-#include <tcMenuBuilder.h>
+#include <TcMenuBuilder.h>
 #include "Scramble.h"
 #include <JoystickSwitchInput.h>
 #include <RemoteMenuItem.h>

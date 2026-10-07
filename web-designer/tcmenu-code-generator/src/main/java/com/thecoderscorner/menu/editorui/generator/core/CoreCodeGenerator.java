@@ -390,7 +390,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(COMMENT_HEADER);
             writer.write(platformIncludes());
             if(menuCodeGenerator instanceof MenuBuilderTreeCodeGeneratorImpl) {
-                writer.write(LINE_BREAK + "#include <tcMenuBuilder.h>" + LINE_BREAK);
+                writer.write(LINE_BREAK + "#include <TcMenuBuilder.h>" + LINE_BREAK);
             }
             List<HeaderDefinition> includeList = getHeaderDefinitions(embeddedCreators, menuCodeGenerator.headersToGenerate());
 
