@@ -25,10 +25,12 @@ jobs:
       run: |
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
         cd font-bmp-editor/target
+        mkdir -p jfx/app/mac
+        cp ../../tcMenuNative/packaged/mac/*.dylib jfx/app/mac/
         jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \
             --icon ./classes/img/AppIcon.icns \
             --app-version 99.99.99 --verbose \
-            --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/mac' \
+            --java-options '-Dprism.lcdtext=false -Djava.library.path=$APPDIR/mac --enable-native-access=javafx.graphics,com.thecoderscorner.bmped' \
             --add-modules "jdk.crypto.cryptoki" \
             -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
 

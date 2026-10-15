@@ -25,9 +25,11 @@ jobs:
       run: |
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
         cd font-bmp-editor/target
+        mkdir -p jfx/app/ubu
+        cp ../../tcMenuNative/packaged/ubu/*.so jfx/app/ubu/
         jpackage -n BitMapEdit -p jfx/deps --input jfx/app  \
               --icon ./classes/img/menu-icon.png --app-version 99.99.99 --verbose \
-              --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/deb' \
+              --java-options '-Dprism.lcdtext=false -Djava.library.path=$APPDIR/ubu --enable-native-access=javafx.graphics,com.thecoderscorner.bmped' \
               --add-modules "jdk.crypto.cryptoki" \
               --linux-app-category Development \
               --linux-menu-group "Development;Utility;" \

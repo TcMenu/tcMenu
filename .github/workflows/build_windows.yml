@@ -27,9 +27,11 @@ jobs:
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
         cd font-bmp-editor/target
         cp classes/img/tcMenuDesigner.ico .
+        mkdir -p jfx/app/win
+        cp ../../tcMenuNative/packaged/win/*.dll jfx/app/win/
         jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \
               --resource-dir ./classes/img --icon tcMenuDesigner.ico --app-version 99.99.99 --verbose \
-              --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/win' \
+              --java-options '-Dprism.lcdtext=false -Djava.library.path=$APPDIR/win --enable-native-access=javafx.graphics,com.thecoderscorner.bmped' \
               --add-modules "jdk.crypto.cryptoki" \
               -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
 
