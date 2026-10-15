@@ -27,8 +27,5 @@ jobs:
     - name: Build and test embedCONTROLCore
       run: mvn -B install -Dgpg.skip=true --file api/embedCONTROLCore/pom.xml
 
-    - name: Build and test tcMenuGenerator
-      run: mvn -B install -Dgpg.skip=true --file archive/tcMenuGenerator/pom.xml
-
     - name: Build and test Turbo Web
       run: mvn -B install -Dgpg.skip=true --file web-designer/pom.xml
