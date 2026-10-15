@@ -21,24 +21,6 @@ jobs:
         distribution: 'liberica'
         cache: maven
 
-    - name: Build tcMenuGenerator binary
-      run: |
-        mvn -B install -DskipTests -Dgpg.skip=true --file api/tcMenuJavaApi/pom.xml
-        mvn -B install -DskipTests -Dgpg.skip=true --file api/embedCONTROLCore/pom.xml
-        mvn -B install -DskipTests -Dgpg.skip=true --file archive/tcMenuGenerator/pom.xml
-        cd archive/tcMenuGenerator/target
-        jpackage -n tcMenuDesigner \
-                 -p jfx/deps \
-                 --input jfx/app \
-                 --icon ./classes/img/AppIcon.icns \
-                 --verbose \
-                 --license-file ../../LICENSE \
-                 --vendor TheCodersCorner \
-                 --app-version 99.99.99 \
-                 --add-modules "jdk.crypto.cryptoki" \
-                 --java-options '-Dprism.lcdtext=false -Djava.library.path=$APPDIR/mac' \
-                 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
-
     - name: Build Bitmap and Font editor
       run: |
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
@@ -50,13 +32,6 @@ jobs:
             --add-modules "jdk.crypto.cryptoki" \
             -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
 
-    - name: Upload macOS TcMenuDesigner artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: tcMenuDesigner-NIGHTLY_macos-${{ github.sha }}.dmg
-        path: |
-          archive/tcMenuGenerator/target/tcMenuDesigner-99.99.99.dmg
-          
     - name: Upload macOS BitmapFontEditor artifact
       uses: actions/upload-artifact@v4
       with:
