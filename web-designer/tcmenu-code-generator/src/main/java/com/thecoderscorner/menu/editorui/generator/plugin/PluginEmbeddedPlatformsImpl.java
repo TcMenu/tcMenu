@@ -22,6 +22,7 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     public static final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
     public static final List<EmbeddedPlatform> allPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, MBED_RTOS, PICO_SDK_CMAKE);
     public static final List<EmbeddedPlatform> trueCppPlatform = List.of(MBED_RTOS, PICO_SDK_CMAKE);
+    public static final List<EmbeddedPlatform> trueCppPlatformArduino32 = List.of(MBED_RTOS, PICO_SDK_CMAKE, ARDUINO_ESP32);
     public static final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
 
     public PluginEmbeddedPlatformsImpl() {

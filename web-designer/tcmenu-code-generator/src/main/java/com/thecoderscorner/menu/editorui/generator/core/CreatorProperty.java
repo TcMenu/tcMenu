@@ -43,6 +43,9 @@ public class CreatorProperty {
         return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), ALWAYS_APPLICABLE);
     }
 
+    public static CreatorProperty variableProperty(String id, String name, String desc, SubSystem system, String defVal, CodeApplicability applicability) {
+        return new CreatorProperty(id, name, desc, defVal, system, PropType.VARIABLE, variableValidator(), applicability);
+    }
     public static CreatorProperty variableProperty(String id, String name, String desc, SubSystem system, String defVal) {
         return new CreatorProperty(id, name, desc, defVal, system, PropType.VARIABLE, variableValidator(), ALWAYS_APPLICABLE);
     }
@@ -58,6 +61,11 @@ public class CreatorProperty {
 
     public static CreatorProperty boolProperty(String id, String name, String desc, boolean initial, SubSystem subSystem) {
         return new CreatorProperty(id, name, desc, Boolean.toString(initial), subSystem, PropType.VARIABLE, boolValidator(), ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty ofStrChoices(String id, String name, String desc, SubSystem subSystem, String initialValue, List<String> choices) {
+        var adaptedChoices = choices.stream().map(ChoiceDescription::new).toList();
+        return new CreatorProperty(id, name, desc, initialValue, subSystem, PropType.VARIABLE, CannedPropertyValidators.choicesValidator(adaptedChoices, initialValue), ALWAYS_APPLICABLE);
     }
 
     public static CreatorProperty ofChoices(String id, String name, String desc, SubSystem subSystem, String initialValue, List<ChoiceDescription> choices) {

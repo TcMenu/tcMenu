@@ -21,14 +21,22 @@ public class InbuiltDisplayInputPlugins implements JavaPluginGroup {
         config.setVendor("The CodersCorner");
         config.setVendorUrl("https://www.coderscorner.com");
 
+        // display plugins
         addPlugin(new GxEPD2SimplePluginImpl(this, manager));
         addPlugin(new DfRobotDisplayPluginImpl(this, manager));
         addPlugin(new ColorAdafruitStarterPlugin(this, manager));
-        addPlugin(new AdafruitFrameBufferPlugin(this, manager));
         addPlugin(new MonoAdafruitStarterPlugin(this, manager));
+        addPlugin(new AdafruitFrameBufferPlugin(this, manager));
+        addPlugin(new TcAdaForkForNativeOledPlugin(this, manager));
 
+        // input plugins
         addPlugin(new BspStmTouchControllerPlugin(this, manager));
         addPlugin(new InterruptBasedRotaryEncoderPlugin(this, manager));
+
+        // custom cases, EG no input/display, custom options.
+        addPlugin(new NoDisplayPlugin(this, manager));
+        addPlugin(new NoInputPlugin(this, manager));
+
     }
 
     public void addPlugin(JavaPluginItem plugin) {
