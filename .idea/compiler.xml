@@ -13,7 +13,6 @@
         <module name="embeddedJavaExample" />
         <module name="embedCONTROLCore" />
         <module name="tcMenuJavaAPI" />
-        <module name="menuEditorUI" />
       </profile>
       <profile name="Annotation profile for tcmenu-ide-project-root" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -29,7 +28,7 @@
     <bytecodeTargetLevel>
       <module name="embedCONTROLFx" target="20" />
       <module name="EmbeddedJavaDemo" target="22" />
-      <module name="menuEditorUI (1)" target="25" />
+      <module name="menuEditorUI" target="25" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -78,7 +78,7 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 * tcMenuLib - https://github.com/TcMenu/tcMenuLib
 * IoAbstraction - https://github.com/TcMenu/IoAbstraction
 * TaskManagerIO - https://github.com/TcMenu/TaskManagerIO
-* tcUnicodeHelper - https://github.com/TcMenu/tcUnicodeHelper
+* tcUnicodeHelper - https://github.com/TcMenu/tcUnicodeHelper 
 
 ### Additional libraries you may need depending on display
 

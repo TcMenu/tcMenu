@@ -8,7 +8,7 @@ import {
     ProjectSaveLocation,
     RoundTripMode
 } from './domain/ProjectStruct';
-import {getCurrentlyOpenProject, setCurrentlyOpenProject} from "./App";
+import {setCurrentlyOpenProject, useCurrentlyOpenProject} from "./App";
 import {MenuTree} from "./domain/MenuTree";
 
 import {useNavigate} from 'react-router-dom';
@@ -18,6 +18,7 @@ import {JsonMenuItemSerializer} from "./domain/JsonMenuItemSerializer";
 
 export function StartNewProject() {
     const navigate = useNavigate();
+    const project = useCurrentlyOpenProject();
     const [projectName, setProjectName] = useState('');
     const [projectDescription, setProjectDescription] = useState('');
     const [projectUuid, setProjectUuid] = useState('00000000-0000-0000-0000-000000000000');
@@ -73,11 +74,24 @@ export function StartNewProject() {
         navigate('/menu-edit');
     };
 
-    if(getCurrentlyOpenProject()) {
-        return <div>
-            <h1>Project is already open</h1>
-            <p>A project is already open. Close it from "Menu Edit" to use quick start!</p>
-        </div>;
+    if (project) {
+        return (
+            <div className="start-project-container">
+                <div className="form-header">
+                    <h2>Project is already open</h2>
+                </div>
+                <p>A project is already open. Close the current project to start a new one.</p>
+                <div style={{marginTop: "20px"}}>
+                    <button
+                        type="button"
+                        className="close-button"
+                        onClick={() => setCurrentlyOpenProject(null)}
+                    >
+                        Close Current Project
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return (
