@@ -6,16 +6,17 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.google.errorprone.annotations.Var;
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.ActionMenuItem;
+import com.thecoderscorner.menu.domain.ActionMenuItemBuilder;
+import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.DomainFixtures;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VariableNameGeneratorTest {
 
@@ -136,5 +137,23 @@ public class VariableNameGeneratorTest {
         assertEquals("SUB_ABC_ALREADY_UPPER", generator.makeHeaderDefineFromName(tree.getMenuById(4).orElseThrow()));
         assertEquals("SUB_ABC_TEST123", generator.makeHeaderDefineFromName(tree.getMenuById(5).orElseThrow()));
         assertEquals("SUB_ABC_UPPER_DOWN", generator.makeHeaderDefineFromName(tree.getMenuById(6).orElseThrow()));
+    }
+
+    @Test
+    public void testIsValidProjectFileName() {
+        assertTrue(VariableNameGenerator.isValidProjectFileName(null));
+        assertTrue(VariableNameGenerator.isValidProjectFileName(""));
+        assertTrue(VariableNameGenerator.isValidProjectFileName("validName"));
+        assertTrue(VariableNameGenerator.isValidProjectFileName("valid_name_123"));
+        assertTrue(VariableNameGenerator.isValidProjectFileName("_LeadingUnderscore"));
+        assertTrue(VariableNameGenerator.isValidProjectFileName("123Numeric"));
+
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid name"));
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid-hyphen"));
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid.dot"));
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid/slash"));
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid\\backslash"));
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid$symbol"));
+        assertFalse(VariableNameGenerator.isValidProjectFileName("invalid@char"));
     }
 }

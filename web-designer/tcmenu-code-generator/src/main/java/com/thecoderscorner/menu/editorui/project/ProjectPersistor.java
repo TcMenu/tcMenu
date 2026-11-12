@@ -50,6 +50,21 @@ public interface ProjectPersistor {
      */
     String save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler handler) throws IOException;
 
+    /**
+     * Saves a project file to disk with the specified filename including projectFileName.
+     *
+     * @param fileName        name of the file to save to
+     * @param desc            description for the file
+     * @param projectFileName the custom project file name
+     * @param tree            the tree to be saved
+     * @param options         the code generator options
+     * @param handler         the locale handler to ensure any locale specifics are saved too
+     * @throws IOException if there is a problem saving.
+     */
+    default String save(String fileName, String desc, String projectFileName, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler handler) throws IOException {
+        return save(fileName, desc, tree, options, handler);
+    }
+
     List<PersistedMenu> copyTextToItems(String items);
 
     String itemsToCopyText(MenuItem startingPoint, MenuTree tree);

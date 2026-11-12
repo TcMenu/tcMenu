@@ -110,7 +110,23 @@ public class CurrentEditorProjectTest {
         project.setFileName(FILE_NAME_SIMULATED);
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save(eq(FILE_NAME_SIMULATED), eq(""), eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
+        Mockito.verify(persistor).save(eq(FILE_NAME_SIMULATED), eq(""), eq(null), eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
+    }
+
+    @Test
+    public void testSavingWithProjectFileName() throws IOException {
+        project.applyCommand(NEW, item1, MenuTree.ROOT);
+        project.setFileName(FILE_NAME_SIMULATED);
+        project.setProjectFileName("CustomFile_123");
+        project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
+        assertFalse(project.isDirty());
+        Mockito.verify(persistor).save(eq(FILE_NAME_SIMULATED), eq(""), eq("CustomFile_123"), eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
+    }
+
+    @Test
+    public void testInvalidProjectFileNameThrows() {
+        assertThrows(IllegalArgumentException.class, () -> project.setProjectFileName("invalid-name"));
+        assertThrows(IllegalArgumentException.class, () -> project.setProjectFileName("invalid name"));
     }
 
     @Test

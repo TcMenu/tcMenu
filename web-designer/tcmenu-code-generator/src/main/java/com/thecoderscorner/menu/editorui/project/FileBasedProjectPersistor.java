@@ -33,7 +33,7 @@ package com.thecoderscorner.menu.editorui.project;
  import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
  import static java.lang.System.Logger.Level.INFO;
 
-/**
+ /**
  * An implementation of the ProjectPersisor that is based on GSON based JSON library.
  * It saves a human readable JSON file containing all the settings, and can load back
  * equally.
@@ -87,7 +87,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 MenuItemHelper.setMenuState(rl, items, tree);
             }
         });
-        return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName());
+        return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName(), MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, prj.getProjectFileName());
     }
 
     public PersistedProject asPersistedProject(MenuTreeWithCodeOptions menuTreeWithCodeOptions) {
@@ -96,7 +96,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             items.add(new PersistedMenu(menuTreeWithCodeOptions.getMenuTree().findParent(item), item));
         }
         return new PersistedProject(menuTreeWithCodeOptions.getDescription(), "WebUser", items,
-                menuTreeWithCodeOptions.getOptions(), new PersistableStringList[0]);
+                menuTreeWithCodeOptions.getOptions(), new PersistableStringList[0], menuTreeWithCodeOptions.getProjectFileName());
     }
 
     private SubMenuItem fromParentId(MenuTree tree, int parentId) {
@@ -110,6 +110,11 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
     @Override
     public String save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler localeHandler) throws IOException {
+        return save(fileName, desc, null, tree, options, localeHandler);
+    }
+
+    @Override
+    public String save(String fileName, String desc, String projectFileName, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler localeHandler) throws IOException {
         logger.log(INFO, "Save file starting for: " + fileName);
 
         // make sure we save out any in flight changes to internationalisation files.
@@ -124,7 +129,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         }
 
         String user = System.getProperty("user.name");
-        var s = serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0])));
+        var s = serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0]), projectFileName));
         Path filePath = Paths.get(fileName);
         Files.writeString(filePath, s);
         return s;

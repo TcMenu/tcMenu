@@ -9,6 +9,7 @@ import {
     resetI18n
 } from "../generator/I18nImpls";
 import {useEffect, useState} from "react";
+import {isValidProjectFileName} from "../domain/PersistedMenu";
 
 export function RootEditor({project, onHashChange}: {project: MenuTreeWithCodeOptions, onHashChange: () => void}) {
     const [counter, setCounter] = useState(0);
@@ -54,6 +55,24 @@ export function RootEditor({project, onHashChange}: {project: MenuTreeWithCodeOp
             </div>
 
             <div className="form-group">
+                <label htmlFor="projectFileName">Project File Name</label>
+                <input
+                    type="text"
+                    id="projectFileName"
+                    value={project.projectFileName ?? ''}
+                    placeholder="Leave blank to use default behaviour"
+                    onChange={(e) => {
+                        project.projectFileName = e.target.value;
+                        onHashChange();
+                    }}
+                />
+                <span className="help-text">TcMenu Generator defaults to creating files based on the project directory or project name in camel case. If this value is set it overrides that behaviour.</span>
+                {!isValidProjectFileName(project.projectFileName) && (
+                    <span style={{color: "red", marginTop: "4px"}}>Project file name can only contain letters, numbers, and underscores</span>
+                )}
+            </div>
+
+            <div className="form-group">
                 <label htmlFor="description">Description</label>
                 <textarea
                     id="description"
@@ -79,7 +98,7 @@ export function RootEditor({project, onHashChange}: {project: MenuTreeWithCodeOp
 
             <div className="form-group">
                 <label>Embedded Platform</label>
-                <input type="text" value={embeddedPlatformFromId(project.options.embeddedPlatform).friendlyName} readOnly disabled />
+                <input type="text" value={embeddedPlatformFromId(project.options.embeddedPlatform)?.friendlyName ?? project.options.embeddedPlatform} readOnly disabled />
             </div>
 
             <GeneratorOptionsEditor

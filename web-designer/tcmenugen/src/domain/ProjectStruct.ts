@@ -95,4 +95,5 @@ export interface MenuTreeWithCodeOptions {
      description: string;
      options: CodeGeneratorOptions;
      roundTripMode: RoundTripMode;
+     projectFileName?: string;
 }

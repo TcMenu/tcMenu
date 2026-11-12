@@ -15,18 +15,20 @@ public class MenuTreeWithCodeOptions {
     private final String description;
     private final CodeGeneratorOptions options;
     private final RoundTripMode roundTripMode;
+    private final String projectFileName;
 
     public MenuTreeWithCodeOptions(MenuTree menuTree, CodeGeneratorOptions options, String description) {
-        this.menuTree = menuTree;
-        this.description = description;
-        this.options = options;
-        this.roundTripMode = RoundTripMode.JAVA_LOCAL;
+        this(menuTree, options, description, RoundTripMode.JAVA_LOCAL, null);
     }
     public MenuTreeWithCodeOptions(MenuTree menuTree, CodeGeneratorOptions options, String description, RoundTripMode roundTripMode) {
+        this(menuTree, options, description, roundTripMode, null);
+    }
+    public MenuTreeWithCodeOptions(MenuTree menuTree, CodeGeneratorOptions options, String description, RoundTripMode roundTripMode, String projectFileName) {
         this.menuTree = menuTree;
         this.description = description;
         this.options = options;
         this.roundTripMode = roundTripMode;
+        this.projectFileName = projectFileName;
     }
 
     public MenuTree getMenuTree() {
@@ -39,5 +41,13 @@ public class MenuTreeWithCodeOptions {
 
     public String getDescription() {
         return description != null ? description : "";
+    }
+
+    public RoundTripMode getRoundTripMode() {
+        return roundTripMode;
+    }
+
+    public String getProjectFileName() {
+        return projectFileName;
     }
 }

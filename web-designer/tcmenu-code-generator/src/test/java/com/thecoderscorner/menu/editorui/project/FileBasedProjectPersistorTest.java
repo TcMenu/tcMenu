@@ -87,6 +87,26 @@ public class FileBasedProjectPersistorTest {
         assertEquals(DISPLAY, returnedProps.get(0).getSubsystem());
     }
 
+    @Test
+    public void testSaveThenLoadWithProjectFileName() throws IOException {
+        Path projFile = dir.resolve("projectWithFileName.emf");
+
+        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
+        MenuTree tree = TestUtils.buildCompleteTree();
+        var options = new CodeGeneratorOptionsBuilder()
+                .withPlatform(ARDUINO_AVR)
+                .withAppName("app name").withNewId(APPLICATION_UUID)
+                .withEepromDefinition(new NoEepromDefinition()).withAuthenticationDefinition(new NoAuthenticatorDefinition())
+                .withExpanderDefinitions(new IoExpanderDefinitionCollection())
+                .codeOptions();
+        String savedJson = persistor.save(projFile.toString(), "Test Description", "MyCustomFile", tree, options, LocaleMappingHandler.NOOP_IMPLEMENTATION);
+        org.junit.jupiter.api.Assertions.assertTrue(savedJson.contains("\"projectFileName\": \"MyCustomFile\""));
+
+        MenuTreeWithCodeOptions openResult = persistor.open(projFile.toString());
+        assertEquals("MyCustomFile", openResult.getProjectFileName());
+        assertEquals("Test Description", openResult.getDescription());
+    }
+
     private void compareTrees(MenuTree sourceTree, MenuTree compTree) {
         Set<MenuItem> srcSubs = sourceTree.getAllSubMenus();
         Set<MenuItem> dstSubs = compTree.getAllSubMenus();

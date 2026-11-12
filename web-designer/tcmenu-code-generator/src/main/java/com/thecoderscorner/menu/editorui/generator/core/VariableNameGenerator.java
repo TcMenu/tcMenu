@@ -77,6 +77,12 @@ public class VariableNameGenerator {
         return "fn" + makeNameToVar(item) + "RtCall";
     }
 
+    public static final java.util.regex.Pattern PROJECT_FILE_NAME_PATTERN = java.util.regex.Pattern.compile("^[a-zA-Z0-9_]+$");
+
+    public static boolean isValidProjectFileName(String name) {
+        return name == null || name.isEmpty() || PROJECT_FILE_NAME_PATTERN.matcher(name).matches();
+    }
+
     public static String makeNameFromVariable(String name) {
         Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
         return parts.stream().map(StringHelper::capitaliseFirst).collect(Collectors.joining());

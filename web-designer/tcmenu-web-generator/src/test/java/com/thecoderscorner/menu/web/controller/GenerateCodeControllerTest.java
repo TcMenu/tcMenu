@@ -47,6 +47,7 @@ public class GenerateCodeControllerTest {
         configStorage = mock(ConfigurationStorage.class);
         codeGeneratorSupplier = new CodeGeneratorSupplier(configStorage);
         persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
+        serializer = persistor.getSerializer();
         codePluginManager = mock(CodePluginManager.class);
 
         controller = spy(new GenerateCodeController(persistor, codeGeneratorSupplier, codePluginManager));
@@ -222,5 +223,133 @@ public class GenerateCodeControllerTest {
         // Then
         assertNotNull(response);
         assertTrue(response.isSuccessful(), "Generation should succeed even with duplicate property names across subsystems");
+    }
+
+    @Test
+    public void testGenerateCodeWithProjectFileName() throws Exception {
+        // Given
+        String inputUuid = "input-uuid";
+        String displayUuid = "display-uuid";
+        String themeUuid = "theme-uuid";
+
+        CodeGeneratorOptions options = new CodeGeneratorOptions(
+                EmbeddedPlatform.ARDUINO_AVR, displayUuid, inputUuid, List.of("remote-uuid"), themeUuid,
+                List.of(), UUID.randomUUID(), "TestApp Application Name",
+                new ArduinoClassEepromDefinition(), new EepromAuthenticatorDefinition(256, 2),
+                null, null, ProjectSaveLocation.ALL_TO_CURRENT, false,
+                false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
+        );
+
+        MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(
+                DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project",
+                MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, "CustomProjectFile"
+        );
+        PersistedProject project = persistor.asPersistedProject(projectOptions);
+        GenerateCodeRequest request = new GenerateCodeRequest(project, null, List.of(), List.of());
+        doReturn(request).when(controller).processGenerateCodeRequest(anyString());
+
+        CodePluginItem inputPlugin = mock(CodePluginItem.class);
+        when(inputPlugin.getId()).thenReturn(inputUuid);
+        when(inputPlugin.getProperties()).thenReturn(List.of());
+
+        JavaPluginGroup group = new InbuiltDisplayInputPlugins(codePluginManager, new VersionInfo("1.0"));
+        CodePluginItem displayPlugin = new GxEPD2SimplePluginImpl(group, codePluginManager).getPlugin();
+        CodePluginItem themePlugin = new EinkBlockTheme(group, codePluginManager).getPlugin();
+
+        CodePluginItem remotePlugin = mock(CodePluginItem.class);
+        when(remotePlugin.getId()).thenReturn("remote-uuid");
+        when(remotePlugin.getProperties()).thenReturn(List.of());
+
+        when(codePluginManager.getPluginById(inputUuid)).thenReturn(Optional.of(inputPlugin));
+        when(codePluginManager.getPluginById(displayUuid)).thenReturn(Optional.of(displayPlugin));
+        when(codePluginManager.getPluginById(themeUuid)).thenReturn(Optional.of(themePlugin));
+        when(codePluginManager.getPluginById("remote-uuid")).thenReturn(Optional.of(remotePlugin));
+
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+        when(servletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        // When
+        GenerationResponse response = controller.generateCode("{}", servletRequest);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(7, response.getGeneratedFiles().size());
+        assertNotNull(response.getFileByName("CustomProjectFile.ino"));
+        assertNotNull(response.getFileByName("CustomProjectFile_menu.h"));
+        assertNotNull(response.getFileByName("CustomProjectFile.emf"));
+        assertTrue(response.getFileByName("CustomProjectFile.emf").getContent().contains("\"projectFileName\": \"CustomProjectFile\""));
+        assertThat(response.getLogLines()).isNotEmpty();
+        assertTrue(response.isSuccessful());
+    }
+
+    @Test
+    public void testSaveEmfProjectWithProjectFileName() throws Exception {
+        CodeGeneratorOptions options = new CodeGeneratorOptions(
+                EmbeddedPlatform.ARDUINO_AVR, "display-uuid", "input-uuid", List.of(), null,
+                List.of(), UUID.randomUUID(), "TestApp",
+                null, null, null, null, ProjectSaveLocation.ALL_TO_CURRENT,
+                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
+        );
+
+        MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(
+                DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project",
+                MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, "MyCustomEmfFile"
+        );
+        PersistedProject project = persistor.asPersistedProject(projectOptions);
+        String requestJson = serializer.getGson().toJson(java.util.Map.of("project", project));
+
+        var response = controller.saveEmfProject(requestJson);
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("\"projectFileName\": \"MyCustomEmfFile\""));
+    }
+
+    @Test
+    public void testGenerateCodeWithInvalidProjectFileNameFails() {
+        CodeGeneratorOptions options = new CodeGeneratorOptions(
+                EmbeddedPlatform.ARDUINO_AVR, "display-uuid", "input-uuid", List.of(), null,
+                List.of(), UUID.randomUUID(), "TestApp",
+                null, null, null, null, ProjectSaveLocation.ALL_TO_CURRENT,
+                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
+        );
+
+        MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(
+                DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project",
+                MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, "invalid project name"
+        );
+        PersistedProject project = persistor.asPersistedProject(projectOptions);
+        GenerateCodeRequest request = new GenerateCodeRequest(project, null, List.of(), List.of());
+        doReturn(request).when(controller).processGenerateCodeRequest(anyString());
+
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+        when(servletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        GenerationResponse response = controller.generateCode("{}", servletRequest);
+        assertNotNull(response);
+        assertFalse(response.isSuccessful());
+        assertTrue(response.getLogLines().stream().anyMatch(l -> l.getLog().contains("Project file name contains invalid characters")));
+    }
+
+    @Test
+    public void testSaveEmfProjectWithInvalidProjectFileNameFails() throws Exception {
+        CodeGeneratorOptions options = new CodeGeneratorOptions(
+                EmbeddedPlatform.ARDUINO_AVR, "display-uuid", "input-uuid", List.of(), null,
+                List.of(), UUID.randomUUID(), "TestApp",
+                null, null, null, null, ProjectSaveLocation.ALL_TO_CURRENT,
+                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
+        );
+
+        MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(
+                DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project",
+                MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, "invalid-name-hyphen"
+        );
+        PersistedProject project = persistor.asPersistedProject(projectOptions);
+        String requestJson = serializer.getGson().toJson(java.util.Map.of("project", project));
+
+        var response = controller.saveEmfProject(requestJson);
+        assertNotNull(response);
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("Project file name contains invalid characters", response.getBody());
     }
 }

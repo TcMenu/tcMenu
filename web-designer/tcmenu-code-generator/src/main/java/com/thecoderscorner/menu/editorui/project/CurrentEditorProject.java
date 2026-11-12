@@ -24,12 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_CURRENT;
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_SRC;
 import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
@@ -57,6 +55,8 @@ public class CurrentEditorProject {
     private Optional<String> fileName = Optional.empty();
     @Getter
     private String description;
+    @Getter
+    private String projectFileName;
     private boolean dirty = true; // always assume dirty at first..
     @Getter
     private CodeGeneratorOptions generatorOptions;
@@ -78,6 +78,7 @@ public class CurrentEditorProject {
         menuTree = new MenuTree();
         fileName = Optional.empty();
         description = "";
+        projectFileName = null;
         uncommittedItems.clear();
         generatorOptions = makeBlankGeneratorOptions();
         localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
@@ -110,6 +111,7 @@ public class CurrentEditorProject {
         MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
         menuTree = openedProject.getMenuTree();
         description = openedProject.getDescription();
+        projectFileName = openedProject.getProjectFileName();
         generatorOptions = openedProject.getOptions();
         if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
         setDirty(false);
@@ -144,7 +146,7 @@ public class CurrentEditorProject {
         fileName.ifPresent((file)-> {
             try {
                 uncommittedItems.clear();
-                projectPersistor.save(file, description, menuTree, generatorOptions, localeHandler);
+                projectPersistor.save(file, description, projectFileName, menuTree, generatorOptions, localeHandler);
                 setDirty(false);
             } catch (IOException e) {
                 logger.log(ERROR, "save operation failed on " + file, e);
@@ -160,6 +162,14 @@ public class CurrentEditorProject {
     public void setDescription(String description) {
         setDirty(true);
         this.description = description;
+    }
+
+    public void setProjectFileName(String projectFileName) {
+        if (!com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator.isValidProjectFileName(projectFileName)) {
+            throw new IllegalArgumentException("Project file name contains invalid characters");
+        }
+        setDirty(true);
+        this.projectFileName = projectFileName;
     }
 
     public boolean isFileNameSet() {

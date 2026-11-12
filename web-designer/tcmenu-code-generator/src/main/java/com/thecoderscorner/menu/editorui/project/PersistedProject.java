@@ -19,17 +19,25 @@ public class PersistedProject {
     private ArrayList<PersistedMenu> items;
     private CodeGeneratorOptions codeOptions;
     private PersistableStringList[] stringLists;
+    private String projectFileName;
 
     public PersistedProject() {
     }
 
     public PersistedProject(String projectName, String author, List<PersistedMenu> items,
                             CodeGeneratorOptions generatorOptions, PersistableStringList[] stringLists) {
+        this(projectName, author, items, generatorOptions, stringLists, null);
+    }
+
+    public PersistedProject(String projectName, String author, List<PersistedMenu> items,
+                            CodeGeneratorOptions generatorOptions, PersistableStringList[] stringLists,
+                            String projectFileName) {
         this.projectName = projectName;
         this.author = author;
         this.items = new ArrayList<>(items);
         this.codeOptions = generatorOptions;
         this.stringLists = stringLists;
+        this.projectFileName = projectFileName;
     }
 
     public CodeGeneratorOptions getCodeOptions() {
@@ -54,5 +62,9 @@ public class PersistedProject {
 
     public List<PersistedMenu> getItems() {
         return items;
+    }
+
+    public String getProjectFileName() {
+        return projectFileName;
     }
 }

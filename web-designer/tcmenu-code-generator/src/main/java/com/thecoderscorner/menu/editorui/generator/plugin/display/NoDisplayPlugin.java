@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.editorui.generator.plugin.display;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class NoDisplayPlugin extends BaseJavaPluginItem {
         codePlugin.setDescription("No display required");
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Select this when you don't want tcMenu to render anything locally, I.E. no display on the embedded device.");
-        codePlugin.setThemeDescription(ThemeDescription.monoWithFont(FontMode.ADAFRUIT));
+        codePlugin.setThemeDescription(ThemeDescription.NO_THEME);
         codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/customise-menu-input-display-plugin/");
         codePlugin.setJavaImpl(this);
         codePlugin.setManager(manager);

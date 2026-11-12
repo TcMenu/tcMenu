@@ -1,14 +1,21 @@
 import {
     AnalogMenuItem,
     BooleanMenuItem,
-    EditableLargeNumberMenuItem, EditableTextMenuItem,
-    EnumMenuItem, FloatMenuItem, ListCreationMode,
+    EditableLargeNumberMenuItem,
+    EditableTextMenuItem,
+    EnumMenuItem,
+    FloatMenuItem,
+    ListCreationMode,
     ListMenuItem,
-    MenuItem, Rgb32MenuItem, ScrollChoice, ScrollChoiceMenuItem
+    MenuItem,
+    Rgb32MenuItem,
+    ScrollChoice,
+    ScrollChoiceMenuItem
 } from "./MenuItem";
 import {
     CodeGeneratorOptions,
-    EepromSaveMode, MenuInMenuCollection,
+    EepromSaveMode,
+    MenuInMenuCollection,
     MenuInMenuConnectionType,
     MenuInMenuReplicationMode,
     MenuTreeWithCodeOptions,
@@ -70,6 +77,12 @@ export interface PersistableStringList {
 }
 
 
+export const PROJECT_FILE_NAME_PATTERN = /^[a-zA-Z0-9_]+$/;
+
+export function isValidProjectFileName(name?: string): boolean {
+    return !name || PROJECT_FILE_NAME_PATTERN.test(name);
+}
+
 export class PersistedProject {
     version: string;
     projectName: string;
@@ -77,15 +90,17 @@ export class PersistedProject {
     items: PersistedMenu[];
     codeOptions: CodeGeneratorOptions;
     stringLists: PersistableStringList[];
+    projectFileName?: string;
 
     constructor(version: string, projectName: string, author: string, items: PersistedMenu[],
-                codeOptions: CodeGeneratorOptions, stringLists: PersistableStringList[]) {
+                codeOptions: CodeGeneratorOptions, stringLists: PersistableStringList[], projectFileName?: string) {
         this.version = version;
         this.projectName = projectName;
         this.author = author;
         this.items = items;
         this.codeOptions = codeOptions;
         this.stringLists = stringLists;
+        this.projectFileName = projectFileName;
     }
 }
 
@@ -133,7 +148,7 @@ function getProjectFromJson(json: any): PersistedProject {
 
     return new PersistedProject(
         json.version, json.projectName, json.author, convertedItems,
-        codeOptions, json.stringLists
+        codeOptions, json.stringLists, json.projectFileName
     );
 }
 
@@ -180,7 +195,8 @@ export function parseEmfJsonToProject(jsonData: string, mode?: RoundTripMode) : 
         menuTree: tree,
         description: prj.projectName,
         options: prj.codeOptions,
-        roundTripMode: (mode !== undefined) ? mode : RoundTripMode.EMF_FILE_DRAGGED_IN
+        roundTripMode: (mode !== undefined) ? mode : RoundTripMode.EMF_FILE_DRAGGED_IN,
+        projectFileName: prj.projectFileName
     };
 
 }
@@ -224,6 +240,7 @@ export function projectToPersistedJson(project: MenuTreeWithCodeOptions): any {
         "WebApp", // author
         items,
         copyOptionsToJsonSafe(project.options),
-        stringListsFromTree(project.menuTree.getAllItems())
+        stringListsFromTree(project.menuTree.getAllItems()),
+        project.projectFileName
     );
 }

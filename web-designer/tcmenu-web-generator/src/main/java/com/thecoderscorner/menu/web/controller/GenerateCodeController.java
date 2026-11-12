@@ -130,11 +130,19 @@ public class GenerateCodeController {
         if (persisted == null || persisted.getCodeOptions() == null) {
             return ResponseEntity.badRequest().body("Project options are missing");
         }
+        if (persisted.getProjectFileName() != null) {
+            if (persisted.getProjectFileName().length() > MAX_ALLOWED_NAME) {
+                return ResponseEntity.badRequest().body("Project file name too long");
+            }
+            if (!VariableNameGenerator.isValidProjectFileName(persisted.getProjectFileName())) {
+                return ResponseEntity.badRequest().body("Project file name contains invalid characters");
+            }
+        }
 
         Path temporaryFile = Files.createTempFile("tcmenu-emf-", ".emf");
         try {
             var menuProject = persistor.getMenuTreeWithCodeOptions(persisted);
-            persistor.save(temporaryFile.toString(), menuProject.getDescription(), menuProject.getMenuTree(),
+            persistor.save(temporaryFile.toString(), menuProject.getDescription(), menuProject.getProjectFileName(), menuProject.getMenuTree(),
                     menuProject.getOptions(), LocaleMappingHandler.NOOP_IMPLEMENTATION);
             return ResponseEntity.ok(Files.readString(temporaryFile));
         } finally {
@@ -154,6 +162,14 @@ public class GenerateCodeController {
         if (ObjectUtils.isEmpty(options.getApplicationName())) throw new IllegalArgumentException("Application name is missing");
         if (options.getApplicationName().length() > MAX_ALLOWED_NAME) throw new IllegalArgumentException("Application name too long");
         if (options.getEmbeddedPlatform() == null) throw new IllegalArgumentException("Embedded platform is missing");
+        if (project.getProjectFileName() != null) {
+            if (project.getProjectFileName().length() > MAX_ALLOWED_NAME) {
+                throw new IllegalArgumentException("Project file name too long");
+            }
+            if (!VariableNameGenerator.isValidProjectFileName(project.getProjectFileName())) {
+                throw new IllegalArgumentException("Project file name contains invalid characters");
+            }
+        }
 
         if (request.getRequiredFiles() != null) {
             for (var file : request.getRequiredFiles()) {
@@ -252,8 +268,13 @@ public class GenerateCodeController {
             tempDir = Files.createTempDirectory("tcmenu-gen");
             String fileName = request.getProjectOverrideDir();
             if(!StringUtils.hasLength(fileName)) {
-                fileName = VariableNameGenerator.makeNameFromVariable(menuWithOptions.getOptions().getApplicationName());
-                logger.info("Generating project dir from name as: " + fileName);
+                if (StringUtils.hasLength(request.getProject().getProjectFileName())) {
+                    fileName = request.getProject().getProjectFileName();
+                    logger.info("Using project file name as: " + fileName);
+                } else {
+                    fileName = VariableNameGenerator.makeNameFromVariable(menuWithOptions.getOptions().getApplicationName());
+                    logger.info("Generating project dir from name as: " + fileName);
+                }
             } else {
                 logger.info("Using project override directory: " +  fileName);
             }
@@ -284,7 +305,7 @@ public class GenerateCodeController {
 
             var codeOptions = new CodeGeneratorOptionsBuilder().withExisting(menuWithOptions.getOptions())
                     .withProperties(frontEndProperties).codeOptions();
-            var output = persistor.save(filePath.toString(), menuWithOptions.getDescription(), menuWithOptions.getMenuTree(), codeOptions, localeHandler);
+            var output = persistor.save(filePath.toString(), menuWithOptions.getDescription(), menuWithOptions.getProjectFileName(), menuWithOptions.getMenuTree(), codeOptions, localeHandler);
             logger.fileModificiation(new GeneratedFile(filePath.toString(), output, true));
             generator.startConversion(projectPath, plugins, menuWithOptions.getMenuTree(), List.of(),
                     menuWithOptions.getOptions(), localeHandler, combinedSetProperties);

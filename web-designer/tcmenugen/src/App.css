@@ -297,7 +297,15 @@ header {
 .help-text {
   font-style: italic;
   color: #666;
+}
+
+.menu-editor-welcome .help-text {
   margin-top: 30px;
+}
+
+.form-group .help-text {
+  margin-top: 4px;
+  font-size: 0.85rem;
 }
 
 .menu-editor-container {

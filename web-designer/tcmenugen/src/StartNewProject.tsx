@@ -15,11 +15,13 @@ import {useNavigate} from 'react-router-dom';
 import {GeneratorOptionsEditor} from "./menuedit/GeneratorOptionsEditor";
 import {counterStarter} from "./menuedit/BulkAddTemplates";
 import {JsonMenuItemSerializer} from "./domain/JsonMenuItemSerializer";
+import {isValidProjectFileName} from "./domain/PersistedMenu";
 
 export function StartNewProject() {
     const navigate = useNavigate();
     const project = useCurrentlyOpenProject();
     const [projectName, setProjectName] = useState('');
+    const [projectFileName, setProjectFileName] = useState('');
     const [projectDescription, setProjectDescription] = useState('');
     const [projectUuid, setProjectUuid] = useState('00000000-0000-0000-0000-000000000000');
     const [platform, setPlatform] = useState(ALL_PLATFORMS[0].boardId);
@@ -64,7 +66,8 @@ export function StartNewProject() {
             menuTree: new MenuTree(menuTree => {}),
             description: projectDescription,
             options: options,
-            roundTripMode: RoundTripMode.NEW_PROJECT
+            roundTripMode: RoundTripMode.NEW_PROJECT,
+            projectFileName: projectFileName.trim() ? projectFileName.trim() : undefined
         };
 
         const serializer = new JsonMenuItemSerializer();
@@ -94,6 +97,8 @@ export function StartNewProject() {
         );
     }
 
+    const isProjectFileNameValid = isValidProjectFileName(projectFileName.trim());
+
     return (
         <div className="start-project-container">
             <div className="form-header">
@@ -102,7 +107,7 @@ export function StartNewProject() {
                     type="button"
                     className="generate-button"
                     onClick={handleGenerate}
-                    disabled={!projectName.trim() || !projectDescription.trim()}
+                    disabled={!projectName.trim() || !projectDescription.trim() || !isProjectFileNameValid}
                 >
                     Generate &gt;&gt;
                 </button>
@@ -116,6 +121,20 @@ export function StartNewProject() {
                     onChange={(e) => setProjectName(e.target.value)}
                     placeholder="Enter project name"
                 />
+            </div>
+            <div className="form-group">
+                <label htmlFor="projectFileName">Project File Name</label>
+                <input
+                    type="text"
+                    id="projectFileName"
+                    value={projectFileName}
+                    onChange={(e) => setProjectFileName(e.target.value)}
+                    placeholder="Leave blank to use default behaviour"
+                />
+                <span className="help-text">TcMenu Generator defaults to creating files based on the project directory or project name in camel case. If this value is set it overrides that behaviour.</span>
+                {!isProjectFileNameValid && (
+                    <span style={{color: "red", marginTop: "4px"}}>Project file name can only contain letters, numbers, and underscores</span>
+                )}
             </div>
             <div className="form-group">
                 <label htmlFor="projectDescription">Description</label>

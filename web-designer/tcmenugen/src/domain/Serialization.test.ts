@@ -1,11 +1,14 @@
-import {parseEmfJsonToProject, PersistedProject, projectToPersistedJson} from './PersistedMenu';
+import {isValidProjectFileName, parseEmfJsonToProject, projectToPersistedJson} from './PersistedMenu';
 import {
     AnalogMenuItem,
-    EnumMenuItem,
-    SubMenuItem,
-    BooleanMenuItem,
+    EditableLargeNumberMenuItem,
     EditableTextMenuItem,
-    EditableLargeNumberMenuItem, Rgb32MenuItem, ScrollChoiceMenuItem, ListMenuItem, MenuItem
+    EnumMenuItem,
+    ListMenuItem,
+    MenuItem,
+    Rgb32MenuItem,
+    ScrollChoiceMenuItem,
+    SubMenuItem
 } from './MenuItem';
 import {EepromSaveMode, ProjectSaveLocation} from "./ProjectStruct";
 
@@ -742,5 +745,49 @@ describe('EMF Serialization Tests', () => {
         expect(largeNum.digitsAllowed).toBe(8);
         expect(largeNum.decimalPlaces).toBe(4);
         expect(largeNum.staticDataInRAM).toBe(true);
+    });
+
+    test('should preserve projectFileName when present', () => {
+        const emfWithProjectFileName = JSON.stringify({
+            version: "1.00",
+            projectName: "My Project Desc",
+            projectFileName: "CustomProjectFile",
+            author: "Tester",
+            items: [],
+            codeOptions: {
+                embeddedPlatform: "ARDUINO_AVR",
+                lastDisplayUuid: "",
+                lastInputUuid: "",
+                lastRemoteUuids: [],
+                lastThemeUuid: "",
+                applicationUUID: "12345678-1234-1234-1234-1234567890ab",
+                applicationName: "App Name",
+                lastProperties: [],
+                namingRecursive: false,
+                saveLocation: 0,
+                useCppMain: false
+            }
+        });
+
+        const project = parseEmfJsonToProject(emfWithProjectFileName);
+        expect(project.projectFileName).toBe("CustomProjectFile");
+
+        const output = projectToPersistedJson(project);
+        expect(output.projectFileName).toBe("CustomProjectFile");
+    });
+
+    test('isValidProjectFileName should validate alphanumeric and underscore only', () => {
+        expect(isValidProjectFileName(undefined)).toBe(true);
+        expect(isValidProjectFileName("")).toBe(true);
+        expect(isValidProjectFileName("validName")).toBe(true);
+        expect(isValidProjectFileName("valid_name_123")).toBe(true);
+        expect(isValidProjectFileName("_LeadingUnderscore")).toBe(true);
+        expect(isValidProjectFileName("123Numeric")).toBe(true);
+
+        expect(isValidProjectFileName("invalid name")).toBe(false);
+        expect(isValidProjectFileName("invalid-hyphen")).toBe(false);
+        expect(isValidProjectFileName("invalid.dot")).toBe(false);
+        expect(isValidProjectFileName("invalid/slash")).toBe(false);
+        expect(isValidProjectFileName("invalid$symbol")).toBe(false);
     });
 });
