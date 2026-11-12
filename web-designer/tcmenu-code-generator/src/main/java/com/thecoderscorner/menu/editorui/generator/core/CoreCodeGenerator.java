@@ -121,9 +121,15 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             boolean genDir = (psl == PROJECT_TO_CURRENT_WITH_GENERATED || psl == PROJECT_TO_SRC_WITH_GENERATED);
             createTheSourceDirectoriesIfNeeded(srcDir, genDir);
 
-            String cppFile = toSourceFile(srcDir, "_menu.cpp", genDir);
-            String headerFile = toSourceFile(srcDir, "_menu.h", genDir);
-            String projectName = directory.getFileName().toString();
+            String dirName = directory.getFileName().toString().equals("src")
+                    ? directory.getParent().getFileName().toString()
+                    : directory.getFileName().toString();
+            String projectName = StringHelper.isStringEmptyOrNull(options.getProjectFileName())
+                    ? dirName
+                    : options.getProjectFileName();
+
+            String cppFile = toSourceFile(srcDir, projectName, "_menu.cpp", genDir);
+            String headerFile = toSourceFile(srcDir, projectName, "_menu.h", genDir);
 
             // Prepare the generator by initialising all the structures ready for conversion.
             menuCodeGen = makeMenuCodeGeneratorForOptions(options);
@@ -154,7 +160,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 } else {
                     localeCodeGen = new MultiFileI18nCodeGenerator(feedbackLogger, localeHandler);
                 }
-                localeCodeGen.processLocale(srcDir, genDir);
+                localeCodeGen.processLocale(srcDir, projectName, genDir);
             }
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
@@ -224,16 +230,20 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
+    public static String toSourceFile(Path directory, String projectName, String ext, boolean generated) {
+        if(generated) {
+            directory = directory.resolve("generated");
+        }
+        return Paths.get(directory.toString(), projectName + ext).toString();
+    }
+
     public static String toSourceFile(Path directory, String ext, boolean generated) {
         Path file = directory.getFileName();
         if (file.toString().equals("src")) {
             // special case, go back one more level
             file = directory.getParent().getFileName();
         }
-        if(generated) {
-            directory = directory.resolve("generated");
-        }
-        return Paths.get(directory.toString(), file.toString() + ext).toString();
+        return toSourceFile(directory, file.toString(), ext, generated);
     }
 
     protected void generateSource(List<CodePluginItem> generators, String cppFile,

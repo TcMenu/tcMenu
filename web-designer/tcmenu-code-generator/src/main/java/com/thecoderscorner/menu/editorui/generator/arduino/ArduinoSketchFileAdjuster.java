@@ -73,11 +73,17 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         Path inoFile;
         this.logger = logger;
         var path = isSavingToSrcDir() ? dir.resolve("src") : dir;
+        String dirName = path.getFileName().toString().equals("src")
+                ? path.getParent().getFileName().toString()
+                : path.getFileName().toString();
+        String projectName = (projectOptions != null && !StringHelper.isStringEmptyOrNull(projectOptions.getProjectFileName()))
+                ? projectOptions.getProjectFileName()
+                : ((options != null && !StringHelper.isStringEmptyOrNull(options.getProjectFileName())) ? options.getProjectFileName() : dirName);
         if(options.isUseCppMain()) {
-            inoFile = getCppMainPath(path);
+            inoFile = getCppMainPath(path, projectName);
         }
         else {
-            inoFile = Paths.get(CoreCodeGenerator.toSourceFile(path, ".ino", false));
+            inoFile = Paths.get(CoreCodeGenerator.toSourceFile(path, projectName, ".ino", false));
         }
 
         if(Files.exists(inoFile)) return inoFile;
@@ -96,6 +102,10 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
     private boolean isSavingToSrcDir() {
         return options.getSaveLocation() == ALL_TO_SRC || options.getSaveLocation() == PROJECT_TO_SRC_WITH_GENERATED;
+    }
+
+    protected Path getCppMainPath(Path path, String projectName) {
+        return Paths.get(CoreCodeGenerator.toSourceFile(path, projectName, "_main.cpp", false));
     }
 
     protected Path getCppMainPath(Path path) {

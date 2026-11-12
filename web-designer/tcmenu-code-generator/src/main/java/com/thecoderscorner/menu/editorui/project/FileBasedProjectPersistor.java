@@ -12,6 +12,7 @@ package com.thecoderscorner.menu.editorui.project;
  import com.thecoderscorner.menu.domain.state.MenuTree;
  import com.thecoderscorner.menu.domain.util.MenuItemHelper;
  import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
  import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
  import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
  import com.thecoderscorner.menu.persist.LocaleMappingHandler;
@@ -87,7 +88,11 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 MenuItemHelper.setMenuState(rl, items, tree);
             }
         });
-        return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName(), MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, prj.getProjectFileName());
+        var codeOptions = prj.getCodeOptions();
+        if (codeOptions != null && prj.getProjectFileName() != null && codeOptions.getProjectFileName() == null) {
+            codeOptions = new CodeGeneratorOptionsBuilder().withExisting(codeOptions).withProjectFileName(prj.getProjectFileName()).codeOptions();
+        }
+        return new MenuTreeWithCodeOptions(tree, codeOptions, prj.getProjectName(), MenuTreeWithCodeOptions.RoundTripMode.JAVA_LOCAL, prj.getProjectFileName());
     }
 
     public PersistedProject asPersistedProject(MenuTreeWithCodeOptions menuTreeWithCodeOptions) {

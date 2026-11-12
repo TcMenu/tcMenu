@@ -52,7 +52,8 @@ public abstract class BaseJavaPluginItem implements JavaPluginItem {
     }
 
     protected FunctionDefinition basicSetRotation() {
-        return FunctionDefinition.ofRegCpp("setRotation", "display", List.of(
+        var displayVariable = findPropOrDefault("DISPLAY_VARIABLE", "display");
+        return FunctionDefinition.ofRegCpp("setRotation", displayVariable, List.of(
                 CodeParameter.unNamedValue("${DISPLAY_ROTATION}")
         ));
     }

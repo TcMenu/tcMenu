@@ -28,6 +28,7 @@ public class CodeGeneratorOptionsBuilder {
     private String lastThemeUuid = NO_CREATOR_SELECTED;
     private UUID applicationUUID = UUID.randomUUID();
     private String applicationName = "New Device";
+    private String projectFileName;
     private List<CreatorProperty> lastProperties = List.of();
     private IoExpanderDefinitionCollection expanderDefinitions = new IoExpanderDefinitionCollection();
     private ProjectSaveLocation saveLocation = ProjectSaveLocation.ALL_TO_CURRENT;
@@ -48,6 +49,7 @@ public class CodeGeneratorOptionsBuilder {
         lastThemeUuid = other.getLastThemeUuid();
         applicationUUID = other.getApplicationUUID();
         applicationName = other.getApplicationName();
+        projectFileName = other.getProjectFileName();
         lastProperties = other.getLastProperties();
         namingRecursive = other.isNamingRecursive();
         saveLocation = other.getSaveLocation();
@@ -64,7 +66,7 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
-                lastProperties, applicationUUID, applicationName, eepromDef, authDef, expanderDefinitions,
+                lastProperties, applicationUUID, applicationName, projectFileName, eepromDef, authDef, expanderDefinitions,
                 menuInMenuDefinitions, saveLocation, namingRecursive, useCppMain, eepromSaveMode, useDynamicMenus, i18nEnabled);
     }
 
@@ -90,6 +92,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withAppName(String newValue) {
         applicationName = newValue;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withProjectFileName(String projectFileName) {
+        this.projectFileName = projectFileName;
         return this;
     }
 

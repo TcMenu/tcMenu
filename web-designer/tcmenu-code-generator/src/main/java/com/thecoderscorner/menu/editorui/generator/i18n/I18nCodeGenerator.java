@@ -27,7 +27,14 @@ public abstract class I18nCodeGenerator {
         this.localeHandler = localeHandler;
     }
 
-    public abstract void processLocale(Path srcDir, boolean generatedDir) throws IOException;
+    public void processLocale(Path srcDir, boolean generatedDir) throws IOException {
+        String dirName = srcDir.getFileName().toString().equals("src")
+                ? srcDir.getParent().getFileName().toString()
+                : srcDir.getFileName().toString();
+        processLocale(srcDir, dirName, generatedDir);
+    }
+
+    public abstract void processLocale(Path srcDir, String projectName, boolean generatedDir) throws IOException;
 
     protected void localeToCpp(OutputStreamWriter writer,
                              Locale locale,

@@ -266,23 +266,23 @@ public class GenerateCodeController {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("tcmenu-gen");
-            String fileName = request.getProjectOverrideDir();
-            if(!StringUtils.hasLength(fileName)) {
+            String dirName = request.getProjectOverrideDir();
+            if(!StringUtils.hasLength(dirName)) {
                 if (StringUtils.hasLength(request.getProject().getProjectFileName())) {
-                    fileName = request.getProject().getProjectFileName();
-                    logger.info("Using project file name as: " + fileName);
+                    dirName = request.getProject().getProjectFileName();
+                    logger.info("Using project file name as: " + dirName);
                 } else {
-                    fileName = VariableNameGenerator.makeNameFromVariable(menuWithOptions.getOptions().getApplicationName());
-                    logger.info("Generating project dir from name as: " + fileName);
+                    dirName = VariableNameGenerator.makeNameFromVariable(menuWithOptions.getOptions().getApplicationName());
+                    logger.info("Generating project dir from name as: " + dirName);
                 }
             } else {
-                logger.info("Using project override directory: " +  fileName);
+                logger.info("Using project override directory: " + dirName);
             }
-            if(fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+            if(dirName.contains("..") || dirName.contains("/") || dirName.contains("\\")) {
                 throw new IllegalArgumentException("Invalid filename - directory traversal not allowed");
             }
 
-            var projectPath = tempDir.resolve(fileName).normalize();
+            var projectPath = tempDir.resolve(dirName).normalize();
             if(!projectPath.startsWith(tempDir)) {
                 throw new IllegalArgumentException("Invalid filename - resolved path outside temp directory");
             }
@@ -296,19 +296,26 @@ public class GenerateCodeController {
             } else {
                 log.info("Project created in root dir");
             }
-            var filePath = projectPath.resolve(fileName + ".emf");
+
+            String projectFileNameBase = menuWithOptions.getProjectFileName();
+            if (!StringUtils.hasLength(projectFileNameBase)) {
+                projectFileNameBase = dirName;
+            }
+
+            var filePath = projectPath.resolve(projectFileNameBase + ".emf");
             var plugins = allPlugins(menuWithOptions.getOptions());
             var combinedSetProperties = deepCopyAndPrepareProps(plugins, frontEndProperties);
 
             var localeHandler = prepareLocaleHandler(projectFiles, srcPath, logger, menuWithOptions.getOptions().isI18nEnabled());
-            copyInoFileIfPresent(projectFiles, srcPath, menuWithOptions.getOptions().isUseCppMain());
+            copyInoFileIfPresent(projectFiles, srcPath, projectFileNameBase, menuWithOptions.getOptions().isUseCppMain());
 
             var codeOptions = new CodeGeneratorOptionsBuilder().withExisting(menuWithOptions.getOptions())
+                    .withProjectFileName(menuWithOptions.getProjectFileName())
                     .withProperties(frontEndProperties).codeOptions();
             var output = persistor.save(filePath.toString(), menuWithOptions.getDescription(), menuWithOptions.getProjectFileName(), menuWithOptions.getMenuTree(), codeOptions, localeHandler);
             logger.fileModificiation(new GeneratedFile(filePath.toString(), output, true));
             generator.startConversion(projectPath, plugins, menuWithOptions.getMenuTree(), List.of(),
-                    menuWithOptions.getOptions(), localeHandler, combinedSetProperties);
+                    codeOptions, localeHandler, combinedSetProperties);
 
             userRateLimitCache.put(servletRequest.getRemoteAddr(), LocalDateTime.now());
 
@@ -364,13 +371,13 @@ public class GenerateCodeController {
         }
     }
 
-    private void copyInoFileIfPresent(List<GeneratedFile> allFiles, Path projectPath, boolean cppProject) {
+    private void copyInoFileIfPresent(List<GeneratedFile> allFiles, Path projectPath, String projectFileNameBase, boolean cppProject) {
         var inoFileOpt = allFiles.stream().filter(f -> f.getFileName().endsWith(".ino") || f.getFileName().endsWith("_main.cpp"))
                 .findFirst();
         if(inoFileOpt.isPresent()) {
             var inoFile = inoFileOpt.get();
             try {
-                var fileName = projectPath.getFileName().toString() + (cppProject ? "_menu.cpp" : ".ino");
+                var fileName = projectFileNameBase + (cppProject ? "_main.cpp" : ".ino");
                 var filePath = projectPath.resolve(fileName).normalize();
                 if(!filePath.startsWith(projectPath)) {
                     throw new IllegalArgumentException("Invalid filename - resolved path outside project directory");

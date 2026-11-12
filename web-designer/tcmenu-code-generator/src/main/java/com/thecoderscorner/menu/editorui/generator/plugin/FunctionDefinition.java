@@ -40,6 +40,10 @@ public class FunctionDefinition {
         return new FunctionDefinition(fn, obj, false, false, false, params, ALWAYS_APPLICABLE);
     }
 
+    public static FunctionDefinition ofPtrCpp(String fn, String obj, List<CodeParameter> params) {
+        return new FunctionDefinition(fn, obj, true, false, false, params, ALWAYS_APPLICABLE);
+    }
+
     public static FunctionDefinition ofBuilderDeclaration(String fn, String obj, List<CodeParameter> buildSteps) {
         return new FunctionDefinition(fn, obj, false, false, true, buildSteps, ALWAYS_APPLICABLE);
     }

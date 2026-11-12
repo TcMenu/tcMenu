@@ -113,7 +113,11 @@ public class CurrentEditorProject {
         description = openedProject.getDescription();
         projectFileName = openedProject.getProjectFileName();
         generatorOptions = openedProject.getOptions();
-        if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
+        if (generatorOptions == null) {
+            generatorOptions = makeBlankGeneratorOptions();
+        } else if (projectFileName != null && generatorOptions.getProjectFileName() == null) {
+            generatorOptions = new CodeGeneratorOptionsBuilder().withExisting(generatorOptions).withProjectFileName(projectFileName).codeOptions();
+        }
         setDirty(false);
         setFileName(file);
         checkIfLocalesPresentAndEnable();
@@ -170,6 +174,9 @@ public class CurrentEditorProject {
         }
         setDirty(true);
         this.projectFileName = projectFileName;
+        if (generatorOptions != null) {
+            generatorOptions = new CodeGeneratorOptionsBuilder().withExisting(generatorOptions).withProjectFileName(projectFileName).codeOptions();
+        }
     }
 
     public boolean isFileNameSet() {

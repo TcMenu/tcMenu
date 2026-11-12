@@ -27,7 +27,7 @@ public class MultiFileI18nCodeGenerator extends I18nCodeGenerator {
     }
 
     @Override
-    public void processLocale(Path srcDir, boolean generatedDir) throws IOException {
+    public void processLocale(Path srcDir, String projectName, boolean generatedDir) throws IOException {
         feedbackLogger.debug("Starting locale processing");
         var previousLocale = localeHandler.getCurrentLocale();
 
@@ -35,7 +35,7 @@ public class MultiFileI18nCodeGenerator extends I18nCodeGenerator {
             langSelectWriter.append(GENERATED_LOCAL_HEADER).append(LINE_BREAK);
             langSelectWriter.append("// This is the header to include. Set TC_LOCAL_?? to a locale").append(LINE_BREAK);
             langSelectWriter.append("// or omit for the default language").append(TWO_LINES);
-            String defaultLocaleFile = toSourceFile(srcDir, "_lang" + ".h", generatedDir);
+            String defaultLocaleFile = toSourceFile(srcDir, projectName, "_lang" + ".h", generatedDir);
             localeHandler.changeLocale(PropertiesLocaleEnabledHandler.DEFAULT_LOCALE);
             var defaultLocaleMap = localeHandler.getUnderlyingMap();
             writeOutFile(defaultLocaleFile, PropertiesLocaleEnabledHandler.DEFAULT_LOCALE, defaultLocaleMap);
@@ -43,7 +43,7 @@ public class MultiFileI18nCodeGenerator extends I18nCodeGenerator {
             boolean useElIf = false;
 
             for (var locale : localeHandler.getEnabledLocales().stream().filter(l -> !l.getLanguage().isEmpty()).toList()) {
-                String localeFile = toSourceFile(srcDir, "_lang_" + locale.toString() + ".h", generatedDir);
+                String localeFile = toSourceFile(srcDir, projectName, "_lang_" + locale.toString() + ".h", generatedDir);
                 localeHandler.changeLocale(locale);
                 writeOutFile(localeFile, locale, defaultLocaleMap);
 
@@ -71,7 +71,7 @@ public class MultiFileI18nCodeGenerator extends I18nCodeGenerator {
             addTcLocaleStringMethod(langSelectWriter);
 
             langSelectWriter.flush();
-            var selFile = Paths.get(toSourceFile(srcDir, "_langSelect" + ".h", generatedDir));
+            var selFile = Paths.get(toSourceFile(srcDir, projectName, "_langSelect" + ".h", generatedDir));
             Files.writeString(selFile, baos.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             feedbackLogger.fileModificiation(GeneratedFile.always(selFile, baos.toString()));
             feedbackLogger.info("Finished processing locale, Wrote out language selector - " + selFile.getFileName());

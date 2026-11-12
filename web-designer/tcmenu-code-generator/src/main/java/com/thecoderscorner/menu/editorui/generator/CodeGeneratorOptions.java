@@ -30,6 +30,7 @@ public class CodeGeneratorOptions {
     private String lastThemeUuid;
     private UUID applicationUUID;
     private String applicationName;
+    private String projectFileName;
     private List<CreatorProperty> lastProperties;
     private boolean namingRecursive;
     private ProjectSaveLocation saveLocation;
@@ -54,6 +55,19 @@ public class CodeGeneratorOptions {
                                 MenuInMenuCollection menuInMenuCollection, ProjectSaveLocation saveLocation,
                                 boolean namingRecursive, boolean useCppMain, EepromSaveMode eepromSaveMode, boolean useDynamicMenus,
                                 boolean i18nEnabled) {
+        this(embeddedPlatform, displayTypeId, inputTypeId, remoteCapabilities, themeTypeId, lastProperties, applicationUUID,
+                applicationName, null, eepromDef, authDef, projectIoExpanders, menuInMenuCollection, saveLocation,
+                namingRecursive, useCppMain, eepromSaveMode, useDynamicMenus, i18nEnabled);
+    }
+
+    public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
+                                String themeTypeId, List<CreatorProperty> lastProperties,
+                                UUID applicationUUID, String applicationName, String projectFileName,
+                                EepromDefinition eepromDef, AuthenticatorDefinition authDef,
+                                IoExpanderDefinitionCollection projectIoExpanders,
+                                MenuInMenuCollection menuInMenuCollection, ProjectSaveLocation saveLocation,
+                                boolean namingRecursive, boolean useCppMain, EepromSaveMode eepromSaveMode, boolean useDynamicMenus,
+                                boolean i18nEnabled) {
         this.embeddedPlatform = embeddedPlatform;
         this.useDynamicMenus = useDynamicMenus;
         this.lastDisplayUuid = displayTypeId;
@@ -70,9 +84,10 @@ public class CodeGeneratorOptions {
         this.lastProperties = lastProperties;
         this.applicationUUID = applicationUUID;
         this.applicationName = applicationName;
+        this.projectFileName = projectFileName;
         this.namingRecursive = namingRecursive;
         this.saveLocation = saveLocation;
-        this.useCppMain = useCppMain || embeddedPlatform.getBoardId().equals("MBED_RTOS");
+        this.useCppMain = useCppMain || (embeddedPlatform != null && embeddedPlatform.getBoardId().equals("MBED_RTOS"));
         this.eepromDefinition = eepromDef;
         this.authenticatorDefinition = authDef;
         this.menuInMenuCollection = menuInMenuCollection;

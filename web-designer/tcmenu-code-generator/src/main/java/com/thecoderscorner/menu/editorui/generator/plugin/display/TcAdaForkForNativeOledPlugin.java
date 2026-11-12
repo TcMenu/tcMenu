@@ -15,6 +15,7 @@ import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_NORMAL;
 import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable.globalExported;
+import static com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable.globalExportedNew;
 import static com.thecoderscorner.menu.editorui.generator.plugin.VariableDefinitionMode.EXPORT_ONLY;
 import static com.thecoderscorner.menu.editorui.generator.plugin.VariableDefinitionMode.VARIABLE_AND_EXPORT;
 
@@ -30,7 +31,7 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
         codePlugin.setDescription("OLED Driver supporting SSD1306, SH1106, SH1107 on STM32Cube, ESP32-IDF, PicoSDK, and mbed");
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Draw menus using our OLED driver for native platforms (outside Arduino environment). Tested on STM32Cube, ESP32-IDF, PicoSDK, and mbed. It supports SSD1306, SH1106, and SH1107 drivers.");
-        codePlugin.setThemeDescription(ThemeDescription.colorWithFont(FontMode.ADAFRUIT));
+        codePlugin.setThemeDescription(ThemeDescription.monoWithFont(FontMode.ADAFRUIT));
         codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_mbed-renderer-plugin/");
         codePlugin.setJavaImpl(this);
         codePlugin.setManager(manager);
@@ -72,6 +73,11 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
                 CreatorProperty.ofChoices("TEXT_ENCODING", "The text encoding of the display", "The text encoding of the display", DISPLAY, "ENCMODE_UTF8", List.of(
                         new ChoiceDescription("ENCMODE_UTF8", "UTF8 encoding"),
                         new ChoiceDescription("ENCMODE_EXT_ASCII", "ASCII encoding")
+                )),
+                separatorProperty("NAT_PLATFORM", "Platform Options"),
+                CreatorProperty.ofChoices("DISPLAY_PLATFORM", "The platform you're building for", "The platform that you are building for, some variables need to change for mbed", DISPLAY, "CMAKE", List.of(
+                        new ChoiceDescription("CMAKE", "Stm32Cube/ESP-IDF/PicoSDK"),
+                        new ChoiceDescription("MBED_RTOS", "mbed 6 RTOS")
                 ))
         );
     }
@@ -90,9 +96,11 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
     public List<FunctionDefinition> getFunctions() {
         var displayVariable = findPropOrFail("DISPLAY_VARIABLE");
         return List.of(
-                basicSetRotation(),
-                FunctionDefinition.ofRegCpp("begin", displayVariable, List.of()),
+                FunctionDefinition.ofPtrCpp("setRotation", displayVariable, List.of(CodeParameter.unNamedValue("${DISPLAY_ROTATION}"))),
+                FunctionDefinition.ofPtrCpp("begin", displayVariable, List.of()),
                 basicUpdatesPerSecond(),
+                FunctionDefinition.ofRegCpp("setGraphics", displayVariable + "Drawable",
+                        List.of(CodeParameter.unNamedValue(displayVariable))),
                 FunctionDefinition.ofRegCpp("setFontHandler", "${DISPLAY_VARIABLE}Drawable", List.of(
                         CodeParameter.unNamedValue("${DISPLAY_VARIABLE}->getFontHandler()")
                 )),
@@ -104,8 +112,9 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
 
     @Override
     public List<HeaderDefinition> getHeaderDefinitions() {
+
         return List.of(
-                new HeaderDefinition("Adafruit_SSD1306.h", HeaderType.SOURCE, PRIORITY_NORMAL, ALWAYS_APPLICABLE),
+                new HeaderDefinition("oled/" + disambiguateDisplayType() + ".h", HeaderType.SOURCE, PRIORITY_NORMAL, ALWAYS_APPLICABLE),
                 new HeaderDefinition("tcMenuAdaFruitGfxMono.h", HeaderType.SOURCE, PRIORITY_NORMAL, ALWAYS_APPLICABLE)
         );
     }
@@ -120,20 +129,24 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
                 CodeReplacement.always("__ACTUAL_GENERATED_HDR__", "tcMenuAdaFruitGfxMono.h"),
                 CodeReplacement.always("__EXTRA_TYPE_DEFS_NEEDED__", ""),
                 CodeReplacement.always("__EXTRA_VARIABLES__", ""),
-                CodeReplacement.always("Adafruit_Header", disambiguateDisplayType()),
+                CodeReplacement.always("Adafruit_Header", "oled/" + disambiguateDisplayType()),
                 CodeReplacement.always("Adafruit_Driver", disambiguateDisplayType())
         );
 
         return List.of(
-                new RequiredSourceFile("tcMenuAdaFruitGfxMono.cpp", getSourceFile(true), replacements, true),
+                new RequiredSourceFile("tcMenuAdaFruitGfxMono.cpp", getSourceFile(true) + createUnicodeFontHandler(), replacements, true),
                 new RequiredSourceFile("tcMenuAdaFruitGfxMono.h", getHeaderFile(true), replacements, true)
         );
+    }
+
+    private String createUnicodeFontHandler() {
+        return null;
     }
 
     private String disambiguateDisplayType() {
         var displayType = findPropOrFail("DISPLAY_TYPE");
         var spi = findPropOrFail("BUS_TYPE").equals("SPI");
-        if(displayType.equals("SH_1107")) {
+        if (displayType.equals("SH_1107")) {
             return spi ? "TcAdaSH1107SPI" : "TcAdaSH1107I2C";
         } else {
             return spi ? "AdafruitSSD1306Spi" : "AdafruitSSD1306I2c";
@@ -144,17 +157,17 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
     public List<CodeVariable> getVariables() {
         var varList = new ArrayList<CodeVariable>();
         var spi = findPropOrFail("BUS_TYPE").equals("SPI");
-        var mbed = findPropOrFail("TARGET").equalsIgnoreCase("mbed");
+        var mbed = findPropOrFail("DISPLAY_PLATFORM").equals("MBED_RTOS");
         var serialBus = findPropOrFail("SERIAL_BUS");
         var sh1107 = findPropOrFail("DISPLAY_TYPE").equals("SH_1107");
         String variableName = findPropOrFail("DISPLAY_VARIABLE");
-        if(spi) {
-            if(mbed) {
+        if (spi) {
+            if (mbed) {
                 serialBus = "&" + serialBus;
                 varList.add(globalExported(findPropOrFail("SERIAL_BUS"), "SPI", EXPORT_ONLY, List.of()));
             }
-            if(sh1107) {
-                varList.add(globalExported(variableName, "TcAdaSH1107SPI", VARIABLE_AND_EXPORT, List.of(
+            if (sh1107) {
+                varList.add(globalExportedNew(variableName, "TcAdaSH1107SPI", VARIABLE_AND_EXPORT, List.of(
                         CodeParameter.unNamedValue("SPIWithSettings(" + serialBus + ", ${DISPLAY_CS_PIN}, ${DISPLAY_SPI_FREQ})"),
                         CodeParameter.unNamedValue("${DISPLAY_RS_PIN}"),
                         CodeParameter.unNamedValue("${DISPLAY_RESET_PIN}"),
@@ -163,7 +176,7 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
                 )));
 
             } else {
-                varList.add(globalExported(variableName, "AdafruitSSD1306Spi", VARIABLE_AND_EXPORT, List.of(
+                varList.add(globalExportedNew(variableName, "AdafruitSSD1306Spi", VARIABLE_AND_EXPORT, List.of(
                         CodeParameter.unNamedValue("SPIWithSettings(" + serialBus + ", ${DISPLAY_CS_PIN}, ${DISPLAY_SPI_FREQ})"),
                         CodeParameter.unNamedValue("${DISPLAY_RS_PIN}"),
                         CodeParameter.unNamedValue("${DISPLAY_RESET_PIN}"),
@@ -175,8 +188,8 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
             }
         } else {
             varList.add(globalExported(serialBus, "WireType", EXPORT_ONLY, List.of()));
-            if(sh1107) {
-                varList.add(globalExported(variableName, "TcAdaSH1107I2C", VARIABLE_AND_EXPORT, List.of(
+            if (sh1107) {
+                varList.add(globalExportedNew(variableName, "TcAdaSH1107I2C", VARIABLE_AND_EXPORT, List.of(
                         CodeParameter.unNamedValue("${SERIAL_BUS}"),
                         CodeParameter.unNamedValue("${DISPLAY_RESET_PIN}"),
                         CodeParameter.unNamedValue("${DISPLAY_I2C_ADDR}"),
@@ -184,7 +197,7 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
                         CodeParameter.unNamedValue("${TEXT_ENCODING}")
                 )));
             } else {
-                varList.add(globalExported(variableName, "AdafruitSSD1306I2c", VARIABLE_AND_EXPORT, List.of(
+                varList.add(globalExportedNew(variableName, "AdafruitSSD1306I2c", VARIABLE_AND_EXPORT, List.of(
                         CodeParameter.unNamedValue("${SERIAL_BUS}"),
                         CodeParameter.unNamedValue("${DISPLAY_RESET_PIN}"),
                         CodeParameter.unNamedValue("${DISPLAY_I2C_ADDR}"),
@@ -195,9 +208,10 @@ public class TcAdaForkForNativeOledPlugin extends CommonAdafruitDisplayPlugin {
                 )));
             }
         }
-        varList.add(CodeVariable.globalExported(variableName + "Drawable", "TcAdafruitFrameDrawable",
-                VariableDefinitionMode.VARIABLE_AND_EXPORT, List.of(CodeParameter.unNamedValue("&" + variableName))));
+        varList.add(CodeVariable.globalExported(variableName + "Drawable", "AdafruitDrawable",
+                VariableDefinitionMode.VARIABLE_AND_EXPORT, List.of()));
         varList.add(basicGraphicsDeviceVariable(variableName + "Drawable", 64));
+
         return varList;
     }
 }

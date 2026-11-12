@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -251,6 +250,25 @@ public class ArduinoSketchFileAdjusterTest {
                 "void CALLBACK_FUNCTION tcAdded_onAddToCount(int id) {",
                 "getMenuCount().setCurrentValue(getMenuCount().getCurrentValue() + 1); // Added by generator for the count example",
                 "}");
+    }
+
+    @Test
+    public void testCreatingFileWithCustomProjectFileName() throws IOException {
+        var options = new com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder()
+                .withProjectFileName("MySpecialFileName")
+                .codeOptions();
+        var file = adjuster.createFileIfNeeded(emptyLogger, dir, options);
+        assertEquals("MySpecialFileName.ino", file.getFileName().toString());
+        assertTrue(Files.exists(file));
+
+        var cppOptions = new com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder()
+                .withProjectFileName("MySpecialFileName")
+                .withCppMain(true)
+                .codeOptions();
+        var cppAdjuster = new ArduinoSketchFileAdjuster(cppOptions, Mockito.mock(ConfigurationStorage.class));
+        var cppFile = cppAdjuster.createFileIfNeeded(emptyLogger, dir, cppOptions);
+        assertEquals("MySpecialFileName_main.cpp", cppFile.getFileName().toString());
+        assertTrue(Files.exists(cppFile));
     }
 
     private boolean ensureDoesNotContainLine(List<String> lines, String search) {

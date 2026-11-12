@@ -28,10 +28,10 @@ public class SingleFileI18nCodeGenerator extends I18nCodeGenerator {
     }
 
     @Override
-    public void processLocale(Path srcDir, boolean generatedDir) throws IOException {
+    public void processLocale(Path srcDir, String projectName, boolean generatedDir) throws IOException {
         feedbackLogger.info("Start locale processing");
         var previousLocale = localeHandler.getCurrentLocale();
-        var selFile = Paths.get(toSourceFile(srcDir, "_langSelect" + ".h", generatedDir));
+        var selFile = Paths.get(toSourceFile(srcDir, projectName, "_langSelect" + ".h", generatedDir));
         try (var baos = new ByteArrayOutputStream(32768); var writer = new OutputStreamWriter(baos)) {
             writer.append(SINGLE_FILE_LOCALE_HEADER).append(LINE_BREAK);
             boolean writtenAnything = false;
