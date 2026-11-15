@@ -11,7 +11,6 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.logger.UserFeedbackLogger;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
@@ -25,7 +24,7 @@ class PluginEmbeddedPlatformsImplTest {
     void testEmbeddedPlatforms() {
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
         var codeGenSupplier = new CodeGeneratorSupplier(mock(ConfigurationStorage.class));
-        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS, PICO_SDK_CMAKE);
+        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS, PICO_SDK_CMAKE, ESP32_IDF_CMAKE, STM_CUBE_CMAKE);
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
         assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));
@@ -34,6 +33,9 @@ class PluginEmbeddedPlatformsImplTest {
         assertEquals(MBED_RTOS, platforms.getEmbeddedPlatformFromId(MBED_RTOS.getBoardId()));
         assertEquals(STM32DUINO, platforms.getEmbeddedPlatformFromId(STM32DUINO.getBoardId()));
         assertEquals(RASPBERRY_PIJ, platforms.getEmbeddedPlatformFromId(RASPBERRY_PIJ.getBoardId()));
+        assertEquals(ESP32_IDF_CMAKE, platforms.getEmbeddedPlatformFromId(ESP32_IDF_CMAKE.getBoardId()));
+        assertEquals(PICO_SDK_CMAKE, platforms.getEmbeddedPlatformFromId(PICO_SDK_CMAKE.getBoardId()));
+        assertEquals(STM_CUBE_CMAKE, platforms.getEmbeddedPlatformFromId(STM_CUBE_CMAKE.getBoardId()));
         assertThrows(IllegalArgumentException.class, () -> platforms.getEmbeddedPlatformFromId("invalidId"));
 
         assertTrue(ARDUINO_AVR.isUsesProgmem());

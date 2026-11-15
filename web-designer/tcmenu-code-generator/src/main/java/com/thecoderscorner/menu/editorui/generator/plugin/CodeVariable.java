@@ -41,6 +41,13 @@ public class CodeVariable {
         return new CodeVariable(variableName, objectName, definitionMode, false, false, true,
                 parameterList, JavaPluginItem.ALWAYS_APPLICABLE);
     }
+    
+    public static CodeVariable globalExported(String variableName, String objectName, VariableDefinitionMode definitionMode,
+                                              List<CodeParameter> parameterList, CodeApplicability applicability) {
+        return new CodeVariable(variableName, objectName, definitionMode, false, false, false,
+                parameterList, applicability);
+    }
+
     public static CodeVariable globalExported(String variableName, String objectName, VariableDefinitionMode definitionMode,
                                               List<CodeParameter> parameterList) {
         return new CodeVariable(variableName, objectName, definitionMode, false, false, false,

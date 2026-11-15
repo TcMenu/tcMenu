@@ -6,6 +6,8 @@ import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginGroup;
 import com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.input.BspStmTouchControllerPlugin;
 import com.thecoderscorner.menu.editorui.generator.plugin.input.InterruptBasedRotaryEncoderPlugin;
+import com.thecoderscorner.menu.editorui.generator.plugin.other.NoDisplayPlugin;
+import com.thecoderscorner.menu.editorui.generator.plugin.other.NoInputPlugin;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.ArrayList;

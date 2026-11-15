@@ -12,4 +12,17 @@ import java.util.Collection;
 
 public interface CodeApplicability {
     boolean isApplicable(Collection<CreatorProperty> properties);
+
+    static EqualityApplicability applicabilityEquals(String propertyId, String value) {
+        return new EqualityApplicability(propertyId, value, false);
+    }
+
+    static EqualityApplicability applicabilityNotEquals(String propertyId, String value) {
+        return new EqualityApplicability(propertyId, value, true);
+    }
+
+    static MatchesApplicability applicabilityMatches(String propertyId, String match) {
+        return new MatchesApplicability(propertyId, match);
+    }
+
 }

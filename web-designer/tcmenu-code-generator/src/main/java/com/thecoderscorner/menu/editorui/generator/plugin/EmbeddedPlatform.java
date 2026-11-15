@@ -22,10 +22,12 @@ public class EmbeddedPlatform {
     /** Defines the 32 bit arduino platform */
     public final static EmbeddedPlatform ARDUINO_ESP8266 = new EmbeddedPlatform("Arduino ESP8266", "ARDUINO_ESP8266", true);
     public final static EmbeddedPlatform ARDUINO_ESP32 = new EmbeddedPlatform("Arduino ESP32", "ARDUINO_ESP32", true);
-    public final static EmbeddedPlatform STM32DUINO = new EmbeddedPlatform("STM32Duino", "STM32DUINO", false);
-    public final static EmbeddedPlatform RASPBERRY_PIJ = new EmbeddedPlatform("RaspberryPI-Java", "RASPBERRY_PIJ", false);
+    public final static EmbeddedPlatform STM32DUINO = new EmbeddedPlatform("Arduino STM32Duino", "STM32DUINO", false);
     public final static EmbeddedPlatform MBED_RTOS = new EmbeddedPlatform("mbed RTOS", "MBED_RTOS", false);
-    public final static EmbeddedPlatform PICO_SDK_CMAKE = new EmbeddedPlatform("PicoSDK/STMCube CMake", "PICO_SDK", false);
+    public final static EmbeddedPlatform PICO_SDK_CMAKE = new EmbeddedPlatform("PicoSDK CMake", "PICO_SDK", false);
+    public final static EmbeddedPlatform STM_CUBE_CMAKE = new EmbeddedPlatform("STMCube CMake", "STM_CUBE_CMAKE", false);
+    public final static EmbeddedPlatform ESP32_IDF_CMAKE = new EmbeddedPlatform("ESP32 IDF", "ESP32_IDF_CMAKE", false);
+    public final static EmbeddedPlatform RASPBERRY_PIJ = new EmbeddedPlatform("RaspberryPI-Java", "RASPBERRY_PIJ", false);
 
     private final String friendlyName;
     private final String boardId;

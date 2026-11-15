@@ -290,58 +290,70 @@ function PolicyDialog({onAccept}: { onAccept: () => void }) {
     );
 }
 
-const LandingPage = () => (
-    <main style={{padding: '24px', maxWidth: '900px'}}>
-        <section>
-            <h1>TcMenu Web Designer</h1>
-            <p style={{fontSize: '1.15rem', maxWidth: '720px'}}>
-                Design your embedded menu structure, configure your project, and generate TcMenu code from one place.
-            </p>
+export const LandingPage = () => {
+    const project = useCurrentlyOpenProject();
 
-            <div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '20px'}}>
-                <Link className="primary-button" to="/start-project">
-                    Start a new project
-                </Link>
-                <Link className="secondary-button" to="/menu-edit">
-                    Open an existing project
-                </Link>
+    return (
+        <main style={{padding: '24px', maxWidth: '900px'}}>
+            <section>
+                <h1>TcMenu Web Designer</h1>
+                <p style={{fontSize: '1.15rem', maxWidth: '720px'}}>
+                    Design your embedded menu structure, configure your project, and generate TcMenu code from one place.
+                </p>
+
+                <div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '20px'}}>
+                    {project ? (
+                        <Link className="primary-button" to="/menu-edit">
+                            Continue editing project
+                        </Link>
+                    ) : (
+                        <>
+                            <Link className="primary-button" to="/start-project">
+                                Start a new project
+                            </Link>
+                            <Link className="secondary-button" to="/menu-edit">
+                                Open an existing project
+                            </Link>
+                        </>
+                    )}
+                </div>
+            </section>
+
+            <section style={{marginTop: '32px'}}>
+                <h2>Build a menu in three steps</h2>
+                <ol>
+                    <li>
+                        <strong>Create or open a project</strong> — choose your target platform and project settings.
+                    </li>
+                    <li>
+                        <strong>Design your menu</strong> — add menu items, submenus, actions, values, and callbacks.
+                    </li>
+                    <li>
+                        <strong>Generate code</strong> — select display, input, theme, and remote options, then create your embedded code.
+                    </li>
+                </ol>
+            </section>
+
+            <p>Keep the library and designer on the same version stream.
+                &nbsp;<NavLink to="/availableVersions" target="github">Pick which version of designer to use</NavLink>.</p>
+            <p><a href="https://github.com/TcMenu/tcMenu/releases" target="github">View release notes on GitHub</a></p>
+
+            <section style={{marginTop: '24px'}}>
+                <p>
+                    New to TcMenu or need more detail? Read the{' '}
+                    <a href="https://www.thecoderscorner.com/products/apps/tcmenu-designer/">
+                        tcMenu Designer documentation
+                    </a>.
+                </p>
+            </section>
+
+            <div style={{display: 'flex', justifyContent: 'left', gap: '16px', paddingTop: '16px'}}>
+                <img className="frontImg" src={tcIcon} alt="TcMenu Logo"/>
+                <img className="frontImg" src={embedIcon} alt="EmbedControl Logo"/>
             </div>
-        </section>
-
-        <section style={{marginTop: '32px'}}>
-            <h2>Build a menu in three steps</h2>
-            <ol>
-                <li>
-                    <strong>Create or open a project</strong> — choose your target platform and project settings.
-                </li>
-                <li>
-                    <strong>Design your menu</strong> — add menu items, submenus, actions, values, and callbacks.
-                </li>
-                <li>
-                    <strong>Generate code</strong> — select display, input, theme, and remote options, then create your embedded code.
-                </li>
-            </ol>
-        </section>
-
-        <p>Keep the library and designer on the same version stream.
-            &nbsp;<NavLink to="/availableVersions" target="github">Pick which version of designer to use</NavLink>.</p>
-        <p><a href="https://github.com/TcMenu/tcMenu/releases" target="github">View release notes on GitHub</a></p>
-
-        <section style={{marginTop: '24px'}}>
-            <p>
-                New to TcMenu or need more detail? Read the{' '}
-                <a href="https://www.thecoderscorner.com/products/apps/tcmenu-designer/">
-                    tcMenu Designer documentation
-                </a>.
-            </p>
-        </section>
-
-        <div style={{display: 'flex', justifyContent: 'left', gap: '16px', paddingTop: '16px'}}>
-            <img className="frontImg" src={tcIcon} alt="TcMenu Logo"/>
-            <img className="frontImg" src={embedIcon} alt="EmbedControl Logo"/>
-        </div>
-    </main>
-);
+        </main>
+    );
+};
 
 export const MainRoutes = () => {
     return (

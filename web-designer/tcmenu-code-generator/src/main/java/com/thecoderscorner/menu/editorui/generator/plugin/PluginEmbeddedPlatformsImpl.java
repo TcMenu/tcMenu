@@ -18,11 +18,11 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS, PICO_SDK_CMAKE);
+    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS, PICO_SDK_CMAKE, ESP32_IDF_CMAKE, STM_CUBE_CMAKE);
     public static final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
-    public static final List<EmbeddedPlatform> allPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, MBED_RTOS, PICO_SDK_CMAKE);
-    public static final List<EmbeddedPlatform> trueCppPlatform = List.of(MBED_RTOS, PICO_SDK_CMAKE);
-    public static final List<EmbeddedPlatform> trueCppPlatformArduino32 = List.of(MBED_RTOS, PICO_SDK_CMAKE, ARDUINO_ESP32);
+    public static final List<EmbeddedPlatform> allPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, MBED_RTOS, PICO_SDK_CMAKE, ESP32_IDF_CMAKE, STM_CUBE_CMAKE);
+    public static final List<EmbeddedPlatform> trueCppPlatform = List.of(MBED_RTOS, PICO_SDK_CMAKE, ESP32_IDF_CMAKE, STM_CUBE_CMAKE);
+    public static final List<EmbeddedPlatform> trueCppPlatformArduino32 = List.of(MBED_RTOS, PICO_SDK_CMAKE, ARDUINO_ESP32, ESP32_IDF_CMAKE, STM_CUBE_CMAKE);
     public static final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
 
     public PluginEmbeddedPlatformsImpl() {
@@ -62,29 +62,25 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         // at least attempt to handle the newer definitions on the line below from the new C# UI.
         if(id.equals(ARDUINO_AVR.getBoardId()) || id.equals("ARDUINO_UNO") || id.equals("ARDUINO_AVR")) {
             return ARDUINO_AVR;
-        }
-        else if(id.equals(ARDUINO32.getBoardId()) || id.equals("ARDUINO_32")) {
+        } else if(id.equals(ARDUINO32.getBoardId()) || id.equals("ARDUINO_32")) {
             return ARDUINO32;
-        }
-        else if(id.equals(ARDUINO_ESP8266.getBoardId())) {
+        } else if(id.equals(ARDUINO_ESP8266.getBoardId())) {
             return ARDUINO_ESP8266;
-        }
-        else if(id.equals(ARDUINO_ESP32.getBoardId())) {
+        } else if(id.equals(ARDUINO_ESP32.getBoardId())) {
             return ARDUINO_ESP32;
-        }
-        else if(id.equals(STM32DUINO.getBoardId())) {
+        } else if(id.equals(STM32DUINO.getBoardId())) {
             return STM32DUINO;
-        }
-        else if(id.equals(MBED_RTOS.getBoardId())) {
+        } else if(id.equals(MBED_RTOS.getBoardId())) {
             return MBED_RTOS;
-        }
-        else if(id.equals(RASPBERRY_PIJ.getBoardId())) {
+        } else if(id.equals(RASPBERRY_PIJ.getBoardId())) {
             return RASPBERRY_PIJ;
-        }
-        else if(id.equals(PICO_SDK_CMAKE.getBoardId())) {
+        } else if(id.equals(PICO_SDK_CMAKE.getBoardId())) {
             return PICO_SDK_CMAKE;
-        }
-        else {
+        } else if(id.equals(ESP32_IDF_CMAKE.getBoardId())) {
+            return ESP32_IDF_CMAKE;
+        } else if(id.equals(STM_CUBE_CMAKE.getBoardId())) {
+            return STM_CUBE_CMAKE;
+        } else {
             throw new IllegalArgumentException("No such board type: " + id);
         }
     }
