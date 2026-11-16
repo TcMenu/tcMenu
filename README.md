@@ -7,7 +7,7 @@
 
 [Build your menu now with web designer](https://designer-next.thecoderscorner.com)
 
-tcMenu is a modular, cross‑platform UI framework for embedded devices. It provides a structured menu system, flexible input handling, portable rendering, and optional IoT/remote control integration. More than an Arduino menu library, tcMenu helps you build complete embedded applications with consistent UI behaviour across Arduino, mbed, STM32, ESP32, PicoSDK and more.
+tcMenu is a modular, cross‑platform UI framework for embedded devices. It provides a structured menu system, flexible input handling, portable rendering, and optional IoT/remote control integration. More than an Arduino menu library, tcMenu helps you build complete embedded applications with consistent UI behaviour across Arduino, mbed, STM32-Cube, ESP32-IDF, PicoSDK and more.
 
 https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
 
@@ -18,7 +18,7 @@ Get started building your menu right away without any installation using our hos
 
 The designer works much like a form designer in desktop development — you define the structure, behaviour, and appearance, and the tool handles the boilerplate. It’s also fully non‑destructive: your application code remains yours, and you can round‑trip safely throughout development.
 
-TcMenu is an open‑source project used by thousands of developers across Arduino, STM32, ESP32, PicoSDK and more. Hosting the designer, maintaining the infrastructure, and developing new features all take real time and cost. If you find TcMenu valuable, please consider helping keep the project cost‑neutral by sponsoring its development.
+TcMenu is an open‑source project used by thousands of developers across Arduino, STM32-Cube, ESP32-IDF, PicoSDK and more. Hosting the designer, maintaining the infrastructure, and developing new features all take real time and cost. If you find TcMenu valuable, please consider helping keep the project cost‑neutral by sponsoring its development.
 
 Sponsor me on [GitHub](https://github.com/TcMenu/tcMenu) (this repository). 
 
