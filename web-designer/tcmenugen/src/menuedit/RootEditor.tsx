@@ -79,7 +79,7 @@ export function RootEditor({project, onHashChange}: {project: MenuTreeWithCodeOp
 
             <div className="form-group">
                 <label>Embedded Platform</label>
-                <input type="text" value={embeddedPlatformFromId(project.options.embeddedPlatform).friendlyName} readOnly disabled />
+                <input type="text" value={embeddedPlatformFromId(project.options.embeddedPlatform)?.friendlyName} readOnly disabled />
             </div>
 
             <GeneratorOptionsEditor
