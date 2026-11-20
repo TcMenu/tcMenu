@@ -1,5 +1,7 @@
-# Lightweight Alpine Linux image with Eclipse Temurin OpenJDK 25 JRE
-FROM eclipse-temurin:25-jre-alpine
+# Alpine Linux image with Amazon Corretto OpenJDK 25
+FROM amazoncorretto:25-alpine-jdk
+
+RUN apk upgrade --no-cache zlib
 
 # Set working directory
 WORKDIR /opt/tcmenu

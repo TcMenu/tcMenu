@@ -1,8 +1,21 @@
-## First steps
+## Building and preparing the source
 
-Firstly, before using the docker file make sure you have build the `tcmenugen` node application and also run a full maven build **of a release version**. 
+Firstly, before using the docker file make sure you have build the `tcmenugen` node application and also run a full maven build **of a release version**. Once you have the version you'd like to build checked out, follow the guide below. You will need the latest LTS Java JDK, maven, and npm. 
+
+Assuming you are in the `tcMenu/web-designer` directory, change into the `tcmenugen` directory to build the web UI.
+
+    npm install
+    npm run build
+
+Next make sure that the right Java JDK is on the path, and that `$JAVA_HOME` is set to that JDK directory. Change back into the `tcMenu/web-designer` directory and run: 
+
+    mvn clean install
+
+If any tests fail on your machine (really they should not) then you can run with `-DskipTests`. At this point you have everything build that is needed to make a docker image.
 
 ## Building and preparing the image
+
+To build the docker image, you should be in the `tcMenu` repository root directory.
 
 If you have any previous version running, stop that first.
 
@@ -11,7 +24,7 @@ If you have any previous version running, stop that first.
 
 Now build the image
 
-    docker build -t "tcmenu-web-generator:latest" -f Dockerfile .
+    docker build --pull -t 'tcmenu-web-generator:latest' -f Dockerfile .
 
 You need a local file somewhere called `designer-versions.json` that contains the versions of the designer 
 you want to host. You can locate this file wherever you like and mount it into the container. The minimum content of the
