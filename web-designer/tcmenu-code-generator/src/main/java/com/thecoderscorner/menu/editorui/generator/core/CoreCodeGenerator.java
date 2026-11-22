@@ -29,6 +29,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -169,10 +170,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             feedbackLogger.info("You may need to close the project and then re-open it to pick up changes..");
         } catch (Exception e) {
             feedbackLogger.error("ERROR during conversion---------------------------------------------");
-            feedbackLogger.error("The conversion process has failed with an error that is listed below: ");
-            feedbackLogger.error(e.getMessage());
-            feedbackLogger.error("A more complete error can be found in the log file in <Home>/.tcMenu");
-            feedbackLogger.error("Exception caught while converting code: ", e);
+            feedbackLogger.error("Error info: ", e);
         }
 
         return true;
@@ -531,6 +529,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             errorFound = true;
         }
 
+        if(allItems.stream().anyMatch(mt -> mt instanceof ScrollChoiceMenuItem sc && sc.doesNeedVariable() && !StringUtils.hasLength(sc.getVariable()))) {
+            feedbackLogger.error("You have at least one scroll choice item that creates a data variable in code, but the variable name for it is unset.");
+            errorFound = true;
+        }
+
         if (!eepromAuthenticator && allItems.stream().anyMatch(mt -> mt instanceof CustomBuilderMenuItem ci && ci.getMenuType() == AUTHENTICATION)) {
             feedbackLogger.error("You have included an EEPROM authentication menu item without using EEPROM authentication.");
             errorFound = true;
@@ -543,7 +546,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         if (errorFound) {
             feedbackLogger.error("Please fix any errors before deploying.");
-            throw new TcMenuConversionException("Menu conversion errors found");
+            throw new TcMenuConversionException("Menu sanity checks have failed.");
         }
     }
 

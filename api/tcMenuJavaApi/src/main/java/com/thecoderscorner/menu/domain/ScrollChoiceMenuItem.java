@@ -54,6 +54,10 @@ public class ScrollChoiceMenuItem extends MenuItem {
         return variable;
     }
 
+    public boolean doesNeedVariable() {
+        return choiceMode == ScrollChoiceMode.ARRAY_IN_EEPROM || choiceMode == ScrollChoiceMode.ARRAY_IN_RAM;
+    }
+
     @Override
     public void accept(MenuItemVisitor visitor) {
         visitor.visit(this);

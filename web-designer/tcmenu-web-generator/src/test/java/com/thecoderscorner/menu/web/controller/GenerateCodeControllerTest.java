@@ -1,5 +1,8 @@
 package com.thecoderscorner.menu.web.controller;
 
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
@@ -419,5 +422,66 @@ public class GenerateCodeControllerTest {
 
         var menuCpp = response.getFileByName("my_device_menu.cpp");
         assertTrue(menuCpp.getContent().contains("#include \"my_device_menu.h\""));
+    }
+
+    @Test
+    public void testGenerateCodeWithScrollChoiceNullVariableFailsSanityCheck() {
+        // Given
+        String inputUuid = "input-uuid";
+        String displayUuid = "display-uuid";
+        String themeUuid = "theme-uuid";
+
+        CodeGeneratorOptions options = new CodeGeneratorOptions(
+                EmbeddedPlatform.ARDUINO_AVR, displayUuid, inputUuid, List.of("remote-uuid"), themeUuid,
+                List.of(), UUID.randomUUID(), "TestApp",
+                new ArduinoClassEepromDefinition(), new EepromAuthenticatorDefinition(256, 2),
+                null, null, ProjectSaveLocation.ALL_TO_CURRENT, false,
+                false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
+        );
+
+        MenuTree tree = new MenuTree();
+        var scrollChoiceItem = new ScrollChoiceMenuItemBuilder()
+                .withId(1)
+                .withName("ScrollNullVar")
+                .withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM)
+                .withNumEntries(4)
+                .withItemWidth(10)
+                .withVariable(null)
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, scrollChoiceItem);
+
+        MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(tree, options, "Test Project");
+        PersistedProject project = persistor.asPersistedProject(projectOptions);
+        GenerateCodeRequest request = new GenerateCodeRequest(project, null, List.of(), List.of());
+        doReturn(request).when(controller).processGenerateCodeRequest(anyString());
+
+        CodePluginItem inputPlugin = mock(CodePluginItem.class);
+        when(inputPlugin.getId()).thenReturn(inputUuid);
+        when(inputPlugin.getProperties()).thenReturn(List.of());
+
+        JavaPluginGroup group = new InbuiltDisplayInputPlugins(codePluginManager, new VersionInfo("1.0"));
+        CodePluginItem displayPlugin = new GxEPD2SimplePluginImpl(group, codePluginManager).getPlugin();
+        CodePluginItem themePlugin = new EinkBlockTheme(group, codePluginManager).getPlugin();
+
+        CodePluginItem remotePlugin = mock(CodePluginItem.class);
+        when(remotePlugin.getId()).thenReturn("remote-uuid");
+        when(remotePlugin.getProperties()).thenReturn(List.of());
+
+        when(codePluginManager.getPluginById(inputUuid)).thenReturn(Optional.of(inputPlugin));
+        when(codePluginManager.getPluginById(displayUuid)).thenReturn(Optional.of(displayPlugin));
+        when(codePluginManager.getPluginById(themeUuid)).thenReturn(Optional.of(themePlugin));
+        when(codePluginManager.getPluginById("remote-uuid")).thenReturn(Optional.of(remotePlugin));
+
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+        when(servletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        // When
+        GenerationResponse response = controller.generateCode("{}", servletRequest);
+
+        // Then
+        assertNotNull(response);
+        assertFalse(response.isSuccessful());
+        assertThat(response.getLogLines())
+                .anyMatch(log -> log.getLog().contains("You have at least one scroll choice item that creates a data variable in code, but the variable name for it is unset."));
     }
 }

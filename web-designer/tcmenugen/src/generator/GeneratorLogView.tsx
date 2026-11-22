@@ -12,7 +12,13 @@ export interface CodeGeneratedProperties {
 
 export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, onDismiss, menuProject})  => {
     const [logLines, setLogLines] = React.useState<LogEntry[]>(response.logLines);
-    const [genStatus, setGenStatus] = React.useState<string>(response.successful ? "SUCCESS" : "FAILED");
+    const [genStatus, setGenStatus] = React.useState<string>(() => {
+        if (!response.successful) {
+            return "FAILED";
+        }
+        const hasErrors = response.logLines?.some(entry => entry.level?.toUpperCase() === "ERROR");
+        return hasErrors ? "SUCCESS WITH ERRORS" : "SUCCESS";
+    });
     const getLevelClass = (level: string) => {
         switch (level.toUpperCase()) {
             case 'ERROR': return 'log-level-error';

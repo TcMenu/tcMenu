@@ -226,7 +226,7 @@ public interface MenuItemDataSets {
             "      \"eepromOffset\": 128,\n" +
             "      \"numEntries\": 4,\n" +
             "      \"choiceMode\": \"ARRAY_IN_EEPROM\",\n" +
-            "      \"variable\": \"\",\n" +
+            "      \"variable\": \"abc\",\n" +
             "      \"name\": \"EepromChoice\",\n" +
             "      \"variableName\": \"MySubSub1EepromChoice\",\n" +
             "      \"id\": 16,\n" +

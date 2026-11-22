@@ -8,6 +8,8 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
@@ -43,8 +45,7 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnor
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeReadOnly;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ArduinoGeneratorTest {
     public static final UUID SERVER_UUID = UUID.fromString("d7e57e8d-4528-4081-9b1b-cec5bc37a82e");
@@ -190,5 +191,37 @@ public class ArduinoGeneratorTest {
         // then make sure the change is good before adjusting the templates.
         assertEqualsIgnoringCRLF(cppTemplate, cppGenerated);
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
+    }
+
+    @Test
+    void testConversionFailsWhenScrollChoiceVariableUnset() {
+        MenuTree tree = buildSimpleTreeReadOnly();
+        var scrollItem = new ScrollChoiceMenuItemBuilder()
+                .withId(100)
+                .withName("ScrollChoice")
+                .withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM)
+                .withNumEntries(5)
+                .withItemWidth(10)
+                .withVariable(null)
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, scrollItem);
+
+        var standardOptions = new CodeGeneratorOptionsBuilder()
+                .withPlatform(ARDUINO_AVR)
+                .withEepromDefinition(new AVREepromDefinition())
+                .withAuthenticationDefinition(new EepromAuthenticatorDefinition(100, 3))
+                .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
+                .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
+                .codeOptions();
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, storage);
+        var feedbackLogger = mock(UserFeedbackLogger.class);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, standardOptions.getEmbeddedPlatform(), storage, Clock.systemUTC(), feedbackLogger);
+
+        var allProperties = pluginConfig.getPlugins().stream().flatMap(p -> p.getProperties().stream()).toList();
+
+        generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions, LocaleMappingHandler.NOOP_IMPLEMENTATION, allProperties);
+
+        verify(feedbackLogger).error("You have at least one scroll choice item that creates a data variable in code, but the variable name for it is unset.");
+        verify(feedbackLogger).error("Please fix any errors before deploying.");
     }
 }

@@ -236,7 +236,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     }
 
     public static boolean isDefinitionOnlyVariable(String variableName) {
-        return variableName.startsWith("@");
+        return variableName != null && variableName.startsWith("@");
     }
 
     private void chompBlankLines(ArrayList<String> lines) {
