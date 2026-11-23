@@ -1,4 +1,5 @@
 import React from 'react';
+import {describe, expect, it, vi} from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { GeneratorLogView } from './GeneratorLogView';
 import { GenerationResponse } from './TcCodeGeneration';
@@ -7,7 +8,7 @@ import { MenuTree } from '../domain/MenuTree';
 
 describe('GeneratorLogView', () => {
     const mockMenuProject: MenuTreeWithCodeOptions = {
-        menuTree: new MenuTree(jest.fn()),
+        menuTree: new MenuTree(vi.fn()),
         description: 'Test Project',
         options: {
             embeddedPlatform: 'ARDUINO_AVR',
@@ -39,7 +40,7 @@ describe('GeneratorLogView', () => {
             ]
         };
 
-        render(<GeneratorLogView response={response} onDismiss={jest.fn()} menuProject={mockMenuProject} />);
+        render(<GeneratorLogView response={response} onDismiss={vi.fn()} menuProject={mockMenuProject} />);
 
         expect(screen.getByText('SUCCESS')).toBeInTheDocument();
         expect(screen.queryByText('SUCCESS WITH ERRORS')).not.toBeInTheDocument();
@@ -57,7 +58,7 @@ describe('GeneratorLogView', () => {
             ]
         };
 
-        render(<GeneratorLogView response={response} onDismiss={jest.fn()} menuProject={mockMenuProject} />);
+        render(<GeneratorLogView response={response} onDismiss={vi.fn()} menuProject={mockMenuProject} />);
 
         expect(screen.getByText('SUCCESS WITH ERRORS')).toBeInTheDocument();
         expect(screen.queryByText('SUCCESS')).not.toBeInTheDocument();
@@ -74,7 +75,7 @@ describe('GeneratorLogView', () => {
             ]
         };
 
-        render(<GeneratorLogView response={response} onDismiss={jest.fn()} menuProject={mockMenuProject} />);
+        render(<GeneratorLogView response={response} onDismiss={vi.fn()} menuProject={mockMenuProject} />);
 
         expect(screen.getByText('SUCCESS WITH ERRORS')).toBeInTheDocument();
     });
@@ -89,7 +90,7 @@ describe('GeneratorLogView', () => {
             ]
         };
 
-        render(<GeneratorLogView response={response} onDismiss={jest.fn()} menuProject={mockMenuProject} />);
+        render(<GeneratorLogView response={response} onDismiss={vi.fn()} menuProject={mockMenuProject} />);
 
         expect(screen.getByText('FAILED')).toBeInTheDocument();
         expect(screen.queryByText('SUCCESS WITH ERRORS')).not.toBeInTheDocument();

@@ -1,13 +1,14 @@
 // GeneratorOptionsEditor.test.tsx
 import React from 'react';
+import {describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen} from '@testing-library/react';
 import {GeneratorOptionsEditor, GeneratorOptionsProps} from './GeneratorOptionsEditor';
 import {EepromSaveMode, ProjectSaveLocation} from '../domain/ProjectStruct';
 
 describe('GeneratorOptionsEditor Component', () => {
-    const mockOnSaveLocationChange = jest.fn();
-    const mockOnEepromSaveModeChange = jest.fn();
-    const mockMenuBuilderChange = jest.fn();
+    const mockOnSaveLocationChange = vi.fn();
+    const mockOnEepromSaveModeChange = vi.fn();
+    const mockMenuBuilderChange = vi.fn();
 
     const defaultProps: GeneratorOptionsProps = {
         menuBuilderOn: false,

@@ -9,7 +9,7 @@ import {
 import {CreatorProperty, SubSystem} from "../domain/ProjectStruct";
 import './UIPluginItem.css';
 import nodisplay from "../img/no-display.png";
-import {IntegerEditor} from "../menuedit/IntegerEditor";
+import {IntegerEditor, PinEditor, VariableEditor} from "../menuedit/IntegerEditor";
 import {FontDescriptionEditor} from "./FontDescriptionEditor";
 import {useCurrentlyOpenProject} from "../App";
 import {expanderFromString} from "./IoExpanderComponent";
@@ -129,20 +129,11 @@ const UIPluginItem: React.FC<UIPluginItemProps> = ({ subsystem, boardId, plugin,
                 );
             case PropertyValidationMode.PIN:
             case PropertyValidationMode.OPTIONAL_PIN:
-                const isPinVariable = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(prop.latestValue);
-                const isPinNumber = /^-?\d+$/.test(prop.latestValue);
-                let isPinValid = prop.latestValue !== "" && isPinVariable;
-                if (!isPinValid && isPinNumber) {
-                    const num = parseInt(prop.latestValue);
-                    isPinValid = num >= -1 && num <= 32767;
-                }
                 return (
-                    <input
-                        type="text"
-                        className={isPinValid ? "" : "invalid-input"}
+                    <PinEditor
                         id={prop.name}
-                        value={prop.latestValue}
-                        onChange={(e) => onChange(prop.name, e.target.value)}
+                        initialValue={prop.latestValue}
+                        onChange={(value) => onChange(prop.name, value)}
                     />
                 );
             case PropertyValidationMode.CHOICES:
@@ -176,14 +167,11 @@ const UIPluginItem: React.FC<UIPluginItemProps> = ({ subsystem, boardId, plugin,
                     </div>
                 );
             case PropertyValidationMode.VARIABLE:
-                const isVarValid = prop.latestValue === "" || /^[a-zA-Z_][a-zA-Z0-9_]|0x[0-9A-Fa-f]+$/.test(prop.latestValue);
                 return (
-                    <input
-                        type="text"
-                        className={isVarValid ? "" : "invalid-input"}
+                    <VariableEditor
                         id={prop.name}
-                        value={prop.latestValue}
-                        onChange={(e) => onChange(prop.name, e.target.value)}
+                        initialValue={prop.latestValue}
+                        onChange={(value) => onChange(prop.name, value)}
                     />
                 );
             case PropertyValidationMode.MENUITEM:

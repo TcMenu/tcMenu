@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {ActionMenuItem, CustomBuilderMenuItem, CustomMenuType, SubMenuItem} from "./MenuItem";
 import {MenuTree} from "./MenuTree";
 import {JsonMenuItemSerializer} from "./JsonMenuItemSerializer";

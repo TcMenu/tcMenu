@@ -1,5 +1,6 @@
 // Platforms.test.ts
 
+import {describe, expect, it} from 'vitest';
 import {EmbeddedPlatform} from './Platforms';
 
 describe('EmbeddedPlatform', () => {

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useCurrentlyOpenProject} from "../App";
-import {IntegerEditor} from "../menuedit/IntegerEditor";
+import {IntegerEditor, PinEditor, VariableEditor} from "../menuedit/IntegerEditor";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit, faTrash} from "@fortawesome/free-solid-svg-icons";
 
@@ -9,6 +9,7 @@ export abstract class IoExpander {
     abstract getId(): string;
     abstract toString(): string;
     abstract clone(): IoExpander;
+    abstract printableType(): string;
 }
 
 export class InternalDeviceExpander extends IoExpander {
@@ -18,12 +19,14 @@ export class InternalDeviceExpander extends IoExpander {
     getId(): string { return "devicePins"; }
     toString(): string { return "deviceIO:"; }
     clone(): IoExpander { return new InternalDeviceExpander(); }
+    printableType(): string { return "device pins"; }
 }
 
 export class CustomDeviceExpander extends IoExpander {
     getId(): string { return this.name; }
     toString(): string { return "customIO:" + this.name; }
     clone(): IoExpander { return new CustomDeviceExpander(this.name); }
+    printableType(): string { return "custom"; }
 }
 
 export class Pcf8574DeviceExpander extends IoExpander {
@@ -33,6 +36,7 @@ export class Pcf8574DeviceExpander extends IoExpander {
     getId(): string { return this.name; }
     toString(): string { return `pcf8574:${this.name}:${this.i2cAddress}:${this.intPin}:${this.inverted}`; }
     clone(): IoExpander { return new Pcf8574DeviceExpander(this.name, this.i2cAddress, this.intPin, this.inverted); }
+    printableType(): string { return "PCF8574 I2C"; }
 }
 
 export class Pcf8575DeviceExpander extends IoExpander {
@@ -42,6 +46,8 @@ export class Pcf8575DeviceExpander extends IoExpander {
     getId(): string { return this.name; }
     toString(): string { return `pcf8575:${this.name}:${this.i2cAddress}:${this.intPin}:${this.inverted}`; }
     clone(): IoExpander { return new Pcf8575DeviceExpander(this.name, this.i2cAddress, this.intPin, this.inverted); }
+    printableType(): string { return "PCF8575 I2C"; }
+
 }
 
 export class Mcp23017DeviceExpander extends IoExpander {
@@ -51,6 +57,7 @@ export class Mcp23017DeviceExpander extends IoExpander {
     getId(): string { return this.name; }
     toString(): string { return `mcp23017:${this.name}:${this.i2cAddress}:${this.intPin}`; }
     clone(): IoExpander { return new Mcp23017DeviceExpander(this.name, this.i2cAddress, this.intPin); }
+    printableType(): string { return "MCP23017 I2C"; }
 }
 
 export class Aw9523DeviceExpander extends IoExpander {
@@ -60,6 +67,7 @@ export class Aw9523DeviceExpander extends IoExpander {
     getId(): string { return this.name; }
     toString(): string { return `aw9523:${this.name}:${this.i2cAddress}:${this.intPin}`; }
     clone(): IoExpander { return new Aw9523DeviceExpander(this.name, this.i2cAddress, this.intPin); }
+    printableType(): string { return "AW9523 I2C"; }
 }
 
 export function expanderFromString(currentSel: string): IoExpander {
@@ -175,7 +183,7 @@ function IoExpanderDialog({expander: initialExpander, allExpanders, isNew, onCan
                 {error && <div className="alert alert-danger">{error}</div>}
                 <div className="form-group">
                     <label htmlFor="expName">Expander Name</label>
-                    <input id="expName" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                    <VariableEditor id="expName" initialValue={name} onChange={(e) => setName(e)} />
                 </div>
                 <div className="form-group">
                     <label htmlFor="expType">Expander Type</label>
@@ -193,11 +201,11 @@ function IoExpanderDialog({expander: initialExpander, allExpanders, isNew, onCan
                     <>
                         <div className="form-group">
                             <label htmlFor="i2cAddr">I2C Address</label>
-                            <IntegerEditor id="i2cAddr" initialValue={expander.i2cAddress} onChange={(n) => { expander.i2cAddress = n; setHash(h => h + 1); }} />
+                            <IntegerEditor id="i2cAddr" min={-1} max={255} initialValue={expander.i2cAddress} onChange={(n) => { expander.i2cAddress = n; setHash(h => h + 1); }} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="intPin">Interrupt Pin</label>
-                            <input id="intPin" type="text" value={expander.intPin} onChange={(e) => { expander.intPin = e.target.value; setHash(h => h + 1); }} />
+                            <PinEditor id="intPin" initialValue={expander.intPin} onChange={(s) => { expander.intPin = s; setHash(h => h + 1); }} />
                         </div>
                     </>
                 )}
@@ -294,7 +302,7 @@ export function IoExpanderComponent() {
                 {expanders.map((exp, idx) => (
                     <tr key={idx}>
                         <td>{exp.name}</td>
-                        <td>{exp.constructor.name.replace("DeviceExpander", "")}</td>
+                        <td>{exp.printableType()}</td>
                         <td>{exp.toString()}</td>
                         <td>
                             {!(exp instanceof InternalDeviceExpander) && (

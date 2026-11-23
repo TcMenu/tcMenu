@@ -1,13 +1,15 @@
 // MenuTree.test.ts
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import type {Mock} from 'vitest';
 import {MenuTree} from './MenuTree';
 import {MenuItem, SubMenuItem} from './MenuItem';
 
 describe('MenuTree - addMenuItem', () => {
-    let treeStructureChangedMock: jest.Mock;
+    let treeStructureChangedMock: Mock;
     let menuTree: MenuTree;
 
     beforeEach(() => {
-        treeStructureChangedMock = jest.fn();
+        treeStructureChangedMock = vi.fn();
         menuTree = new MenuTree(treeStructureChangedMock);
     });
 
@@ -33,7 +35,7 @@ describe('MenuTree - addMenuItem', () => {
         const duplicateItem = new MenuItem<number>(20);
         duplicateItem.setMenuId("3");
 
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         const result = menuTree.addMenuItem("0", duplicateItem);
         expect(result).toBe(false);
         expect(treeStructureChangedMock).not.toHaveBeenCalled();

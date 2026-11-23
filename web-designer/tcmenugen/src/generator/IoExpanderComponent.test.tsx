@@ -1,19 +1,20 @@
 import React from 'react';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { IoExpanderComponent, expanderFromString, CustomDeviceExpander, Pcf8574DeviceExpander } from './IoExpanderComponent';
 import { useCurrentlyOpenProject } from '../App';
 
 // Mock FontAwesomeIcon
-jest.mock('@fortawesome/react-fontawesome', () => ({
+vi.mock('@fortawesome/react-fontawesome', () => ({
     FontAwesomeIcon: () => <span className="mock-icon" />
 }));
 
-jest.mock('../App', () => ({
-    useCurrentlyOpenProject: jest.fn(),
+vi.mock('../App', () => ({
+    useCurrentlyOpenProject: vi.fn(),
 }));
 
 // Mock window.confirm
-window.confirm = jest.fn(() => true);
+window.confirm = vi.fn(() => true);
 
 describe('IoExpanderComponent', () => {
     let mockProject: any;
@@ -26,13 +27,13 @@ describe('IoExpanderComponent', () => {
                     'mcp23017:AnotherExp:33:4'
                 ]
             },
-            setDirty: jest.fn()
+            setDirty: vi.fn()
         };
-        (useCurrentlyOpenProject as jest.Mock).mockReturnValue(mockProject);
+        vi.mocked(useCurrentlyOpenProject).mockReturnValue(mockProject);
     });
 
     it('renders no project open message when project is null', () => {
-        (useCurrentlyOpenProject as jest.Mock).mockReturnValue(null);
+        vi.mocked(useCurrentlyOpenProject).mockReturnValue(null);
         render(<IoExpanderComponent />);
         expect(screen.getByText(/No project open/i)).toBeInTheDocument();
     });
@@ -41,16 +42,16 @@ describe('IoExpanderComponent', () => {
         render(<IoExpanderComponent />);
 
         expect(screen.getByText('MyExpander')).toBeInTheDocument();
-        expect(screen.getByText('Pcf8574')).toBeInTheDocument();
+        expect(screen.getByText('PCF8574 I2C')).toBeInTheDocument();
         expect(screen.getByText('pcf8574:MyExpander:32:2:true')).toBeInTheDocument();
 
         expect(screen.getByText('AnotherExp')).toBeInTheDocument();
-        expect(screen.getByText('Mcp23017')).toBeInTheDocument();
+        expect(screen.getByText('MCP23017 I2C')).toBeInTheDocument();
         expect(screen.getByText('mcp23017:AnotherExp:33:4')).toBeInTheDocument();
 
         // Internal expander is always present
         expect(screen.getByText('devicePins')).toBeInTheDocument();
-        expect(screen.getByText('Internal')).toBeInTheDocument();
+        expect(screen.getByText('device pins')).toBeInTheDocument();
     });
 
     it('allows adding a new expander', () => {

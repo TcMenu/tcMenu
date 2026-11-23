@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen} from '@testing-library/react';
 import {RootEditor} from './RootEditor';
 import {MenuTree} from '../domain/MenuTree';
@@ -49,7 +50,7 @@ function RootEditorTestWrapper({project, onHashChange}: {project: MenuTreeWithCo
 describe('RootEditor Component', () => {
     it('renders project settings and displays existing projectFileName', () => {
         const dummyProject = createDummyProject('My_Custom_File');
-        const hashChangeMock = jest.fn();
+        const hashChangeMock = vi.fn();
 
         render(<RootEditorTestWrapper project={dummyProject} onHashChange={hashChangeMock} />);
 
@@ -62,7 +63,7 @@ describe('RootEditor Component', () => {
 
     it('updates projectFileName and triggers onHashChange', () => {
         const dummyProject = createDummyProject();
-        const hashChangeMock = jest.fn();
+        const hashChangeMock = vi.fn();
 
         render(<RootEditorTestWrapper project={dummyProject} onHashChange={hashChangeMock} />);
 
@@ -75,7 +76,7 @@ describe('RootEditor Component', () => {
 
     it('displays error warning when invalid characters are entered into projectFileName', () => {
         const dummyProject = createDummyProject();
-        const hashChangeMock = jest.fn();
+        const hashChangeMock = vi.fn();
 
         render(<RootEditorTestWrapper project={dummyProject} onHashChange={hashChangeMock} />);
 

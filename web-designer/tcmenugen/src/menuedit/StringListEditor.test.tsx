@@ -1,12 +1,13 @@
 // StringListEditor.test.tsx
 import React from "react";
+import {describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen} from "@testing-library/react";
 import {StringListEditor, StringListEditorProps} from "./StringListEditor";
 
 describe("StringListEditor", () => {
     const defaultProps: StringListEditorProps = {
         list: ["First", "Second"],
-        onListChange: jest.fn(),
+        onListChange: vi.fn(),
         label: "Test Label",
     };
 

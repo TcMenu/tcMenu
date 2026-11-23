@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {isValidProjectFileName, parseEmfJsonToProject, projectToPersistedJson} from './PersistedMenu';
 import {
     AnalogMenuItem,

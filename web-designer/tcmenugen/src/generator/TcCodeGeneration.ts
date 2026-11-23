@@ -130,7 +130,7 @@ export function getDefaultPlugin(subsystem: SubSystem): PublishableCodePluginIte
 export async function getActiveProfile(): Promise<string> {
     try {
         let resp = await fetch("/api/v1/environment/profile");
-        if(resp.ok) {
+        if(resp.ok && !resp.headers.get('content-type')?.toLowerCase().includes('text/html')) {
             return await resp.text();
         }
     } catch (e) {
