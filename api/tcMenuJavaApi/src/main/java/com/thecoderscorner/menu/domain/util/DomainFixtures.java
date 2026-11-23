@@ -145,6 +145,7 @@ public class DomainFixtures {
             "      \"choiceMode\": \"ARRAY_IN_EEPROM\",\n" +
             "      \"name\": \"Channel\",\n" +
             "      \"variableName\": \"Channels\",\n" +
+            "      \"variable\": \"dataset\",\n" +
             "      \"id\": 2,\n" +
             "      \"eepromAddress\": 4,\n" +
             "      \"functionName\": \"onChannelChanged\",\n" +
